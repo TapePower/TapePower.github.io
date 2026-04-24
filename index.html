@@ -3,213 +3,301 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Космический Защитник</title>
+    <title>3D Охота на Пришельцев</title>
     <style>
-        /* Стили для оформления страницы */
         body {
             margin: 0;
-            padding: 0;
-            background-color: #2c3e50;
-            color: #ecf0f1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        h1 {
-            margin-top: 20px;
-            margin-bottom: 5px;
-        }
-        .instructions {
-            margin-bottom: 20px;
-            font-size: 16px;
-            color: #bdc3c7;
-        }
-        /* Стили для игрового поля */
-        canvas {
+            overflow: hidden; /* Убираем прокрутку */
             background-color: #000;
-            border: 4px solid #34495e;
-            border-radius: 8px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
-        }
-        .btn-restart {
-            margin-top: 20px;
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            background-color: #27ae60;
+            font-family: Arial, sans-serif;
             color: white;
-            border: none;
-            border-radius: 5px;
-            display: none; /* Скрыта до проигрыша */
         }
-        .btn-restart:hover {
-            background-color: #2ecc71;
+        /* Прицел в центре экрана */
+        #crosshair {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            margin-top: -10px;
+            margin-left: -10px;
+            text-align: center;
+            line-height: 20px;
+            font-size: 24px;
+            color: #00ff00;
+            pointer-events: none; /* Чтобы не мешал кликать */
+            z-index: 10;
+        }
+        /* Интерфейс счета */
+        #ui {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            z-index: 10;
+        }
+        /* Экран паузы/старта */
+        #blocker {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            z-index: 20;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            cursor: pointer;
+        }
+        #instructions {
+            font-size: 20px;
         }
     </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/PointerLockControls.js"></script>
 </head>
 <body>
 
-    <h1>Космический Защитник</h1>
-    <div class="instructions">Управление: <b>Стрелки ВЛЕВО/ВПРАВО</b> — движение. <b>ПРОБЕЛ</b> — выстрел.</div>
-    
-    <canvas id="gameCanvas" width="400" height="500"></canvas>
-    
-    <button id="restartBtn" class="btn-restart" onclick="resetGame()">Играть снова</button>
+    <div id="crosshair">+</div>
+    <div id="ui">Счет: <span id="scoreVal">0</span></div>
+
+    <div id="blocker">
+        <div id="instructions">
+            <span style="font-size:40px; font-weight:bold; color: #3498db;">ЗАЩИТНИК ЗЕМЛИ (3D)</span><br><br>
+            Кликни мышкой, чтобы начать играть<br><br>
+            <b>Управление:</b><br>
+            WASD - Ходить<br>
+            Мышь - Смотреть вокруг<br>
+            ЛКМ (Клик) - Стрелять
+        </div>
+    </div>
 
     <script>
-        // Получаем доступ к холсту (игровому полю)
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        const restartBtn = document.getElementById('restartBtn');
-
-        // Игровые переменные
+        // Основные переменные Three.js
+        let camera, scene, renderer, controls;
+        let aliens = [];
+        let lasers = [];
         let score = 0;
-        let gameOver = false;
-
-        // Объекты игры
-        let player = { x: 175, y: 440, width: 50, height: 40, speed: 6, dx: 0 };
-        let bullets = [];
-        let enemies = [];
-
+        
         // Управление клавиатурой
-        document.addEventListener('keydown', (e) => {
-            if (e.code === 'ArrowLeft') player.dx = -player.speed;
-            if (e.code === 'ArrowRight') player.dx = player.speed;
-            if (e.code === 'Space' && !gameOver) {
-                // Создаем пулю по центру игрока
-                bullets.push({ 
-                    x: player.x + player.width / 2 - 2.5, 
-                    y: player.y, 
-                    width: 5, 
-                    height: 15, 
-                    speed: 8 
-                });
-            }
-        });
+        let moveForward = false;
+        let moveBackward = false;
+        let moveLeft = false;
+        let moveRight = false;
+        
+        let prevTime = performance.now();
+        let gameActive = false;
 
-        document.addEventListener('keyup', (e) => {
-            if (e.code === 'ArrowLeft' || e.code === 'ArrowRight') player.dx = 0;
-        });
+        init();
+        animate();
 
-        // Функция появления врагов
-        function spawnEnemy() {
-            if (Math.random() < 0.04) { // Вероятность появления врага в каждом кадре
-                let size = 30 + Math.random() * 20; // Случайный размер
-                enemies.push({ 
-                    x: Math.random() * (canvas.width - size), 
-                    y: -size, 
-                    width: size, 
-                    height: size, 
-                    speed: 2 + Math.random() * 2 // Случайная скорость
-                });
-            }
-        }
+        function init() {
+            // 1. Создаем сцену
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x0a0a2a); // Темно-синий космос
+            scene.fog = new THREE.Fog(0x0a0a2a, 0, 50); // Туман вдали
 
-        // Перезапуск игры
-        function resetGame() {
-            score = 0;
-            gameOver = false;
-            player.x = 175;
-            bullets = [];
-            enemies = [];
-            restartBtn.style.display = 'none';
-            loop(); // Снова запускаем игровой цикл
-        }
+            // 2. Создаем камеру (глаза игрока)
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.y = 2; // Высота человека
 
-        // Обновление логики (движение, столкновения)
-        function update() {
-            if (gameOver) return;
+            // 3. Освещение
+            const light = new THREE.HemisphereLight(0xeeeeff, 0x777788, 0.75);
+            light.position.set(0.5, 1, 0.75);
+            scene.add(light);
 
-            // Движение игрока
-            player.x += player.dx;
-            // Не даем игроку вылететь за границы
-            if (player.x < 0) player.x = 0;
-            if (player.x + player.width > canvas.width) player.x = canvas.width - player.width;
+            const dirLight = new THREE.DirectionalLight(0xffffff, 0.5);
+            dirLight.position.set(20, 20, 20);
+            scene.add(dirLight);
 
-            // Движение пуль
-            bullets.forEach((b, index) => {
-                b.y -= b.speed;
-                if (b.y < 0) bullets.splice(index, 1); // Удаляем пули, улетевшие за экран
+            // 4. Земля (Марсианская поверхность)
+            const floorGeometry = new THREE.PlaneGeometry(200, 200, 10, 10);
+            const floorMaterial = new THREE.MeshLambertMaterial({ color: 0x553333 });
+            const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+            floor.rotation.x = -Math.PI / 2;
+            scene.add(floor);
+
+            // 5. Управление (PointerLock - захват мыши)
+            controls = new THREE.PointerLockControls(camera, document.body);
+            
+            const blocker = document.getElementById('blocker');
+            const instructions = document.getElementById('instructions');
+
+            blocker.addEventListener('click', function () {
+                controls.lock();
             });
 
-            // Появление и движение врагов
-            spawnEnemy();
-            enemies.forEach((e, eIndex) => {
-                e.y += e.speed;
+            controls.addEventListener('lock', function () {
+                instructions.style.display = 'none';
+                blocker.style.display = 'none';
+                gameActive = true;
+            });
 
-                // Столкновение врага с игроком (Конец игры)
-                if (e.x < player.x + player.width && e.x + e.width > player.x &&
-                    e.y < player.y + player.height && e.y + e.height > player.y) {
-                    gameOver = true;
+            controls.addEventListener('unlock', function () {
+                blocker.style.display = 'flex';
+                instructions.style.display = '';
+                gameActive = false;
+            });
+
+            scene.add(controls.getObject());
+
+            // 6. Слушатели клавиатуры
+            const onKeyDown = function (event) {
+                switch (event.code) {
+                    case 'KeyW': moveForward = true; break;
+                    case 'KeyA': moveLeft = true; break;
+                    case 'KeyS': moveBackward = true; break;
+                    case 'KeyD': moveRight = true; break;
                 }
+            };
+            const onKeyUp = function (event) {
+                switch (event.code) {
+                    case 'KeyW': moveForward = false; break;
+                    case 'KeyA': moveLeft = false; break;
+                    case 'KeyS': moveBackward = false; break;
+                    case 'KeyD': moveRight = false; break;
+                }
+            };
 
-                // Столкновение пули с врагом
-                bullets.forEach((b, bIndex) => {
-                    if (b.x < e.x + e.width && b.x + b.width > e.x &&
-                        b.y < e.y + e.height && b.y + b.height > e.y) {
-                        
-                        // Удаляем врага и пулю, прибавляем очки
-                        enemies.splice(eIndex, 1);
-                        bullets.splice(bIndex, 1);
-                        score += 10;
+            document.addEventListener('keydown', onKeyDown);
+            document.addEventListener('keyup', onKeyUp);
+
+            // 7. Стрельба
+            document.addEventListener('mousedown', shoot);
+
+            // 8. Настройка рендерера
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+
+            // Адаптация под размер окна
+            window.addEventListener('resize', onWindowResize);
+
+            // Запускаем спавн пришельцев
+            setInterval(spawnAlien, 2000);
+        }
+
+        function spawnAlien() {
+            if (!gameActive) return;
+
+            // Пришелец - зеленая сфера
+            const geometry = new THREE.SphereGeometry(1.5, 16, 16);
+            const material = new THREE.MeshLambertMaterial({ color: 0x2ecc71 });
+            const alien = new THREE.Mesh(geometry, material);
+
+            // Появляются случайно вокруг игрока
+            const angle = Math.random() * Math.PI * 2;
+            const radius = 30 + Math.random() * 20;
+            
+            alien.position.x = controls.getObject().position.x + Math.cos(angle) * radius;
+            alien.position.z = controls.getObject().position.z + Math.sin(angle) * radius;
+            alien.position.y = 2 + Math.random() * 3; // Парят над землей
+
+            scene.add(alien);
+            aliens.push(alien);
+        }
+
+        function shoot() {
+            if (!gameActive) return;
+
+            // Используем Raycaster для выстрела прямо по центру экрана
+            const raycaster = new THREE.Raycaster();
+            raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
+
+            // Проверяем попадание
+            const intersects = raycaster.intersectObjects(aliens);
+
+            if (intersects.length > 0) {
+                const hitAlien = intersects[0].object;
+                
+                // Удаляем пришельца
+                scene.remove(hitAlien);
+                aliens = aliens.filter(a => a !== hitAlien);
+                
+                // Добавляем очки
+                score += 10;
+                document.getElementById('scoreVal').innerText = score;
+            }
+
+            // Визуальный эффект лазера (краткосрочная линия)
+            const material = new THREE.LineBasicMaterial({ color: 0xff0000, linewidth: 2 });
+            const points = [];
+            points.push(controls.getObject().position.clone()); // Откуда
+            points.push(raycaster.ray.at(50, new THREE.Vector3())); // Куда
+            const geometry = new THREE.BufferGeometry().setFromPoints(points);
+            const laser = new THREE.Line(geometry, material);
+            scene.add(laser);
+
+            // Удаляем лазер через 0.1 секунды
+            setTimeout(() => {
+                scene.remove(laser);
+            }, 100);
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function gameOver() {
+            gameActive = false;
+            controls.unlock(); // Отпускаем мышку
+            document.getElementById('instructions').innerHTML = 
+                '<span style="font-size:40px; color:#e74c3c; font-weight:bold;">ВАС СЪЕЛИ!</span><br><br>' +
+                'Итоговый счет: ' + score + '<br><br>' +
+                'Кликни, чтобы начать заново';
+            
+            // Очищаем уровень
+            aliens.forEach(a => scene.remove(a));
+            aliens = [];
+            score = 0;
+            document.getElementById('scoreVal').innerText = score;
+            
+            // Возвращаем игрока в центр
+            controls.getObject().position.set(0, 2, 0);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            const time = performance.now();
+            const delta = (time - prevTime) / 1000;
+
+            if (gameActive) {
+                // Движение игрока
+                const speed = 15 * delta;
+                if (moveForward) controls.moveForward(speed);
+                if (moveBackward) controls.moveForward(-speed);
+                if (moveLeft) controls.moveRight(-speed);
+                if (moveRight) controls.moveRight(speed);
+
+                // Ограничиваем карту (чтобы не уйти бесконечно далеко)
+                const pos = controls.getObject().position;
+                if (pos.x > 95) pos.x = 95;
+                if (pos.x < -95) pos.x = -95;
+                if (pos.z > 95) pos.z = 95;
+                if (pos.z < -95) pos.z = -95;
+
+                // Движение пришельцев
+                const playerPos = controls.getObject().position;
+                aliens.forEach(alien => {
+                    // Пришелец поворачивается к игроку
+                    alien.lookAt(playerPos);
+                    // И летит к нему (скорость)
+                    alien.translateZ(4 * delta); 
+
+                    // Проверка столкновения с игроком (Game Over)
+                    if (alien.position.distanceTo(playerPos) < 2) {
+                        gameOver();
                     }
                 });
-
-                // Удаляем врагов, пролетевших мимо экрана
-                if (e.y > canvas.height) {
-                    enemies.splice(eIndex, 1);
-                }
-            });
-        }
-
-        // Отрисовка графики
-        function draw() {
-            // Очищаем экран каждый кадр
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            if (gameOver) {
-                ctx.fillStyle = '#e74c3c';
-                ctx.font = 'bold 40px Arial';
-                ctx.fillText('ИГРА ОКОНЧЕНА', 25, canvas.height / 2 - 20);
-                
-                ctx.fillStyle = 'white';
-                ctx.font = '24px Arial';
-                ctx.fillText('Ваш счет: ' + score, 130, canvas.height / 2 + 20);
-                
-                restartBtn.style.display = 'block'; // Показываем кнопку рестарта
-                return;
             }
 
-            // Рисуем игрока (синий прямоугольник)
-            ctx.fillStyle = '#3498db';
-            ctx.fillRect(player.x, player.y, player.width, player.height);
-
-            // Рисуем пули (желтые)
-            ctx.fillStyle = '#f1c40f';
-            bullets.forEach(b => ctx.fillRect(b.x, b.y, b.width, b.height));
-
-            // Рисуем врагов (красные)
-            ctx.fillStyle = '#e74c3c';
-            enemies.forEach(e => ctx.fillRect(e.x, e.y, e.width, e.height));
-
-            // Рисуем счет
-            ctx.fillStyle = '#ecf0f1';
-            ctx.font = '20px Arial';
-            ctx.fillText('Счет: ' + score, 15, 30);
+            prevTime = time;
+            renderer.render(scene, camera);
         }
-
-        // Главный игровой цикл
-        function loop() {
-            update();
-            draw();
-            if (!gameOver) {
-                requestAnimationFrame(loop); // Запрашиваем следующий кадр анимации
-            }
-        }
-
-        // Запуск игры
-        loop();
     </script>
 </body>
 </html>
