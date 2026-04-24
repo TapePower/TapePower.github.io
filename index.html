@@ -2,129 +2,73 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Калькулятор</title>
+    <title>To-Do List</title>
     <style>
         body {
-            margin: 0;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
             font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: #f4f4f4;
+            text-align: center;
+            padding: 50px;
         }
-
-        .calculator {
-            background: #1e1e2f;
-            padding: 20px;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            width: 300px;
+        h1 {
+            color: #333;
         }
-
-        .display {
-            width: 100%;
-            height: 60px;
-            background: #2d2d44;
-            border: none;
-            border-radius: 10px;
-            margin-bottom: 15px;
-            font-size: 24px;
-            color: #fff;
-            text-align: right;
+        input {
             padding: 10px;
-            box-sizing: border-box;
+            width: 250px;
         }
-
-        .buttons {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-        }
-
         button {
-            height: 50px;
-            border: none;
-            border-radius: 10px;
-            font-size: 18px;
+            padding: 10px;
+            margin-left: 5px;
             cursor: pointer;
-            transition: 0.2s;
         }
-
-        button:hover {
-            transform: scale(1.05);
+        ul {
+            list-style: none;
+            padding: 0;
         }
-
-        .num {
-            background: #3a3a5a;
-            color: white;
+        li {
+            background: white;
+            margin: 10px auto;
+            padding: 10px;
+            width: 300px;
+            display: flex;
+            justify-content: space-between;
+            border-radius: 5px;
         }
-
-        .op {
-            background: #ff9f43;
-            color: white;
-        }
-
-        .equal {
-            background: #00c853;
-            color: white;
-            grid-column: span 2;
-        }
-
-        .clear {
-            background: #ff3d00;
-            color: white;
-            grid-column: span 2;
+        .delete {
+            color: red;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
 
-<div class="calculator">
-    <input type="text" id="display" class="display" disabled>
+<h1>Мой список задач</h1>
 
-    <div class="buttons">
-        <button class="clear" onclick="clearDisplay()">C</button>
-        <button class="op" onclick="append('/')">/</button>
-        <button class="op" onclick="append('*')">*</button>
+<input type="text" id="taskInput" placeholder="Введите задачу">
+<button onclick="addTask()">Добавить</button>
 
-        <button class="num" onclick="append('7')">7</button>
-        <button class="num" onclick="append('8')">8</button>
-        <button class="num" onclick="append('9')">9</button>
-        <button class="op" onclick="append('-')">-</button>
-
-        <button class="num" onclick="append('4')">4</button>
-        <button class="num" onclick="append('5')">5</button>
-        <button class="num" onclick="append('6')">6</button>
-        <button class="op" onclick="append('+')">+</button>
-
-        <button class="num" onclick="append('1')">1</button>
-        <button class="num" onclick="append('2')">2</button>
-        <button class="num" onclick="append('3')">3</button>
-        <button class="equal" onclick="calculate()">=</button>
-
-        <button class="num" onclick="append('0')">0</button>
-        <button class="num" onclick="append('.')">.</button>
-    </div>
-</div>
+<ul id="taskList"></ul>
 
 <script>
-    let display = document.getElementById('display');
+    function addTask() {
+        const input = document.getElementById("taskInput");
+        const taskText = input.value.trim();
 
-    function append(value) {
-        display.value += value;
+        if (taskText === "") return;
+
+        const li = document.createElement("li");
+        li.innerHTML = `
+            ${taskText}
+            <span class="delete" onclick="removeTask(this)">✖</span>
+        `;
+
+        document.getElementById("taskList").appendChild(li);
+        input.value = "";
     }
 
-    function clearDisplay() {
-        display.value = '';
-    }
-
-    function calculate() {
-        try {
-            display.value = eval(display.value);
-        } catch {
-            display.value = 'Ошибка';
-        }
+    function removeTask(element) {
+        element.parentElement.remove();
     }
 </script>
 
