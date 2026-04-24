@@ -1,75 +1,161 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <title>To-Do List</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f4f4f4;
-            text-align: center;
-            padding: 50px;
-        }
-        h1 {
-            color: #333;
-        }
-        input {
-            padding: 10px;
-            width: 250px;
-        }
-        button {
-            padding: 10px;
-            margin-left: 5px;
-            cursor: pointer;
-        }
-        ul {
-            list-style: none;
-            padding: 0;
-        }
-        li {
-            background: white;
-            margin: 10px auto;
-            padding: 10px;
-            width: 300px;
-            display: flex;
-            justify-content: space-between;
-            border-radius: 5px;
-        }
-        .delete {
-            color: red;
-            cursor: pointer;
-        }
-    </style>
+<meta charset="UTF-8">
+<title>Мини Планировщик</title>
+<style>
+    body {
+        font-family: Arial;
+        background: #f5f6fa;
+        margin: 0;
+        padding: 20px;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 20px;
+    }
+
+    .card {
+        background: white;
+        padding: 15px;
+        border-radius: 10px;
+        width: 300px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+        margin-top: 0;
+    }
+
+    input, textarea, button {
+        width: 100%;
+        padding: 10px;
+        margin-top: 5px;
+        margin-bottom: 10px;
+    }
+
+    button {
+        cursor: pointer;
+    }
+
+    ul {
+        list-style: none;
+        padding: 0;
+    }
+
+    li {
+        background: #eee;
+        margin-top: 5px;
+        padding: 8px;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .delete {
+        color: red;
+        cursor: pointer;
+    }
+
+    .timer {
+        font-size: 30px;
+        text-align: center;
+        margin: 10px 0;
+    }
+</style>
 </head>
+
 <body>
 
-<h1>Мой список задач</h1>
+<!-- TO DO -->
+<div class="card">
+    <h2>📌 Задачи</h2>
+    <input id="taskInput" placeholder="Новая задача">
+    <button onclick="addTask()">Добавить</button>
+    <ul id="taskList"></ul>
+</div>
 
-<input type="text" id="taskInput" placeholder="Введите задачу">
-<button onclick="addTask()">Добавить</button>
+<!-- NOTES -->
+<div class="card">
+    <h2>📝 Заметки</h2>
+    <textarea id="notes" rows="10" placeholder="Пиши здесь..."></textarea>
+</div>
 
-<ul id="taskList"></ul>
+<!-- POMODORO -->
+<div class="card">
+    <h2>⏱ Pomodoro</h2>
+    <div class="timer" id="timer">25:00</div>
+    <button onclick="startTimer()">Старт</button>
+    <button onclick="resetTimer()">Сброс</button>
+</div>
 
 <script>
-    function addTask() {
-        const input = document.getElementById("taskInput");
-        const taskText = input.value.trim();
+/* ---------------- TASKS ---------------- */
+function loadTasks() {
+    document.getElementById("taskList").innerHTML = localStorage.getItem("tasks") || "";
+}
+loadTasks();
 
-        if (taskText === "") return;
+function saveTasks() {
+    localStorage.setItem("tasks", document.getElementById("taskList").innerHTML);
+}
 
-        const li = document.createElement("li");
-        li.innerHTML = `
-            ${taskText}
-            <span class="delete" onclick="removeTask(this)">✖</span>
-        `;
+function addTask() {
+    const input = document.getElementById("taskInput");
+    if (!input.value.trim()) return;
 
-        document.getElementById("taskList").appendChild(li);
-        input.value = "";
-    }
+    const li = document.createElement("li");
+    li.innerHTML = `
+        ${input.value}
+        <span class="delete" onclick="this.parentElement.remove(); saveTasks();">✖</span>
+    `;
 
-    function removeTask(element) {
-        element.parentElement.remove();
-    }
+    document.getElementById("taskList").appendChild(li);
+    input.value = "";
+    saveTasks();
+}
+
+/* ---------------- NOTES ---------------- */
+const notes = document.getElementById("notes");
+notes.value = localStorage.getItem("notes") || "";
+
+notes.addEventListener("input", () => {
+    localStorage.setItem("notes", notes.value);
+});
+
+/* ---------------- TIMER ---------------- */
+let time = 25 * 60;
+let interval = null;
+
+function updateTimer() {
+    let m = Math.floor(time / 60);
+    let s = time % 60;
+    document.getElementById("timer").textContent =
+        `${m.toString().padStart(2,"0")}:${s.toString().padStart(2,"0")}`;
+}
+
+function startTimer() {
+    if (interval) return;
+
+    interval = setInterval(() => {
+        if (time > 0) {
+            time--;
+            updateTimer();
+        } else {
+            clearInterval(interval);
+            interval = null;
+            alert("Время вышло! Перерыв 🙂");
+        }
+    }, 1000);
+}
+
+function resetTimer() {
+    clearInterval(interval);
+    interval = null;
+    time = 25 * 60;
+    updateTimer();
+}
+
+updateTimer();
 </script>
 
 </body>
