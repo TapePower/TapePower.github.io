@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>Open Task Generator</title>
+<title>Smart Study Platform</title>
 
 <style>
 body {
@@ -10,97 +10,160 @@ body {
     background: #0f172a;
     color: white;
     text-align: center;
-    padding: 40px;
+    padding: 30px;
 }
 
 .card {
     background: #1e293b;
-    padding: 20px;
-    border-radius: 12px;
+    padding: 15px;
+    margin: 10px;
+    border-radius: 10px;
     display: inline-block;
-    width: 350px;
+    width: 320px;
+    vertical-align: top;
 }
 
 input, select {
     width: 90%;
-    padding: 10px;
-    margin: 10px 0;
+    padding: 8px;
+    margin: 5px 0;
 }
 
 button {
-    padding: 10px;
+    padding: 8px;
     width: 95%;
-    cursor: pointer;
     background: #38bdf8;
     border: none;
+    cursor: pointer;
     font-weight: bold;
 }
 
-#result {
-    margin-top: 20px;
-    padding: 15px;
+#task {
+    margin-top: 10px;
+    padding: 10px;
     background: #334155;
-    border-radius: 10px;
+    border-radius: 8px;
+}
+
+.small {
+    font-size: 14px;
+    opacity: 0.8;
 }
 </style>
 
 </head>
 <body>
 
-<h1>📚 Open Task Generator (API)</h1>
+<h1>📚 Smart Study Platform</h1>
 
+<!-- USER PANEL -->
 <div class="card">
+    <h2>📖 Задания</h2>
 
-<input id="classInput" placeholder="Класс (например 7)">
-<select id="subject">
-    <option value="math">Математика</option>
-    <option value="physics">Физика</option>
-    <option value="russian">Русский</option>
-</select>
+    <input id="classInput" placeholder="Класс (1-11)">
+    
+    <select id="subject">
+        <option value="math">Математика</option>
+        <option value="physics">Физика</option>
+        <option value="russian">Русский</option>
+    </select>
 
-<button onclick="getTask()">Получить задание</button>
+    <button onclick="generateTask()">Сгенерировать</button>
 
-<div id="result">Задание появится здесь</div>
+    <div id="task">Задание появится здесь</div>
 
+    <button onclick="markDone()">✔ Я решил</button>
+
+    <p class="small">Решено: <span id="score">0</span></p>
+</div>
+
+<!-- ADMIN PANEL -->
+<div class="card">
+    <h2>⚙️ Админка</h2>
+
+    <input id="newSubject" placeholder="Предмет">
+    <input id="newClass" placeholder="Класс">
+    <input id="newTask" placeholder="Задание">
+
+    <button onclick="addTask()">Добавить задание</button>
+
+    <p class="small">Добавленные задания сохраняются локально</p>
 </div>
 
 <script>
 
-async function getTask() {
-    const cls = document.getElementById("classInput").value;
+/* ---------------- ПРОГРЕСС ---------------- */
+let score = localStorage.getItem("score") || 0;
+document.getElementById("score").innerText = score;
+
+/* ---------------- БАЗА (локальная) ---------------- */
+let customTasks = JSON.parse(localStorage.getItem("customTasks")) || [];
+
+/* ---------------- ГЕНЕРАЦИЯ ЗАДАНИЙ ---------------- */
+function generateTask() {
+    const cls = parseInt(document.getElementById("classInput").value);
     const subject = document.getElementById("subject").value;
 
     if (!cls) {
-        document.getElementById("result").innerText = "Введите класс!";
+        document.getElementById("task").innerText = "Введите класс!";
         return;
     }
 
-    // 🌐 ОТКРЫТЫЙ JSON (как API)
-    const url = "https://raw.githubusercontent.com/tapepower/open-tasks/main/tasks.json";
+    let task = "";
 
-    try {
-        const res = await fetch(url);
-        const data = await res.json();
-
-        if (!data[subject] || !data[subject][cls]) {
-            document.getElementById("result").innerText =
-                "Нет данных для этого класса 😢";
-            return;
-        }
-
-        const tasks = data[subject][cls];
-        const random = tasks[Math.floor(Math.random() * tasks.length)];
-
-        document.getElementById("result").innerText = random;
-
-    } catch (e) {
-        document.getElementById("result").innerText =
-            "Ошибка загрузки данных API";
+    // 🧠 АЛГОРИТМ ГЕНЕРАЦИИ
+    if (subject === "math") {
+        const a = Math.floor(Math.random() * cls * 5);
+        const b = Math.floor(Math.random() * cls * 5);
+        task = `Реши: ${a} + ${b}`;
     }
+
+    if (subject === "physics") {
+        const m = Math.floor(Math.random() * 10 + 1);
+        task = `Найди силу тяжести тела массой ${m} кг (g = 10)`;
+    }
+
+    if (subject === "russian") {
+        const words = ["лес", "дом", "школа", "город", "река"];
+        const w = words[Math.floor(Math.random() * words.length)];
+        task = `Придумай предложение со словом "${w}"`;
+    }
+
+    // 🔥 пользовательские задания
+    const custom = customTasks.filter(t =>
+        t.subject === subject && t.class == cls
+    );
+
+    if (custom.length > 0 && Math.random() > 0.5) {
+        task = custom[Math.floor(Math.random() * custom.length)].task;
+    }
+
+    document.getElementById("task").innerText = task;
+}
+
+/* ---------------- ПРОГРЕСС ---------------- */
+function markDone() {
+    score++;
+    localStorage.setItem("score", score);
+    document.getElementById("score").innerText = score;
+}
+
+/* ---------------- АДМИНКА ---------------- */
+function addTask() {
+    const subject = document.getElementById("newSubject").value;
+    const cls = document.getElementById("newClass").value;
+    const task = document.getElementById("newTask").value;
+
+    if (!subject || !cls || !task) return;
+
+    customTasks.push({ subject, class: cls, task });
+
+    localStorage.setItem("customTasks", JSON.stringify(customTasks));
+
+    alert("Задание добавлено!");
 }
 
 </script>
 
 </body>
 </html>
-
