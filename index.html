@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Alien Exterminator: Infinity</title>
+    <title>Alien Exterminator: Fixed Edition</title>
     <style>
-        body { margin: 0; overflow: hidden; background-color: #000; font-family: 'Segoe UI', sans-serif; }
-        #ui { position: absolute; top: 20px; left: 20px; color: #0f0; z-index: 10; font-size: 20px; line-height: 1.5; pointer-events: none; }
-        #crosshair { position: absolute; top: 50%; left: 50%; width: 4px; height: 4px; background: red; border-radius: 50%; z-index: 10; }
-        #blocker { position: absolute; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: flex; justify-content: center; align-items: center; color: #0f0; cursor: pointer; z-index: 20; text-align: center; }
-        .stat { color: #fff; font-weight: bold; }
+        body { margin: 0; overflow: hidden; background-color: #000; font-family: 'Courier New', monospace; }
+        #ui { position: absolute; top: 20px; left: 20px; color: #0f0; z-index: 10; font-size: 22px; pointer-events: none; text-shadow: 2px 2px #000; }
+        #crosshair { position: absolute; top: 50%; left: 50%; width: 10px; height: 10px; border: 2px solid #0f0; margin: -6px; border-radius: 50%; z-index: 10; }
+        #blocker { position: absolute; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: flex; justify-content: center; align-items: center; color: #0f0; cursor: pointer; z-index: 20; text-align: center; }
+        .info { color: #fff; }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/PointerLockControls.js"></script>
@@ -17,70 +17,65 @@
 <body>
 
     <div id="ui">
-        УРОВЕНЬ: <span id="lvlVal" class="stat">1</span><br>
-        СЧЕТ: <span id="scoreVal" class="stat">0</span><br>
-        ЦЕЛЬ: <span id="targetVal" class="stat">500</span>
+        УРОВЕНЬ: <span id="lvlVal" class="info">1</span> | 
+        СЧЕТ: <span id="scoreVal" class="info">0</span><br>
+        ДО СЛЕДУЮЩЕГО УРОВНЯ: <span id="targetVal" class="info">500</span>
     </div>
     <div id="crosshair"></div>
 
     <div id="blocker">
         <div>
-            <h1 style="font-size: 60px; margin: 0;">INFINITY BATTLE</h1>
-            <p style="font-size: 20px;">ПРИШЕЛЬЦЫ СТАНОВЯТСЯ БЫСТРЕЕ С КАЖДЫМ УРОВНЕМ</p>
-            <button style="padding: 15px 30px; background: #0f0; border: none; font-weight: bold; cursor: pointer;">В БОЙ</button>
+            <h1 style="font-size: 50px; text-shadow: 0 0 15px #0f0;">ВТОРЖЕНИЕ НАЧАЛОСЬ</h1>
+            <p>ПРИШЕЛЬЦЫ АТАКУЮТ СРАЗУ!</p>
+            <p style="font-size: 18px; color: #aaa;">(Кликни, чтобы взять пушку)</p>
         </div>
     </div>
 
     <script>
-        let camera, scene, renderer, controls, gun;
+        let camera, scene, renderer, controls, gun, flash;
         let aliens = [], score = 0, level = 1;
         let moveFwd = false, moveBwd = false, moveL = false, moveR = false;
         let prevTime = performance.now();
         let gameActive = false;
-        let spawnRate = 2000; // мс между появлением врагов
 
-        // --- ЗВУКОВОЙ ДВИЖОК ---
+        // Настройки баланса
+        const BASE_SPAWN_TIME = 1200; // Появление каждую 1.2 сек на 1 уровне
+        const ALIEN_SPEED = 6; 
+
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        function playSound(freq, type, duration, vol) {
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.type = type;
-            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(10, audioCtx.currentTime + duration);
-            gain.gain.setValueAtTime(vol, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start();
-            osc.stop(audioCtx.currentTime + duration);
+        function playSound(f, t, d, v) {
+            try {
+                const o = audioCtx.createOscillator();
+                const g = audioCtx.createGain();
+                o.type = t; o.frequency.setValueAtTime(f, audioCtx.currentTime);
+                g.gain.setValueAtTime(v, audioCtx.currentTime);
+                g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + d);
+                o.connect(g); g.connect(audioCtx.destination);
+                o.start(); o.stop(audioCtx.currentTime + d);
+            } catch(e){}
         }
 
         function init() {
             scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x00050a);
-            scene.fog = new THREE.FogExp2(0x00050a, 0.02);
+            scene.background = new THREE.Color(0x000205);
+            scene.fog = new THREE.FogExp2(0x000205, 0.03);
 
             camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
             
-            // Свет
-            scene.add(new THREE.AmbientLight(0x404040, 1.5));
-            const sun = new THREE.DirectionalLight(0x00ffff, 0.5);
-            sun.position.set(10, 20, 10);
-            scene.add(sun);
+            scene.add(new THREE.AmbientLight(0x404040, 1.2));
+            const pLight = new THREE.PointLight(0x00ffff, 1, 100);
+            pLight.position.set(0, 10, 0);
+            scene.add(pLight);
 
-            // Звезды
-            const starGeo = new THREE.BufferGeometry();
-            const starCoords = [];
-            for(let i=0; i<7000; i++) starCoords.push((Math.random()-0.5)*1000, (Math.random()-0.5)*1000, (Math.random()-0.5)*1000);
-            starGeo.setAttribute('position', new THREE.Float32BufferAttribute(starCoords, 3));
-            scene.add(new THREE.Points(starGeo, new THREE.PointsMaterial({color: 0xffffff, size: 0.5})));
-
-            // Пол (Сетка)
-            const grid = new THREE.GridHelper(200, 40, 0x00ff00, 0x222222);
+            // Пол
+            const grid = new THREE.GridHelper(300, 60, 0x003300, 0x111111);
             scene.add(grid);
 
-            // Оружие
+            // Оружие и Вспышка
             gun = createGunModel();
+            flash = new THREE.PointLight(0x00ffff, 0, 5);
+            flash.position.z = -1.2;
+            gun.add(flash);
             camera.add(gun);
             scene.add(camera);
 
@@ -89,24 +84,23 @@
                 controls.lock();
                 if (audioCtx.state === 'suspended') audioCtx.resume();
             });
+
             controls.addEventListener('lock', () => { 
                 document.getElementById('blocker').style.display = 'none'; 
                 gameActive = true; 
+                if(aliens.length === 0) spawnAlien(); // Первый пришелец сразу
             });
             controls.addEventListener('unlock', () => { 
                 document.getElementById('blocker').style.display = 'flex'; 
                 gameActive = false; 
             });
 
-            window.addEventListener('keydown', (e) => {
-                if(e.code==='KeyW') moveFwd=true; if(e.code==='KeyS') moveBwd=true;
-                if(e.code==='KeyA') moveL=true; if(e.code==='KeyD') moveR=true;
-            });
-            window.addEventListener('keyup', (e) => {
-                if(e.code==='KeyW') moveFwd=false; if(e.code==='KeyS') moveBwd=false;
-                if(e.code==='KeyA') moveL=false; if(e.code==='KeyD') moveR=false;
-            });
-
+            const keyHandler = (e, val) => {
+                if(e.code==='KeyW') moveFwd=val; if(e.code==='KeyS') moveBwd=val;
+                if(e.code==='KeyA') moveL=val; if(e.code==='KeyD') moveR=val;
+            };
+            window.addEventListener('keydown', (e) => keyHandler(e, true));
+            window.addEventListener('keyup', (e) => keyHandler(e, false));
             document.addEventListener('mousedown', shoot);
 
             renderer = new THREE.WebGLRenderer({antialias: true});
@@ -114,91 +108,81 @@
             document.body.appendChild(renderer.domElement);
 
             gameLoop();
-            spawnController();
+            spawnTimer();
         }
 
         function createGunModel() {
-            const group = new THREE.Group();
-            const mat = new THREE.MeshPhongMaterial({color: 0x333333});
-            const glow = new THREE.MeshPhongMaterial({color: 0x00ffff, emissive: 0x00ffff});
-            
-            const body = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.4, 1.5), mat);
-            const barrel = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.8), mat);
-            barrel.rotation.x = Math.PI/2; barrel.position.z = -1;
-            
-            const lightStrip = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.05, 1), glow);
-            lightStrip.position.set(0.16, 0.1, -0.4);
-            
-            group.add(body, barrel, lightStrip);
-            group.position.set(0.5, -0.4, -0.8);
-            return group;
+            const g = new THREE.Group();
+            const m = new THREE.MeshPhongMaterial({color: 0x111111});
+            const b = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.3, 1), m);
+            const barrel = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.6), m);
+            barrel.rotation.x = Math.PI/2; barrel.position.z = -0.7;
+            g.add(b, barrel);
+            g.position.set(0.4, -0.3, -0.6);
+            return g;
         }
 
         function createAlienModel() {
-            const group = new THREE.Group();
-            const bodyMat = new THREE.MeshPhongMaterial({color: 0x00aa00});
-            const skinMat = new THREE.MeshPhongMaterial({color: 0x00ff44});
-            
-            const torso = new THREE.Mesh(new THREE.CapsuleGeometry(0.5, 1, 4, 8), bodyMat);
-            torso.position.y = 1.5;
-            
-            const head = new THREE.Mesh(new THREE.SphereGeometry(0.6, 8, 8), skinMat);
-            head.position.y = 2.8;
-            head.scale.y = 1.2;
-
-            const ant1 = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.5), skinMat);
-            ant1.position.set(0.3, 3.3, 0); ant1.rotation.z = -0.5;
-            
-            const eye = new THREE.Mesh(new THREE.SphereGeometry(0.15, 8, 8), {color: 0xff0000});
-            eye.position.set(0, 2.9, 0.5);
-
-            group.add(torso, head, ant1, eye);
-            return group;
+            const g = new THREE.Group();
+            const m = new THREE.MeshPhongMaterial({color: 0x00ff00});
+            const body = new THREE.Mesh(new THREE.BoxGeometry(0.8, 1.4, 0.6), m);
+            body.position.y = 0.7;
+            const head = new THREE.Mesh(new THREE.SphereGeometry(0.5, 8, 8), m);
+            head.position.y = 1.8;
+            const eye = new THREE.Mesh(new THREE.SphereGeometry(0.1, 8, 8), {color: 0xff0000});
+            eye.position.set(0, 1.9, 0.4);
+            const ant = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.4, 0.05), m);
+            ant.position.y = 2.3;
+            g.add(body, head, eye, ant);
+            return g;
         }
 
-        function spawnController() {
-            if(gameActive) {
-                const alien = createAlienModel();
-                const ang = Math.random()*Math.PI*2;
-                const dist = 50;
-                alien.position.set(camera.position.x + Math.cos(ang)*dist, 0, camera.position.z + Math.sin(ang)*dist);
-                scene.add(alien);
-                aliens.push(alien);
-            }
-            setTimeout(spawnController, spawnRate / (1 + level * 0.2));
+        function spawnAlien() {
+            if(!gameActive) return;
+            const a = createAlienModel();
+            const ang = Math.random()*Math.PI*2;
+            const dist = 35 + Math.random()*10; // Спавним чуть ближе (было 50)
+            a.position.set(camera.position.x + Math.cos(ang)*dist, 0, camera.position.z + Math.sin(ang)*dist);
+            scene.add(a);
+            aliens.push(a);
+        }
+
+        function spawnTimer() {
+            if(gameActive) spawnAlien();
+            // Чем выше уровень, тем быстрее спавн
+            let nextSpawn = BASE_SPAWN_TIME / (1 + (level-1) * 0.3);
+            setTimeout(spawnTimer, nextSpawn);
         }
 
         function shoot() {
             if(!gameActive) return;
-            playSound(150, 'sawtooth', 0.1, 0.1);
-            
-            // Анимация отдачи
-            gun.position.z = -0.6;
-            setTimeout(() => gun.position.z = -0.8, 50);
+            playSound(200, 'sawtooth', 0.1, 0.1);
+            flash.intensity = 2; // Вспышка
+            gun.position.z = -0.5; // Отдача
 
             const ray = new THREE.Raycaster();
             ray.setFromCamera(new THREE.Vector2(0,0), camera);
             
-            const meshes = [];
-            aliens.forEach(a => a.traverse(c => { if(c.isMesh) { c.root = a; meshes.push(c); }}));
+            const targets = [];
+            aliens.forEach(a => a.traverse(c => { if(c.isMesh) { c.root = a; targets.push(c); }}));
             
-            const hits = ray.intersectObjects(meshes);
+            const hits = ray.intersectObjects(targets);
             if(hits.length > 0) {
                 const target = hits[0].object.root;
                 scene.remove(target);
                 aliens = aliens.filter(a => a !== target);
                 score += 100;
-                playSound(60, 'square', 0.2, 0.2); // Звук попадания
+                playSound(80, 'square', 0.15, 0.2);
                 
-                // Система уровней
                 if(score >= level * 500) {
                     level++;
                     document.getElementById('lvlVal').innerText = level;
                     document.getElementById('targetVal').innerText = level * 500;
-                    playSound(440, 'triangle', 0.5, 0.3); // Звук Level Up
+                    playSound(500, 'triangle', 0.4, 0.3);
                 }
                 document.getElementById('scoreVal').innerText = score;
             }
+            setTimeout(() => { flash.intensity = 0; gun.position.z = -0.6; }, 60);
         }
 
         function gameLoop() {
@@ -207,20 +191,22 @@
             const delta = (time - prevTime) / 1000;
 
             if(gameActive) {
-                const moveSpeed = 15 * delta;
-                if(moveFwd) controls.moveForward(moveSpeed);
-                if(moveBwd) controls.moveForward(-moveSpeed);
-                if(moveL) controls.moveRight(-moveSpeed);
-                if(moveR) controls.moveRight(moveSpeed);
+                const s = 14 * delta;
+                if(moveFwd) controls.moveForward(s);
+                if(moveBwd) controls.moveForward(-s);
+                if(moveL) controls.moveRight(-s);
+                if(moveR) controls.moveRight(s);
 
                 aliens.forEach(a => {
                     a.lookAt(camera.position.x, 0, camera.position.z);
-                    const speed = (4 + level) * delta;
-                    a.translateZ(speed);
+                    // Скорость пришельцев растет с уровнем
+                    const aSpeed = (ALIEN_SPEED + (level * 0.8)) * delta;
+                    a.translateZ(aSpeed);
                     
-                    if(a.position.distanceTo(camera.position) < 2) {
-                        playSound(100, 'sawtooth', 1, 0.5);
-                        alert("ИГРА ОКОНЧЕНА! Твой уровень: " + level);
+                    if(a.position.distanceTo(camera.position) < 2.2) {
+                        gameActive = false;
+                        controls.unlock();
+                        alert("ВАС СХВАТИЛИ! СЧЕТ: " + score + " | УРОВЕНЬ: " + level);
                         location.reload();
                     }
                 });
@@ -230,6 +216,11 @@
         }
 
         init();
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth/window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
     </script>
 </body>
 </html>
