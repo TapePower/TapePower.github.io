@@ -2,27 +2,20 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Xeno-Hunter: Chronicles</title>
+    <title>Xeno-Hunter: Remastered</title>
     <style>
         :root { --neon: #00ffcc; --dark: #050a10; }
-        body { margin: 0; overflow: hidden; background: var(--dark); font-family: 'Segoe UI', sans-serif; color: white; }
-        
-        /* Главное меню и уровни */
-        #overlay { position: absolute; width: 100%; height: 100%; background: radial-gradient(circle, #102030 0%, #050a10 100%); z-index: 50; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 0.5s; }
+        body { margin: 0; overflow: hidden; background: var(--dark); font-family: 'Courier New', monospace; color: white; }
+        #overlay { position: absolute; width: 100%; height: 100%; background: radial-gradient(circle, #102030 0%, #050a10 100%); z-index: 50; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         #level-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; margin-top: 20px; }
         .level-card { 
-            width: 70px; height: 70px; background: rgba(0,255,204,0.1); border: 2px solid var(--neon); 
-            display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: bold; font-size: 20px;
-            transition: 0.3s; position: relative; border-radius: 8px;
+            width: 60px; height: 60px; background: rgba(0,255,204,0.1); border: 2px solid var(--neon); 
+            display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: bold; border-radius: 8px;
         }
         .level-card:hover:not(.locked) { background: var(--neon); color: black; box-shadow: 0 0 20px var(--neon); }
-        .level-card.locked { opacity: 0.3; cursor: not-allowed; border-color: #555; color: #555; }
-        .level-card.locked::after { content: '🔒'; position: absolute; font-size: 12px; bottom: 5px; }
-
-        /* Игровой интерфейс */
-        #hud { position: absolute; top: 0; left: 0; width: 100%; padding: 20px; pointer-events: none; z-index: 10; display: none; }
-        #crosshair { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: var(--neon); font-size: 24px; pointer-events: none; }
-        #msg { position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); font-size: 40px; color: var(--neon); text-shadow: 0 0 20px var(--neon); display: none; }
+        .level-card.locked { opacity: 0.2; cursor: not-allowed; border-color: #555; }
+        #hud { position: absolute; top: 20px; left: 20px; pointer-events: none; z-index: 10; display: none; font-size: 24px; color: var(--neon); }
+        #crosshair { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 20px; height: 20px; border: 2px solid var(--neon); border-radius: 50%; pointer-events: none; z-index: 10; }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/PointerLockControls.js"></script>
@@ -30,40 +23,35 @@
 <body>
 
     <div id="overlay">
-        <h1 style="letter-spacing: 10px; color: var(--neon); text-shadow: 0 0 15px var(--neon);">XENO-HUNTER</h1>
-        <p>ВЫБЕРИТЕ ОПЕРАЦИЮ</p>
+        <h1 style="color: var(--neon); text-shadow: 0 0 10px var(--neon);">XENO-HUNTER</h1>
+        <p>ВЫБЕРИТЕ ДОСТУПНУЮ МИССИЮ</p>
         <div id="level-grid"></div>
     </div>
 
     <div id="hud">
-        <div id="stats">LEVEL: <span id="cur-lvl">1</span> | KILLS: <span id="kills">0</span>/<span id="req-kills">10</span></div>
+        LEVEL: <span id="cur-lvl">1</span> | 
+        KILLS: <span id="kills">0</span> / <span id="req-kills">5</span>
     </div>
-    <div id="crosshair">+</div>
-    <div id="msg">LEVEL CLEAR!</div>
+    <div id="crosshair"></div>
 
     <script>
-        // Состояния игры
-        let currentLevel = 1;
-        let killsCount = 0;
-        let requiredKills = 0;
-        let gameActive = false;
-        let unlockedLevel = parseInt(localStorage.getItem('xenohunter_reached')) || 1;
-
-        // Three.js переменные
         let scene, camera, renderer, controls, gun, flash;
         let aliens = [];
+        let gameActive = false;
+        let currentLevel = 1;
+        let killsCount = 0;
+        let requiredKills = 5;
+        let unlockedLevel = parseInt(localStorage.getItem('xenohunter_reached')) || 1;
         let moveState = { f: false, b: false, l: false, r: false };
         let prevTime = performance.now();
 
-        // Аудио движок
         const AudioGen = {
             ctx: new (window.AudioContext || window.webkitAudioContext)(),
-            play(freq, type, dur, vol, slide = true) {
+            play(freq, type, dur, vol) {
                 const o = this.ctx.createOscillator();
                 const g = this.ctx.createGain();
                 o.type = type;
                 o.frequency.setValueAtTime(freq, this.ctx.currentTime);
-                if(slide) o.frequency.exponentialRampToValueAtTime(10, this.ctx.currentTime + dur);
                 g.gain.setValueAtTime(vol, this.ctx.currentTime);
                 g.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + dur);
                 o.connect(g); g.connect(this.ctx.destination);
@@ -71,120 +59,97 @@
             }
         };
 
-        function initApp() {
+        function buildMenu() {
             const grid = document.getElementById('level-grid');
             grid.innerHTML = '';
             for(let i=1; i<=20; i++) {
                 const card = document.createElement('div');
                 card.className = `level-card ${i > unlockedLevel ? 'locked' : ''}`;
                 card.innerHTML = i;
-                card.onclick = () => { if(i <= unlockedLevel) startLevel(i); };
+                card.onclick = () => { if(i <= unlockedLevel) startGame(i); };
                 grid.appendChild(card);
             }
         }
 
-        function startLevel(lvl) {
+        function startGame(lvl) {
             currentLevel = lvl;
             killsCount = 0;
-            requiredKills = 5 + (lvl * 5);
+            requiredKills = 5 + (lvl * 3);
             document.getElementById('cur-lvl').innerText = lvl;
             document.getElementById('req-kills').innerText = requiredKills;
             document.getElementById('kills').innerText = 0;
-            
             document.getElementById('overlay').style.display = 'none';
             document.getElementById('hud').style.display = 'block';
             
             if(!scene) initThree();
             controls.lock();
-            AudioGen.play(440, 'sine', 0.5, 0.2, false);
+            // Очистка старых врагов при смене уровня
+            aliens.forEach(a => scene.remove(a));
+            aliens = [];
+            spawnAlien(); // Сразу создаем первого
         }
 
         function initThree() {
             scene = new THREE.Scene();
             scene.background = new THREE.Color(0x020408);
-            scene.fog = new THREE.FogExp2(0x020408, 0.04);
+            scene.fog = new THREE.FogExp2(0x020408, 0.05);
 
             camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
-            
             renderer = new THREE.WebGLRenderer({ antialias: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(window.devicePixelRatio);
             document.body.appendChild(renderer.domElement);
 
-            // Освещение
-            const amb = new THREE.AmbientLight(0x4040ff, 0.4);
-            scene.add(amb);
-            const dir = new THREE.DirectionalLight(0x00ffcc, 0.8);
-            dir.position.set(5, 10, 5);
-            scene.add(dir);
-
-            // Пол с неоновой сеткой
-            const floorGeo = new THREE.PlaneGeometry(1000, 1000);
-            const floorMat = new THREE.MeshPhongMaterial({ color: 0x050505, specular: 0x111111 });
-            const floor = new THREE.Mesh(floorGeo, floorMat);
-            floor.rotation.x = -Math.PI/2;
-            scene.add(floor);
+            scene.add(new THREE.AmbientLight(0x4040ff, 0.5));
+            const light = new THREE.PointLight(0x00ffcc, 1, 100);
+            light.position.set(0, 10, 0);
+            scene.add(light);
 
             const grid = new THREE.GridHelper(1000, 100, 0x00ffcc, 0x051015);
-            grid.position.y = 0.05;
             scene.add(grid);
 
-            // Модель оружия (Vanguard-9)
             gun = new THREE.Group();
-            const gBody = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.35, 1.2), new THREE.MeshPhongMaterial({color: 0x222222}));
-            const gBarrel = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.8), new THREE.MeshPhongMaterial({color: 0x111111}));
-            gBarrel.rotation.x = Math.PI/2; gBarrel.position.z = -0.8;
+            const gBody = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.3, 1), new THREE.MeshPhongMaterial({color: 0x222222}));
+            const gBarrel = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.7), new THREE.MeshPhongMaterial({color: 0x000000}));
+            gBarrel.rotation.x = Math.PI/2; gBarrel.position.z = -0.7;
             flash = new THREE.PointLight(0x00ffcc, 0, 10);
-            flash.position.z = -1.5;
+            flash.position.z = -1;
             gun.add(gBody, gBarrel, flash);
             camera.add(gun);
-            gun.position.set(0.6, -0.4, -0.8);
+            gun.position.set(0.5, -0.4, -0.7);
             scene.add(camera);
 
             controls = new THREE.PointerLockControls(camera, document.body);
-            controls.addEventListener('lock', () => { gameActive = true; });
-            controls.addEventListener('unlock', () => { gameActive = false; if(killsCount < requiredKills) document.getElementById('overlay').style.display = 'flex'; });
+            controls.addEventListener('lock', () => { gameActive = true; AudioGen.ctx.resume(); });
+            controls.addEventListener('unlock', () => { gameActive = false; document.getElementById('overlay').style.display = 'flex'; });
 
-            window.addEventListener('keydown', (e) => { 
-                if(e.code==='KeyW') moveState.f=true; if(e.code==='KeyS') moveState.b=true;
-                if(e.code==='KeyA') moveState.l=true; if(e.code==='KeyD') moveState.r=true;
-            });
-            window.addEventListener('keyup', (e) => { 
-                if(e.code==='KeyW') moveState.f=false; if(e.code==='KeyS') moveState.b=false;
-                if(e.code==='KeyA') moveState.l=false; if(e.code==='KeyD') moveState.r=false;
-            });
+            window.onkeydown = (e) => { if(e.code==='KeyW') moveState.f=true; if(e.code==='KeyS') moveState.b=true; if(e.code==='KeyA') moveState.l=true; if(e.code==='KeyD') moveState.r=true; };
+            window.onkeyup = (e) => { if(e.code==='KeyW') moveState.f=false; if(e.code==='KeyS') moveState.b=false; if(e.code==='KeyA') moveState.l=false; if(e.code==='KeyD') moveState.r=false; };
             document.addEventListener('mousedown', shoot);
 
             animate();
-            setInterval(spawnAlien, 1500);
+            // Цикл спавна: проверяет каждые 800мс
+            setInterval(() => {
+                if(gameActive && aliens.length < 5 + currentLevel) spawnAlien();
+            }, 800);
         }
 
-        function createAlien() {
+        function createAlienModel() {
             const group = new THREE.Group();
-            const mat = new THREE.MeshPhongMaterial({ color: 0x00ff66, emissive: 0x003300 });
-            
+            const mat = new THREE.MeshPhongMaterial({ color: 0x00ff00, emissive: 0x004400 });
             const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.4, 1, 4, 8), mat);
-            body.position.y = 1.2;
-            
-            const head = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.7, 0.7), mat);
-            head.position.y = 2.4;
-            
-            // Ноги (для анимации)
-            const lLeg = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.8, 0.2), mat);
-            lLeg.position.set(-0.25, 0.4, 0);
-            const rLeg = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.8, 0.2), mat);
-            rLeg.position.set(0.25, 0.4, 0);
-            
-            group.add(body, head, lLeg, rLeg);
-            group.lLeg = lLeg; group.rLeg = rLeg;
+            body.position.y = 1;
+            const head = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.6, 0.6), mat);
+            head.position.y = 2.2;
+            const eye = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.1, 0.1), {color: 0xff0000});
+            eye.position.set(0, 2.3, 0.3);
+            group.add(body, head, eye);
             return group;
         }
 
         function spawnAlien() {
-            if(!gameActive || aliens.length > 10) return;
-            const alien = createAlien();
+            const alien = createAlienModel();
             const angle = Math.random() * Math.PI * 2;
-            const dist = 40;
+            const dist = 30 + Math.random() * 10;
             alien.position.set(camera.position.x + Math.cos(angle)*dist, 0, camera.position.z + Math.sin(angle)*dist);
             scene.add(alien);
             aliens.push(alien);
@@ -192,50 +157,37 @@
 
         function shoot() {
             if(!gameActive) return;
-            AudioGen.play(300, 'sawtooth', 0.1, 0.1);
-            
-            // Анимация оружия
-            flash.intensity = 3;
-            gun.position.z = -0.5;
-            gun.rotation.x = 0.2;
+            AudioGen.play(400, 'sawtooth', 0.1, 0.1);
+            flash.intensity = 5;
+            gun.position.z = -0.4;
 
             const ray = new THREE.Raycaster();
             ray.setFromCamera(new THREE.Vector2(0,0), camera);
-            
             const targets = [];
-            aliens.forEach(a => a.traverse(c => { if(c.isMesh) { c.host = a; targets.push(c); }}));
+            aliens.forEach(a => a.traverse(c => { if(c.isMesh) { c.parentAlien = a; targets.push(c); }}));
             
             const hits = ray.intersectObjects(targets);
             if(hits.length > 0) {
-                const victim = hits[0].object.host;
-                scene.remove(victim);
-                aliens = aliens.filter(a => a !== victim);
+                const target = hits[0].object.parentAlien;
+                scene.remove(target);
+                aliens = aliens.filter(a => a !== target);
                 killsCount++;
                 document.getElementById('kills').innerText = killsCount;
-                AudioGen.play(100, 'square', 0.2, 0.2);
-                
-                if(killsCount >= requiredKills) levelWin();
+                AudioGen.play(150, 'square', 0.2, 0.2);
+                if(killsCount >= requiredKills) nextLevel();
             }
-
-            setTimeout(() => { 
-                flash.intensity = 0; 
-                gun.position.z = -0.8; 
-                gun.rotation.x = 0;
-            }, 60);
+            setTimeout(() => { flash.intensity = 0; gun.position.z = -0.7; }, 50);
         }
 
-        function levelWin() {
+        function nextLevel() {
             gameActive = false;
-            document.getElementById('msg').style.display = 'block';
             if(currentLevel === unlockedLevel && unlockedLevel < 20) {
                 unlockedLevel++;
                 localStorage.setItem('xenohunter_reached', unlockedLevel);
             }
-            setTimeout(() => {
-                document.getElementById('msg').style.display = 'none';
-                controls.unlock();
-                initApp();
-            }, 2000);
+            alert("МИССИЯ ВЫПОЛНЕНА!");
+            controls.unlock();
+            buildMenu();
         }
 
         function animate() {
@@ -244,42 +196,30 @@
             const delta = (time - prevTime) / 1000;
 
             if(gameActive) {
-                // Движение игрока
-                const speed = 12 * delta;
+                const speed = 15 * delta;
                 if(moveState.f) controls.moveForward(speed);
                 if(moveState.b) controls.moveForward(-speed);
                 if(moveState.l) controls.moveRight(-speed);
                 if(moveState.r) controls.moveRight(speed);
 
-                // Анимация оружия (Sway)
-                const swayX = Math.sin(time * 0.005) * 0.01;
-                const swayY = Math.cos(time * 0.005) * 0.01;
-                gun.position.x = 0.6 + swayX;
-                gun.position.y = -0.4 + swayY;
+                // Оружие Sway
+                gun.position.y = -0.4 + Math.sin(time * 0.005) * 0.01;
 
-                // Враги
                 aliens.forEach(a => {
                     a.lookAt(camera.position.x, 0, camera.position.z);
-                    a.translateZ((4 + currentLevel * 0.5) * delta);
-                    
-                    // Анимация ходьбы инопланетян
-                    const walk = Math.sin(time * 0.01) * 0.5;
-                    a.lLeg.rotation.x = walk;
-                    a.rLeg.rotation.x = -walk;
-                    a.position.y = Math.abs(Math.sin(time * 0.01)) * 0.2;
-
+                    const aSpeed = (5 + currentLevel * 0.5) * delta;
+                    a.translateZ(aSpeed);
                     if(a.position.distanceTo(camera.position) < 2) {
-                        AudioGen.play(50, 'sawtooth', 0.5, 0.5);
-                        location.reload(); // Game Over
+                        alert("ВЫ ПОГИБЛИ!");
+                        location.reload();
                     }
                 });
             }
-
             prevTime = time;
             renderer.render(scene, camera);
         }
 
-        initApp();
+        buildMenu();
         window.onresize = () => { if(camera) { camera.aspect = window.innerWidth/window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); }};
     </script>
 </body>
