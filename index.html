@@ -2,21 +2,21 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>Генератор заданий</title>
+<title>Open Task Generator</title>
 
 <style>
 body {
     font-family: Arial;
-    background: linear-gradient(135deg,#74b9ff,#a29bfe);
-    color: #fff;
+    background: #0f172a;
+    color: white;
     text-align: center;
-    padding: 50px;
+    padding: 40px;
 }
 
 .card {
-    background: rgba(0,0,0,0.3);
+    background: #1e293b;
     padding: 20px;
-    border-radius: 15px;
+    border-radius: 12px;
     display: inline-block;
     width: 350px;
 }
@@ -25,25 +25,21 @@ input, select {
     width: 90%;
     padding: 10px;
     margin: 10px 0;
-    border: none;
-    border-radius: 8px;
 }
 
 button {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 8px;
+    padding: 10px;
+    width: 95%;
     cursor: pointer;
-    background: #00cec9;
-    color: white;
+    background: #38bdf8;
+    border: none;
     font-weight: bold;
 }
 
 #result {
     margin-top: 20px;
-    font-size: 18px;
-    background: rgba(255,255,255,0.2);
     padding: 15px;
+    background: #334155;
     border-radius: 10px;
 }
 </style>
@@ -51,74 +47,26 @@ button {
 </head>
 <body>
 
-<h1>📚 Генератор школьных заданий</h1>
+<h1>📚 Open Task Generator (API)</h1>
 
 <div class="card">
 
-    <input id="classInput" type="number" placeholder="Введите класс (1-11)">
+<input id="classInput" placeholder="Класс (например 7)">
+<select id="subject">
+    <option value="math">Математика</option>
+    <option value="physics">Физика</option>
+    <option value="russian">Русский</option>
+</select>
 
-    <select id="subject">
-        <option value="math">Математика</option>
-        <option value="russian">Русский язык</option>
-        <option value="physics">Физика</option>
-        <option value="history">История</option>
-    </select>
+<button onclick="getTask()">Получить задание</button>
 
-    <button onclick="generateTask()">Получить задание</button>
-
-    <div id="result">Здесь появится задание</div>
+<div id="result">Задание появится здесь</div>
 
 </div>
 
 <script>
-const tasks = {
-    math: {
-        5: [
-            "Реши: 125 + 378",
-            "Найди периметр квадрата со стороной 7 см",
-            "Сколько будет 12 × 9?"
-        ],
-        9: [
-            "Реши квадратное уравнение: x² - 5x + 6 = 0",
-            "Найди дискриминант уравнения 2x² + 3x - 2 = 0"
-        ]
-    },
 
-    russian: {
-        5: [
-            "Разбери слово по составу: 'лесник'",
-            "Найди подлежащее и сказуемое в предложении"
-        ],
-        9: [
-            "Напиши сочинение на тему 'Моя цель в жизни'",
-            "Определи тип придаточного предложения"
-        ]
-    },
-
-    physics: {
-        7: [
-            "Найди силу тяжести тела массой 5 кг",
-            "Объясни закон Архимеда"
-        ],
-        9: [
-            "Реши задачу на закон Ома",
-            "Найди ускорение тела при F=20Н, m=4кг"
-        ]
-    },
-
-    history: {
-        6: [
-            "Назови причины падения Римской империи",
-            "Кто такой Юлий Цезарь?"
-        ],
-        9: [
-            "Объясни причины Первой мировой войны",
-            "Расскажи о революции 1917 года"
-        ]
-    }
-};
-
-function generateTask() {
+async function getTask() {
     const cls = document.getElementById("classInput").value;
     const subject = document.getElementById("subject").value;
 
@@ -127,19 +75,30 @@ function generateTask() {
         return;
     }
 
-    const subjectData = tasks[subject];
+    // 🌐 ОТКРЫТЫЙ JSON (как API)
+    const url = "https://raw.githubusercontent.com/tapepower/open-tasks/main/tasks.json";
 
-    if (!subjectData || !subjectData[cls]) {
+    try {
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if (!data[subject] || !data[subject][cls]) {
+            document.getElementById("result").innerText =
+                "Нет данных для этого класса 😢";
+            return;
+        }
+
+        const tasks = data[subject][cls];
+        const random = tasks[Math.floor(Math.random() * tasks.length)];
+
+        document.getElementById("result").innerText = random;
+
+    } catch (e) {
         document.getElementById("result").innerText =
-            "Нет заданий для этого класса и предмета 😢";
-        return;
+            "Ошибка загрузки данных API";
     }
-
-    const list = subjectData[cls];
-    const randomTask = list[Math.floor(Math.random() * list.length)];
-
-    document.getElementById("result").innerText = randomTask;
 }
+
 </script>
 
 </body>
