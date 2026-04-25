@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quantum Solver Pro</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js">
+    </script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -41,14 +42,15 @@
             padding: 20px;
             min-height: 100vh;
             display: flex;
-            justify-content: center;
-            align-items: flex-start;
+            flex-direction: column;
+            align-items: center;
             transition: background 0.5s ease;
         }
 
         .main-wrapper {
             max-width: 1100px;
             width: 100%;
+            flex: 1;
         }
 
         .tab-nav {
@@ -56,6 +58,7 @@
             gap: 10px;
             margin-bottom: 25px;
             justify-content: center;
+            flex-wrap: wrap;
         }
 
         .tab-btn {
@@ -100,7 +103,8 @@
             }
         }
 
-        .wheel-container {
+        .wheel-container,
+        .password-container {
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -168,7 +172,10 @@
             box-shadow: 0 0 15px rgba(139, 92, 246, 0.3);
         }
 
-        .btn-solve, .btn-spin, .btn-update-sectors {
+        .btn-solve,
+        .btn-spin,
+        .btn-update-sectors,
+        .btn-generate {
             width: 100%;
             padding: 18px;
             border-radius: 12px;
@@ -183,7 +190,10 @@
             margin-top: 10px;
         }
 
-        .btn-solve:hover, .btn-spin:hover, .btn-update-sectors:hover {
+        .btn-solve:hover,
+        .btn-spin:hover,
+        .btn-update-sectors:hover,
+        .btn-generate:hover {
             transform: translateY(-2px);
             box-shadow: 0 10px 20px rgba(139, 92, 246, 0.4);
         }
@@ -273,6 +283,22 @@
             z-index: 10;
         }
 
+        .contact-email {
+            text-align: center;
+            margin-top: 40px;
+            font-size: 1rem;
+            color: var(--text);
+            opacity: 0.8;
+            letter-spacing: 0.5px;
+            font-weight: 500;
+        }
+
+        .contact-email a {
+            color: var(--accent);
+            text-decoration: none;
+            border-bottom: 1px dashed var(--accent);
+        }
+
         .wheel-result {
             font-size: 1.2rem;
             font-weight: 600;
@@ -290,6 +316,49 @@
         .sector-input {
             flex: 1;
         }
+
+        /* Стили для генератора паролей */
+        .password-settings {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 25px;
+            align-items: flex-start;
+        }
+        .setting-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .setting-group label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        .setting-group input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary);
+        }
+        .passwords-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .passwords-table td {
+            padding: 12px 15px;
+            text-align: center;
+            border: 1px solid var(--glass-border);
+            font-family: 'Monaco', monospace;
+            font-size: 0.95rem;
+            color: var(--text);
+        }
+        .timestamp {
+            margin-top: 15px;
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
     </style>
 </head>
 <body data-theme="dark" oncontextmenu="return false;">
@@ -298,9 +367,10 @@
     <div class="tab-nav">
         <button class="tab-btn active" data-tab="calc">🧮 Калькулятор</button>
         <button class="tab-btn" data-tab="wheel">🎡 Колесо фортуны</button>
+        <button class="tab-btn" data-tab="password">🔐 Генератор паролей</button>
     </div>
 
-    <!-- Вкладка калькулятора (оригинал) -->
+    <!-- Калькулятор (оригинал) -->
     <div class="tab-content active" id="tab-calc">
         <div class="container">
             <div class="left-side">
@@ -329,7 +399,7 @@
         </div>
     </div>
 
-    <!-- Вкладка колеса фортуны -->
+    <!-- Колесо фортуны -->
     <div class="tab-content" id="tab-wheel">
         <div class="wheel-container">
             <h2 style="margin:0 0 20px; background: var(--grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Колесо фортуны</h2>
@@ -341,6 +411,51 @@
                 <button class="btn-update-sectors" id="updateSectorsBtn" style="width: auto; margin-top:0;">Обновить</button>
             </div>
         </div>
+    </div>
+
+    <!-- Генератор паролей -->
+    <div class="tab-content" id="tab-password">
+        <div class="password-container">
+            <h2 style="margin:0 0 20px; background: var(--grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Генератор паролей</h2>
+            <p style="opacity: 0.8; margin: 0;">для социальных сетей, сайтов и приложений</p>
+
+            <div class="password-settings">
+                <div class="setting-group">
+                    <label>Длина пароля</label>
+                    <input type="number" id="passLength" value="10" min="4" max="64" step="1">
+                </div>
+                <div class="setting-group">
+                    <label>Количество</label>
+                    <input type="number" id="passCount" value="10" min="1" max="50" step="1">
+                </div>
+            </div>
+
+            <div class="password-settings" style="justify-content: space-between;">
+                <div class="setting-group">
+                    <label><input type="checkbox" id="useUpper"> Прописные латинские буквы <span style="opacity:0.6;">ABCDEFGHIJKLMNOPQRSTUVWXYZ</span></label>
+                    <label><input type="checkbox" id="useLower" checked> Строчные латинские буквы <span style="opacity:0.6;">abcdefghijklmnopqrstuvwxyz</span></label>
+                    <label><input type="checkbox" id="useDigits"> Цифры <span style="opacity:0.6;">0123456789</span></label>
+                    <label><input type="checkbox" id="useSpace"> Пробел</label>
+                </div>
+                <div class="setting-group">
+                    <label><input type="checkbox" id="useSeparators" checked> Разделители <span style="opacity:0.6;">минус и подчеркивание</span></label>
+                    <label><input type="checkbox" id="useSpecial"> Специальные символы <span style="opacity:0.6;">~!@#$%^&*()+</span></label>
+                    <label><input type="checkbox" id="excludeAmbiguous"> Не использовать символы с неоднозначным написанием <span style="opacity:0.6;">I1l0o00sS5</span></label>
+                </div>
+            </div>
+
+            <button class="btn-generate" id="generateBtn">Сгенерировать пароли</button>
+
+            <div class="timestamp" id="timestamp"></div>
+            <table class="passwords-table" id="passwordsTable">
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Контактная почта -->
+    <div class="contact-email">
+        📧 <a href="mailto:tape.power@outlook.com">tape.power@outlook.com</a>
     </div>
 </div>
 
@@ -377,6 +492,10 @@
             if (tabName === 'wheel' && !wheelInitialized) {
                 initWheel();
                 wheelInitialized = true;
+            }
+            if (tabName === 'password' && !passwordInitialized) {
+                initPasswordGenerator();
+                passwordInitialized = true;
             }
         });
     });
@@ -501,22 +620,19 @@
         renderHistory();
     }
 
-    // ================== Колесо фортуны (с пользовательскими секторами и звуком) ==================
+    // ================== Колесо фортуны ==================
     let wheelInitialized = false;
-    // Дефолтные цвета для секторов
     const defaultColors = [
         '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40', '#C9CBCF', '#7BC8A4',
         '#E74C3C', '#3498DB', '#2ECC71', '#F1C40F', '#9B59B6', '#1ABC9C', '#E67E22', '#34495E'
     ];
 
-    // Текущие сектора
     let sectors = [];
     let wheelAngle = 0;
     let spinning = false;
     let lastTickAngle = 0;
     let audioCtx = null;
 
-    // Функция для получения AudioContext
     function getAudioContext() {
         if (!audioCtx) {
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -524,7 +640,6 @@
         return audioCtx;
     }
 
-    // Проигрывание звука щелчка
     function playTick() {
         try {
             const ctx = getAudioContext();
@@ -538,12 +653,9 @@
             osc.start();
             gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
             osc.stop(ctx.currentTime + 0.05);
-        } catch (e) {
-            // Игнорируем ошибки аудио
-        }
+        } catch (e) {}
     }
 
-    // Инициализация колеса
     function initWheel() {
         updateSectorsFromInput();
         drawWheel(wheelAngle);
@@ -551,7 +663,6 @@
         document.getElementById('updateSectorsBtn').addEventListener('click', updateSectorsFromInput);
     }
 
-    // Обновить сектора из текстового поля
     function updateSectorsFromInput() {
         const input = document.getElementById('sectorInput');
         const newSectors = input.value.split(',').map(s => s.trim()).filter(s => s.length > 0);
@@ -566,7 +677,6 @@
         drawWheel(wheelAngle);
     }
 
-    // Рисование колеса
     function drawWheel(angle) {
         const canvas = document.getElementById('wheelCanvas');
         if (!canvas) return;
@@ -604,7 +714,6 @@
             ctx.restore();
         }
 
-        // Центральный круг
         ctx.beginPath();
         ctx.arc(centerX, centerY, 20, 0, 2 * Math.PI);
         ctx.fillStyle = '#fff';
@@ -613,7 +722,6 @@
         ctx.lineWidth = 2;
         ctx.stroke();
 
-        // Указатель (стрелка сверху)
         ctx.beginPath();
         ctx.moveTo(centerX - 10, centerY - radius + 5);
         ctx.lineTo(centerX + 10, centerY - radius + 5);
@@ -626,7 +734,6 @@
         ctx.stroke();
     }
 
-    // Вращение колеса
     function spinWheel() {
         if (spinning) return;
         if (sectors.length === 0) {
@@ -651,7 +758,6 @@
             wheelAngle = currentAngle % (2 * Math.PI);
             drawWheel(wheelAngle);
 
-            // Звук щелчка при пересечении границы сектора
             const arc = (2 * Math.PI) / sectors.length;
             const angleDiff = Math.abs(currentAngle - lastTickAngle);
             if (angleDiff >= arc) {
@@ -672,6 +778,74 @@
         }
 
         requestAnimationFrame(animate);
+    }
+
+    // ================== Генератор паролей ==================
+    let passwordInitialized = false;
+
+    const ambiguousChars = 'I1l0o00sS5';
+
+    function initPasswordGenerator() {
+        document.getElementById('generateBtn').addEventListener('click', generatePasswords);
+        generatePasswords(); // сразу показать пример
+    }
+
+    function generatePasswords() {
+        const length = parseInt(document.getElementById('passLength').value) || 10;
+        const count = parseInt(document.getElementById('passCount').value) || 10;
+        const useUpper = document.getElementById('useUpper').checked;
+        const useLower = document.getElementById('useLower').checked;
+        const useDigits = document.getElementById('useDigits').checked;
+        const useSpace = document.getElementById('useSpace').checked;
+        const useSeparators = document.getElementById('useSeparators').checked;
+        const useSpecial = document.getElementById('useSpecial').checked;
+        const excludeAmbiguous = document.getElementById('excludeAmbiguous').checked;
+
+        let chars = '';
+        if (useUpper) chars += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        if (useLower) chars += 'abcdefghijklmnopqrstuvwxyz';
+        if (useDigits) chars += '0123456789';
+        if (useSpace) chars += ' ';
+        if (useSeparators) chars += '-_';
+        if (useSpecial) chars += '~!@#$%^&*()+';
+
+        if (chars.length === 0) {
+            alert('Выберите хотя бы один набор символов');
+            return;
+        }
+
+        if (excludeAmbiguous) {
+            chars = chars.split('').filter(c => !ambiguousChars.includes(c)).join('');
+        }
+
+        const passwords = [];
+        for (let i = 0; i < count; i++) {
+            let pwd = '';
+            for (let j = 0; j < length; j++) {
+                pwd += chars[Math.floor(Math.random() * chars.length)];
+            }
+            passwords.push(pwd);
+        }
+
+        // Отображение даты и времени UTC+3
+        const now = new Date();
+        const utc3 = new Date(now.getTime() + 3 * 60 * 60 * 1000);
+        const dateStr = utc3.toISOString().replace('T', ' ').replace(/\.\d+Z$/, ' UTC+3');
+        document.getElementById('timestamp').textContent = `Сгенерировано ${dateStr}`;
+
+        // Таблица: 3 колонки
+        const tbody = document.querySelector('#passwordsTable tbody');
+        tbody.innerHTML = '';
+        const cols = 3;
+        for (let i = 0; i < passwords.length; i += cols) {
+            const row = document.createElement('tr');
+            for (let j = 0; j < cols; j++) {
+                const td = document.createElement('td');
+                td.textContent = passwords[i + j] || '';
+                row.appendChild(td);
+            }
+            tbody.appendChild(row);
+        }
     }
 </script>
 
