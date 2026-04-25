@@ -174,6 +174,9 @@
         .cell.disabled { pointer-events: none; opacity: 0.7; }
         .game-status { text-align: center; font-size: 1.3rem; margin-bottom: 15px; }
 
+        .quote-text { font-size: 1.5rem; font-style: italic; text-align: center; margin: 20px 0; line-height: 1.4; }
+        .quote-author { font-size: 1rem; text-align: center; opacity: 0.8; }
+
         @media (max-width: 768px) {
             body { padding: 10px; }
             .tab-nav { gap: 5px; top: 5px; }
@@ -188,6 +191,7 @@
             .answers { grid-template-columns: 1fr; }
             .board { grid-template-columns: repeat(3, 80px); }
             .cell { width: 80px; height: 80px; font-size: 2rem; }
+            .quote-text { font-size: 1.2rem; }
         }
     </style>
 </head>
@@ -203,6 +207,8 @@
         <button class="tab-btn" data-tab="translate">🌐 Перевод</button>
         <button class="tab-btn" data-tab="quiz">❓ Викторина</button>
         <button class="tab-btn" data-tab="game">🎮 Игры</button>
+        <button class="tab-btn" data-tab="quotes">💬 Цитаты</button>
+        <button class="tab-btn" data-tab="donate">❤️ Поддержать</button>
     </div>
 
     <!-- Главная -->
@@ -218,11 +224,13 @@
                 <div class="home-card" data-goto="translate"><div class="icon">🌐</div><div class="title">Переводчик</div><div class="desc">Русский ↔ Английский и др.</div></div>
                 <div class="home-card" data-goto="quiz"><div class="icon">❓</div><div class="title">Викторина</div><div class="desc">Страны, столицы, флаги</div></div>
                 <div class="home-card" data-goto="game"><div class="icon">🎮</div><div class="title">Крестики-нолики</div><div class="desc">Игра для двоих</div></div>
+                <div class="home-card" data-goto="quotes"><div class="icon">💬</div><div class="title">Цитаты</div><div class="desc">Мотивация на каждый день</div></div>
+                <div class="home-card" data-goto="donate"><div class="icon">❤️</div><div class="title">Поддержать</div><div class="desc">Помочь проекту</div></div>
             </div>
         </div>
     </div>
 
-    <!-- Калькулятор -->
+    <!-- Калькулятор (без изменений) -->
     <div class="tab-content" id="tab-calc">
         <div class="container">
             <div class="left-side">
@@ -248,7 +256,7 @@
         </div>
     </div>
 
-    <!-- Удача -->
+    <!-- Удача (колесо и числа) -->
     <div class="tab-content" id="tab-luck">
         <div class="glass-card">
             <div class="header"><h2>Удача</h2><button class="theme-btn" onclick="toggleTheme()">🌓 Тема</button></div>
@@ -319,7 +327,7 @@
         </div>
     </div>
 
-    <!-- Время с поиском -->
+    <!-- Время (поиск) -->
     <div class="tab-content" id="tab-time">
         <div class="glass-card">
             <div class="header"><h2>Мировое время</h2><button class="theme-btn" onclick="toggleTheme()">🌓 Тема</button></div>
@@ -328,34 +336,20 @@
                     <label>Введите город</label>
                     <input list="citiesList" id="cityInput" placeholder="Москва, Лондон..." style="margin-top:5px;">
                     <datalist id="citiesList">
-                        <option value="Москва" data-tz="Europe/Moscow">
-                        <option value="Лондон" data-tz="Europe/London">
-                        <option value="Берлин" data-tz="Europe/Berlin">
-                        <option value="Париж" data-tz="Europe/Paris">
-                        <option value="Рим" data-tz="Europe/Rome">
-                        <option value="Мадрид" data-tz="Europe/Madrid">
-                        <option value="Афины" data-tz="Europe/Athens">
-                        <option value="Варшава" data-tz="Europe/Warsaw">
-                        <option value="Токио" data-tz="Asia/Tokyo">
-                        <option value="Шанхай" data-tz="Asia/Shanghai">
-                        <option value="Гонконг" data-tz="Asia/Hong_Kong">
-                        <option value="Сингапур" data-tz="Asia/Singapore">
-                        <option value="Дубай" data-tz="Asia/Dubai">
-                        <option value="Сеул" data-tz="Asia/Seoul">
-                        <option value="Бангкок" data-tz="Asia/Bangkok">
-                        <option value="Нью-Дели" data-tz="Asia/Kolkata">
-                        <option value="Нью-Йорк" data-tz="America/New_York">
-                        <option value="Лос-Анджелес" data-tz="America/Los_Angeles">
-                        <option value="Чикаго" data-tz="America/Chicago">
-                        <option value="Торонто" data-tz="America/Toronto">
-                        <option value="Сан-Паулу" data-tz="America/Sao_Paulo">
-                        <option value="Мехико" data-tz="America/Mexico_City">
-                        <option value="Буэнос-Айрес" data-tz="America/Buenos_Aires">
-                        <option value="Каир" data-tz="Africa/Cairo">
-                        <option value="Лагос" data-tz="Africa/Lagos">
-                        <option value="Найроби" data-tz="Africa/Nairobi">
-                        <option value="Йоханнесбург" data-tz="Africa/Johannesburg">
-                        <option value="Сидней" data-tz="Australia/Sydney">
+                        <option value="Москва" data-tz="Europe/Moscow"><option value="Лондон" data-tz="Europe/London">
+                        <option value="Берлин" data-tz="Europe/Berlin"><option value="Париж" data-tz="Europe/Paris">
+                        <option value="Рим" data-tz="Europe/Rome"><option value="Мадрид" data-tz="Europe/Madrid">
+                        <option value="Афины" data-tz="Europe/Athens"><option value="Варшава" data-tz="Europe/Warsaw">
+                        <option value="Токио" data-tz="Asia/Tokyo"><option value="Шанхай" data-tz="Asia/Shanghai">
+                        <option value="Гонконг" data-tz="Asia/Hong_Kong"><option value="Сингапур" data-tz="Asia/Singapore">
+                        <option value="Дубай" data-tz="Asia/Dubai"><option value="Сеул" data-tz="Asia/Seoul">
+                        <option value="Бангкок" data-tz="Asia/Bangkok"><option value="Нью-Дели" data-tz="Asia/Kolkata">
+                        <option value="Нью-Йорк" data-tz="America/New_York"><option value="Лос-Анджелес" data-tz="America/Los_Angeles">
+                        <option value="Чикаго" data-tz="America/Chicago"><option value="Торонто" data-tz="America/Toronto">
+                        <option value="Сан-Паулу" data-tz="America/Sao_Paulo"><option value="Мехико" data-tz="America/Mexico_City">
+                        <option value="Буэнос-Айрес" data-tz="America/Buenos_Aires"><option value="Каир" data-tz="Africa/Cairo">
+                        <option value="Лагос" data-tz="Africa/Lagos"><option value="Найроби" data-tz="Africa/Nairobi">
+                        <option value="Йоханнесбург" data-tz="Africa/Johannesburg"><option value="Сидней" data-tz="Australia/Sydney">
                         <option value="Окленд" data-tz="Pacific/Auckland">
                     </datalist>
                 </div>
@@ -372,17 +366,13 @@
             <div class="header"><h2>Переводчик</h2><button class="theme-btn" onclick="toggleTheme()">🌓 Тема</button></div>
             <div class="flex-row" style="margin-bottom:15px;">
                 <select id="langFrom" style="width:auto;">
-                    <option value="ru">Русский</option>
-                    <option value="en">Английский</option>
-                    <option value="fr">Французский</option>
-                    <option value="es">Испанский</option>
+                    <option value="ru">Русский</option><option value="en">Английский</option>
+                    <option value="fr">Французский</option><option value="es">Испанский</option>
                 </select>
                 <span>→</span>
                 <select id="langTo" style="width:auto;">
-                    <option value="en">Английский</option>
-                    <option value="ru">Русский</option>
-                    <option value="fr">Французский</option>
-                    <option value="es">Испанский</option>
+                    <option value="en">Английский</option><option value="ru">Русский</option>
+                    <option value="fr">Французский</option><option value="es">Испанский</option>
                 </select>
             </div>
             <textarea id="translateInput" rows="4" placeholder="Введите текст..."></textarea>
@@ -392,7 +382,7 @@
         </div>
     </div>
 
-    <!-- Викторина с флагами картинками -->
+    <!-- Викторина (по порядку) -->
     <div class="tab-content" id="tab-quiz">
         <div class="glass-card">
             <div class="header"><h2>Викторина</h2><button class="theme-btn" onclick="toggleTheme()">🌓 Тема</button></div>
@@ -413,6 +403,31 @@
         </div>
     </div>
 
+    <!-- Цитаты -->
+    <div class="tab-content" id="tab-quotes">
+        <div class="glass-card">
+            <div class="header"><h2>Мотивационные цитаты</h2><button class="theme-btn" onclick="toggleTheme()">🌓 Тема</button></div>
+            <div class="quote-text" id="quoteText"></div>
+            <div class="quote-author" id="quoteAuthor"></div>
+            <button class="btn" id="newQuoteBtn">Новая цитата</button>
+            <button class="btn" id="copyQuoteBtn" style="margin-top:5px;">Копировать</button>
+        </div>
+    </div>
+
+    <!-- Поддержать автора -->
+    <div class="tab-content" id="tab-donate">
+        <div class="glass-card">
+            <div class="header"><h2>Поддержать проект</h2><button class="theme-btn" onclick="toggleTheme()">🌓 Тема</button></div>
+            <p style="text-align:center;">Выберите сумму поддержки (пробный режим, деньги не отправляются)</p>
+            <div class="flex-row" style="justify-content:center; margin:20px 0;">
+                <button class="btn" style="width:auto; margin:0 10px;" onclick="donate(100)">100 ₽</button>
+                <button class="btn" style="width:auto; margin:0 10px;" onclick="donate(500)">500 ₽</button>
+                <button class="btn" style="width:auto; margin:0 10px;" onclick="donate(1000)">1000 ₽</button>
+            </div>
+            <p style="text-align:center; opacity:0.7;">Это имитация. Спасибо за вашу поддержку!</p>
+        </div>
+    </div>
+
     <div class="contact-email" id="contactEmail" title="Нажмите, чтобы скопировать">📧 <span id="emailText">tape.power@outlook.com</span></div>
 </div>
 
@@ -421,7 +436,6 @@
 
 <script>
     (function() {
-        // Блокировка
         document.onkeydown = function(e) {
             if (e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74 || e.keyCode == 67)) || (e.ctrlKey && e.keyCode == 85)) return false;
         };
@@ -469,6 +483,7 @@
             if (tabName === 'translate' && !translateInitialized) { initTranslate(); translateInitialized = true; }
             if (tabName === 'quiz' && !quizInitialized) { initQuiz(); quizInitialized = true; }
             if (tabName === 'game' && !gameInitialized) { initGame(); gameInitialized = true; }
+            if (tabName === 'quotes' && !quotesInitialized) { initQuotes(); quotesInitialized = true; }
         };
         tabBtns.forEach(btn => btn.addEventListener('click', () => switchTab(btn.getAttribute('data-tab'))));
         document.querySelectorAll('.home-card').forEach(card => card.addEventListener('click', () => switchTab(card.getAttribute('data-goto'))));
@@ -563,84 +578,88 @@
         function generateRandomNumbers(){ const count=parseInt(document.getElementById('randomCount').value)||8; const isRange=document.querySelector('input[name="randomSource"]:checked').value==='range'; const noRepeat=document.getElementById('noRepeat').checked; let pool=[]; if(isRange){ const min=parseInt(document.getElementById('rangeMin').value)||1; const max=parseInt(document.getElementById('rangeMax').value)||100; for(let i=min;i<=max;i++) pool.push(i); }else{ const listStr=document.getElementById('customList').value; pool=listStr.split(',').map(s=>parseInt(s.trim())).filter(n=>!isNaN(n)); } const excludeEnabled=document.getElementById('excludeEnabled').checked; if(excludeEnabled){ const exc=document.getElementById('excludeList').value.split(',').map(s=>parseInt(s.trim())).filter(n=>!isNaN(n)); pool=pool.filter(n=>!exc.includes(n)); } if(pool.length===0){ document.getElementById('randomNumbersDisplay').textContent='Нет доступных чисел'; return; } if(noRepeat&&count>pool.length){ document.getElementById('randomNumbersDisplay').textContent=`Ошибка: без повторов можно выбрать максимум ${pool.length} чисел`; return; } let result; if(noRepeat){ const shuffled=[...pool].sort(()=>Math.random()-0.5); result=shuffled.slice(0,count); }else{ result=Array.from({length:count},()=>pool[Math.floor(Math.random()*pool.length)]); } document.getElementById('randomNumbersDisplay').textContent=result.join(' '); }
         function saveRandomNumbers(){ const text=document.getElementById('randomNumbersDisplay').textContent; navigator.clipboard.writeText(text).then(()=>alert('Числа скопированы')).catch(()=>alert('Ошибка')); }
 
-        // Пароли (клик копирует)
+        // Пароли
         let passwordInitialized=false;
         const ambiguousChars='I1l0o00sS5';
         function initPassword(){ document.getElementById('generateBtn').addEventListener('click',generatePasswords); generatePasswords(); }
         function generatePasswords(){ const lenInput=document.getElementById('passLength'),cntInput=document.getElementById('passCount'); let length=parseInt(lenInput.value)||10,count=parseInt(cntInput.value)||10; const errDiv=document.getElementById('passwordError'); errDiv.textContent=''; if(length>35){errDiv.textContent='Максимальная длина пароля — 35';lenInput.value=35;length=35;} if(count>99){errDiv.textContent='Максимальное количество — 99';cntInput.value=99;count=99;} const useUpper=document.getElementById('useUpper').checked,useLower=document.getElementById('useLower').checked,useDigits=document.getElementById('useDigits').checked,useSpace=document.getElementById('useSpace').checked,useSep=document.getElementById('useSeparators').checked,useSpec=document.getElementById('useSpecial').checked,exclAmb=document.getElementById('excludeAmbiguous').checked; let chars=''; if(useUpper)chars+='ABCDEFGHIJKLMNOPQRSTUVWXYZ'; if(useLower)chars+='abcdefghijklmnopqrstuvwxyz'; if(useDigits)chars+='0123456789'; if(useSpace)chars+=' '; if(useSep)chars+='-_'; if(useSpec)chars+='~!@#$%^&*()+'; if(chars.length===0){alert('Выберите хотя бы один набор символов');return;} if(exclAmb)chars=chars.split('').filter(c=>!ambiguousChars.includes(c)).join(''); const pwd=[]; for(let i=0;i<count;i++){ let s=''; for(let j=0;j<length;j++) s+=chars[Math.floor(Math.random()*chars.length)]; pwd.push(s); } const now=new Date(); const utc3=new Date(now.getTime()+3*60*60*1000); document.getElementById('timestamp').textContent=`Сгенерировано ${utc3.toISOString().replace('T',' ').replace(/\.\d+Z$/,' UTC+3')}`; const tbody=document.querySelector('#passwordsTable tbody'); tbody.innerHTML=''; for(let i=0;i<pwd.length;i+=3){ const row=document.createElement('tr'); for(let j=0;j<3;j++){ const td=document.createElement('td'); td.textContent=pwd[i+j]||''; td.addEventListener('click',(e)=>{ if(e.target.textContent){ navigator.clipboard.writeText(e.target.textContent).then(()=>alert('Пароль скопирован')).catch(()=>alert('Ошибка')); } }); row.appendChild(td); } tbody.appendChild(row); } }
-        // дополнительный обработчик на таблицу (бабблинг)
         document.getElementById('passwordsTable').addEventListener('click', (e) => { if(e.target.tagName === 'TD' && e.target.textContent) navigator.clipboard.writeText(e.target.textContent).then(()=>alert('Пароль скопирован')).catch(()=>alert('Ошибка')); });
 
-        // Время (поиск по datalist)
+        // Время
         let timeInitialized=false, timeInterval;
-        function initTimeTab(){ 
-            document.getElementById('showTimeBtn').addEventListener('click', updateTimeDisplay); 
-            updateTimeDisplay(); 
-        }
-        function getSelectedTimezone() {
-            const input = document.getElementById('cityInput');
-            const val = input.value.trim();
-            const options = document.querySelectorAll('#citiesList option');
-            for (let opt of options) {
-                if (opt.value === val) return opt.getAttribute('data-tz');
-            }
-            return null;
-        }
-        function updateTimeDisplay(){ 
-            const tz = getSelectedTimezone(); 
-            if (!tz) {
-                document.getElementById('timeDisplay').textContent = 'Выберите город из списка';
-                document.getElementById('dateDisplay').textContent = '';
-                return;
-            }
-            try{ const now=new Date(); const formatter=new Intl.DateTimeFormat('ru-RU',{timeZone:tz,hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}); const dateFormatter=new Intl.DateTimeFormat('ru-RU',{timeZone:tz,year:'numeric',month:'long',day:'numeric',weekday:'long'}); document.getElementById('timeDisplay').textContent=formatter.format(now); document.getElementById('dateDisplay').textContent=dateFormatter.format(now); }catch(e){ document.getElementById('timeDisplay').textContent='Ошибка'; document.getElementById('dateDisplay').textContent=''; } 
-            if(timeInterval)clearInterval(timeInterval); 
-            timeInterval=setInterval(updateTimeDisplay,1000); 
-        }
+        function initTimeTab(){ document.getElementById('showTimeBtn').addEventListener('click', updateTimeDisplay); updateTimeDisplay(); }
+        function getSelectedTimezone() { const input = document.getElementById('cityInput'); const val = input.value.trim(); const options = document.querySelectorAll('#citiesList option'); for (let opt of options) { if (opt.value === val) return opt.getAttribute('data-tz'); } return null; }
+        function updateTimeDisplay(){ const tz = getSelectedTimezone(); if (!tz) { document.getElementById('timeDisplay').textContent = 'Выберите город из списка'; document.getElementById('dateDisplay').textContent = ''; return; } try{ const now=new Date(); const formatter=new Intl.DateTimeFormat('ru-RU',{timeZone:tz,hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}); const dateFormatter=new Intl.DateTimeFormat('ru-RU',{timeZone:tz,year:'numeric',month:'long',day:'numeric',weekday:'long'}); document.getElementById('timeDisplay').textContent=formatter.format(now); document.getElementById('dateDisplay').textContent=dateFormatter.format(now); }catch(e){ document.getElementById('timeDisplay').textContent='Ошибка'; document.getElementById('dateDisplay').textContent=''; } if(timeInterval)clearInterval(timeInterval); timeInterval=setInterval(updateTimeDisplay,1000); }
 
-        // Перевод с выбором языков и копированием
+        // Перевод
         let translateInitialized=false;
-        function initTranslate(){ 
-            document.getElementById('translateBtn').addEventListener('click',translateText); 
-            document.getElementById('copyTranslationBtn').addEventListener('click', copyTranslation); 
-        }
-        function getLangPair() {
-            const from = document.getElementById('langFrom').value;
-            const to = document.getElementById('langTo').value;
-            return `${from}|${to}`;
-        }
-        async function translateText(){ 
-            const text=document.getElementById('translateInput').value.trim(); 
-            if(!text)return; 
-            const langpair = getLangPair();
-            const url=`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${langpair}`; 
-            try{ const response=await fetch(url); const data=await response.json(); document.getElementById('translatedText').textContent=data.responseData.translatedText; }catch(e){ document.getElementById('translatedText').textContent='Ошибка перевода'; } 
-        }
-        function copyTranslation() {
-            const translated = document.getElementById('translatedText').textContent;
-            if (translated && translated !== 'Ошибка перевода') {
-                navigator.clipboard.writeText(translated).then(()=>alert('Перевод скопирован')).catch(()=>alert('Ошибка'));
-            }
-        }
+        function initTranslate(){ document.getElementById('translateBtn').addEventListener('click',translateText); document.getElementById('copyTranslationBtn').addEventListener('click', copyTranslation); }
+        function getLangPair() { const from = document.getElementById('langFrom').value; const to = document.getElementById('langTo').value; return `${from}|${to}`; }
+        async function translateText(){ const text=document.getElementById('translateInput').value.trim(); if(!text)return; const langpair = getLangPair(); const url=`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${langpair}`; try{ const response=await fetch(url); const data=await response.json(); if(data.responseStatus && data.responseStatus !== 200) { document.getElementById('translatedText').textContent = 'Ошибка перевода: ' + data.responseDetails; } else { document.getElementById('translatedText').textContent = data.responseData.translatedText || 'Перевод не получен'; } }catch(e){ document.getElementById('translatedText').textContent='Ошибка сети'; } }
+        function copyTranslation() { const translated = document.getElementById('translatedText').textContent; if (translated && translated !== 'Ошибка перевода' && translated !== 'Ошибка сети') { navigator.clipboard.writeText(translated).then(()=>alert('Перевод скопирован')).catch(()=>alert('Ошибка')); } }
 
-        // Викторина с флагами-картинками
+        // Викторина (флаги через flagcdn, по порядку)
         let quizInitialized=false;
         const countries = [
             {country:'Россия',capital:'Москва',code:'ru'},{country:'США',capital:'Вашингтон',code:'us'},{country:'Китай',capital:'Пекин',code:'cn'},{country:'Япония',capital:'Токио',code:'jp'},{country:'Германия',capital:'Берлин',code:'de'},{country:'Франция',capital:'Париж',code:'fr'},{country:'Великобритания',capital:'Лондон',code:'gb'},{country:'Италия',capital:'Рим',code:'it'},{country:'Испания',capital:'Мадрид',code:'es'},{country:'Канада',capital:'Оттава',code:'ca'},{country:'Бразилия',capital:'Бразилиа',code:'br'},{country:'Индия',capital:'Нью-Дели',code:'in'},{country:'Австралия',capital:'Канберра',code:'au'},{country:'ЮАР',capital:'Претория',code:'za'},{country:'Мексика',capital:'Мехико',code:'mx'},{country:'Аргентина',capital:'Буэнос-Айрес',code:'ar'},{country:'Египет',capital:'Каир',code:'eg'},{country:'Турция',capital:'Анкара',code:'tr'},{country:'Южная Корея',capital:'Сеул',code:'kr'},{country:'Швеция',capital:'Стокгольм',code:'se'},{country:'Норвегия',capital:'Осло',code:'no'},{country:'Нидерланды',capital:'Амстердам',code:'nl'},{country:'Греция',capital:'Афины',code:'gr'},{country:'Польша',capital:'Варшава',code:'pl'},{country:'Украина',capital:'Киев',code:'ua'},{country:'Чехия',capital:'Прага',code:'cz'},{country:'Швейцария',capital:'Берн',code:'ch'},{country:'Австрия',capital:'Вена',code:'at'},{country:'Ирландия',capital:'Дублин',code:'ie'},{country:'Таиланд',capital:'Бангкок',code:'th'}
         ];
-        let quizScore=[0,0], quizMode='flag-to-country', currentAnswer=null, answered=false;
+        let quizScore=[0,0], quizModeIndex = 0, currentAnswer=null, answered=false;
+        const quizModes = ['flag-to-country', 'country-to-capital', 'capital-to-country'];
         function initQuiz(){ document.getElementById('nextQuizBtn').addEventListener('click',nextQuiz); nextQuiz(); }
         function shuffleArray(arr){ for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]]; } return arr; }
-        function nextQuiz(){ answered=false; document.getElementById('nextQuizBtn').style.display='none'; const answersDiv=document.getElementById('quizAnswers'); answersDiv.innerHTML=''; const modes=['flag-to-country','country-to-capital','capital-to-country']; quizMode=modes[Math.floor(Math.random()*modes.length)]; const correctIndex=Math.floor(Math.random()*countries.length); const correct=countries[correctIndex]; const variants=[correct]; while(variants.length<4){ const rnd=countries[Math.floor(Math.random()*countries.length)]; if(!variants.includes(rnd)) variants.push(rnd); } shuffleArray(variants); let questionHTML=''; if(quizMode==='flag-to-country'){ questionHTML=`Какой стране принадлежит флаг <img src="https://flagcdn.com/32x24/${correct.code}.png" style="width:32px;height:24px;vertical-align:middle;">?`; } else if(quizMode==='country-to-capital') questionHTML=`Какая столица у страны ${correct.country}?`; else questionHTML=`Какой стране принадлежит столица ${correct.capital}?`; document.getElementById('quizQuestion').innerHTML=questionHTML; currentAnswer=correct; variants.forEach(v=>{ const btn=document.createElement('div'); btn.className='answer-btn'; if(quizMode==='country-to-capital') btn.textContent=v.capital; else btn.textContent=v.country; btn.addEventListener('click',()=>selectAnswer(v)); answersDiv.appendChild(btn); }); }
-        function selectAnswer(selected){ if(answered) return; answered=true; const buttons=document.querySelectorAll('.answer-btn'); buttons.forEach(b=>b.style.pointerEvents='none'); if(selected===currentAnswer){ quizScore[0]++; Array.from(buttons).find(b=>b.textContent=== (quizMode==='country-to-capital'?selected.capital:selected.country)).classList.add('correct'); }else{ quizScore[1]++; const correctBtn=Array.from(buttons).find(b=>b.textContent=== (quizMode==='country-to-capital'?currentAnswer.capital:currentAnswer.country)); if(correctBtn) correctBtn.classList.add('correct'); const wrongBtn=Array.from(buttons).find(b=>b.textContent=== (quizMode==='country-to-capital'?selected.capital:selected.country)); if(wrongBtn) wrongBtn.classList.add('wrong'); } document.getElementById('quizScore').textContent=`Правильно: ${quizScore[0]} / ${quizScore[0]+quizScore[1]}`; document.getElementById('nextQuizBtn').style.display='block'; }
+        function nextQuiz(){
+            answered=false; document.getElementById('nextQuizBtn').style.display='none';
+            const answersDiv=document.getElementById('quizAnswers'); answersDiv.innerHTML='';
+            const mode = quizModes[quizModeIndex % 3];
+            quizModeIndex++;
+            const correctIndex=Math.floor(Math.random()*countries.length);
+            const correct=countries[correctIndex];
+            const variants=[correct];
+            while(variants.length<4){ const rnd=countries[Math.floor(Math.random()*countries.length)]; if(!variants.includes(rnd)) variants.push(rnd); }
+            shuffleArray(variants);
+            let questionHTML='';
+            if(mode==='flag-to-country'){
+                questionHTML=`Какой стране принадлежит флаг <img src="https://flagcdn.com/48x36/${correct.code}.png" style="width:48px;height:36px;vertical-align:middle;" onerror="this.style.display='none';this.nextElementSibling.style.display='inline';"> <span style="display:none;">[${correct.code}]</span>?`;
+            } else if(mode==='country-to-capital'){
+                questionHTML=`Какая столица у страны ${correct.country}?`;
+            } else {
+                questionHTML=`Какой стране принадлежит столица ${correct.capital}?`;
+            }
+            document.getElementById('quizQuestion').innerHTML=questionHTML;
+            currentAnswer=correct;
+            variants.forEach(v=>{
+                const btn=document.createElement('div'); btn.className='answer-btn';
+                btn.textContent = (mode==='country-to-capital')? v.capital : v.country;
+                btn.addEventListener('click',()=>selectAnswer(v));
+                answersDiv.appendChild(btn);
+            });
+        }
+        function selectAnswer(selected){
+            if(answered) return; answered=true;
+            const buttons=document.querySelectorAll('.answer-btn');
+            buttons.forEach(b=>b.style.pointerEvents='none');
+            if(selected===currentAnswer){
+                quizScore[0]++;
+                const correctBtn = Array.from(buttons).find(b=>b.textContent=== (quizModes[(quizModeIndex-1)%3]==='country-to-capital'?selected.capital:selected.country));
+                if(correctBtn) correctBtn.classList.add('correct');
+            }else{
+                quizScore[1]++;
+                const correctBtn = Array.from(buttons).find(b=>b.textContent=== (quizModes[(quizModeIndex-1)%3]==='country-to-capital'?currentAnswer.capital:currentAnswer.country));
+                if(correctBtn) correctBtn.classList.add('correct');
+                const wrongBtn = Array.from(buttons).find(b=>b.textContent=== (quizModes[(quizModeIndex-1)%3]==='country-to-capital'?selected.capital:selected.country));
+                if(wrongBtn) wrongBtn.classList.add('wrong');
+            }
+            document.getElementById('quizScore').textContent=`Правильно: ${quizScore[0]} / ${quizScore[0]+quizScore[1]}`;
+            document.getElementById('nextQuizBtn').style.display='block';
+        }
         window.nextQuiz = nextQuiz;
 
-        // Крестики-нолики (hotseat)
+        // Крестики-нолики
         let gameInitialized = false;
         let board, currentPlayer, gameActive, gameStatus, resetBtn;
         function initGame() {
             board = ['','','','','','','','',''];
-            currentPlayer = '❌'; // X начинает
+            currentPlayer = '❌';
             gameActive = true;
             gameStatus = document.getElementById('gameStatus');
             resetBtn = document.getElementById('resetGame');
@@ -668,43 +687,51 @@
             board[index] = currentPlayer;
             renderBoard();
             if (checkWin()) {
-                gameStatus.textContent = `Победили ${currentPlayer}!`;
-                gameActive = false;
-                disableAllCells();
-                return;
+                gameStatus.textContent = `Победили ${currentPlayer}!`; gameActive = false; return;
             }
             if (board.every(cell => cell !== '')) {
-                gameStatus.textContent = 'Ничья!';
-                gameActive = false;
-                disableAllCells();
-                return;
+                gameStatus.textContent = 'Ничья!'; gameActive = false; return;
             }
             currentPlayer = currentPlayer === '❌' ? '⭕' : '❌';
             gameStatus.textContent = `Ход: ${currentPlayer}`;
         }
-        function disableAllCells() {
-            document.querySelectorAll('.cell').forEach(c => c.classList.add('disabled'));
-        }
         function checkWin() {
-            const wins = [
-                [0,1,2],[3,4,5],[6,7,8],
-                [0,3,6],[1,4,7],[2,5,8],
-                [0,4,8],[2,4,6]
-            ];
-            return wins.some(pattern => {
-                const [a,b,c] = pattern;
-                return board[a] && board[a] === board[b] && board[a] === board[c];
-            });
+            const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+            return wins.some(w=> board[w[0]] && board[w[0]]===board[w[1]] && board[w[0]]===board[w[2]]);
         }
         function resetGame() {
-            board = ['','','','','','','','',''];
-            currentPlayer = '❌';
-            gameActive = true;
-            renderBoard();
-            gameStatus.textContent = `Ход: ${currentPlayer}`;
+            board = ['','','','','','','','','']; currentPlayer = '❌'; gameActive = true;
+            renderBoard(); gameStatus.textContent = `Ход: ${currentPlayer}`;
         }
-        // Инициализируем игру при первом открытии
-        gameInitialized = false;
+
+        // Цитаты
+        let quotesInitialized = false;
+        const quotes = [
+            { text: "Будь собой, остальные роли уже заняты.", author: "Оскар Уайльд" },
+            { text: "Жизнь — это то, что с тобой происходит, пока ты строишь другие планы.", author: "Джон Леннон" },
+            { text: "Сложнее всего начать действовать. Все остальное зависит от упорства.", author: "Амелия Эрхарт" },
+            { text: "Не считай дни. Пусть каждый день считается.", author: "Мухаммед Али" },
+            { text: "Успех — это способность шагать от поражения к поражению, не теряя энтузиазма.", author: "Уинстон Черчилль" }
+        ];
+        function initQuotes() {
+            document.getElementById('newQuoteBtn').addEventListener('click', showRandomQuote);
+            document.getElementById('copyQuoteBtn').addEventListener('click', copyQuote);
+            showRandomQuote();
+        }
+        function showRandomQuote() {
+            const q = quotes[Math.floor(Math.random() * quotes.length)];
+            document.getElementById('quoteText').textContent = `«${q.text}»`;
+            document.getElementById('quoteAuthor').textContent = `— ${q.author}`;
+        }
+        function copyQuote() {
+            const text = document.getElementById('quoteText').textContent + ' ' + document.getElementById('quoteAuthor').textContent;
+            navigator.clipboard.writeText(text).then(()=>alert('Цитата скопирована')).catch(()=>alert('Ошибка'));
+        }
+
+        // Донат (пробный)
+        window.donate = function(amount) {
+            alert(`Пробный режим: спасибо за поддержку в ${amount} ₽! Деньги не отправляются.`);
+        };
 
         // Копирование email
         document.getElementById('contactEmail').addEventListener('click',()=>{ const email=document.getElementById('emailText').textContent; navigator.clipboard.writeText(email).then(()=>{ const el=document.getElementById('contactEmail'); el.style.opacity='1'; el.innerHTML='📋 Email скопирован!'; setTimeout(()=>{el.innerHTML='📧 <span id="emailText">tape.power@outlook.com</span>';},1500); }).catch(()=>alert('Ошибка')); });
