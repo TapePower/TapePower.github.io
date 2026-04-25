@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quantum Solver Pro</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js">
+    </script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -26,7 +27,11 @@
             --accent: #0ea5e9;
         }
 
-        * { box-sizing: border-box; -webkit-user-select: none; user-select: none; }
+        * {
+            box-sizing: border-box;
+            -webkit-user-select: none;
+            user-select: none;
+        }
 
         body {
             font-family: 'Inter', sans-serif;
@@ -38,18 +43,72 @@
             min-height: 100vh;
             display: flex;
             justify-content: center;
+            align-items: flex-start;
             transition: background 0.5s ease;
         }
 
-        .container {
+        .main-wrapper {
             max-width: 1100px;
             width: 100%;
+        }
+
+        /* Табы */
+        .tab-nav {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            justify-content: center;
+        }
+
+        .tab-btn {
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            color: var(--text);
+            padding: 12px 30px;
+            border-radius: 14px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            letter-spacing: 0.5px;
+        }
+
+        .tab-btn.active {
+            background: var(--grad);
+            border-color: transparent;
+            color: #fff;
+            box-shadow: 0 8px 20px rgba(139, 92, 246, 0.4);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .container {
             display: grid;
             grid-template-columns: 1fr 350px;
             gap: 25px;
         }
 
-        @media (max-width: 900px) { .container { grid-template-columns: 1fr; } }
+        @media (max-width: 900px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Стили для колеса (используются внутри таба) */
+        .wheel-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 25px;
+        }
 
         .glass-card {
             background: var(--glass);
@@ -68,7 +127,14 @@
             margin-bottom: 30px;
         }
 
-        h1 { margin: 0; font-weight: 800; letter-spacing: -1px; background: var(--grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        h1 {
+            margin: 0;
+            font-weight: 800;
+            letter-spacing: -1px;
+            background: var(--grad);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
 
         .input-group {
             display: grid;
@@ -89,11 +155,16 @@
             transition: all 0.3s;
         }
 
-        [data-theme="light"] input { background: #fff; }
+        [data-theme="light"] input {
+            background: #fff;
+        }
 
-        input:focus { border-color: var(--primary); box-shadow: 0 0 15px rgba(139, 92, 246, 0.3); }
+        input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.3);
+        }
 
-        .btn-solve {
+        .btn-solve, .btn-spin {
             width: 100%;
             padding: 18px;
             border-radius: 12px;
@@ -107,7 +178,10 @@
             transition: transform 0.2s, box-shadow 0.2s;
         }
 
-        .btn-solve:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(139, 92, 246, 0.4); }
+        .btn-solve:hover, .btn-spin:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(139, 92, 246, 0.4);
+        }
 
         .root-box {
             margin-top: 30px;
@@ -132,12 +206,26 @@
             min-width: 150px;
         }
 
-        .num { border-bottom: 1px solid var(--text); padding: 2px 10px; }
-        .den { padding: 2px 10px; }
+        .num {
+            border-bottom: 1px solid var(--text);
+            padding: 2px 10px;
+        }
 
-        .val { font-family: 'Monaco', monospace; color: var(--accent); font-weight: 600; font-size: 1.1rem; }
+        .den {
+            padding: 2px 10px;
+        }
 
-        .chart-wrap { height: 300px; margin-top: 30px; }
+        .val {
+            font-family: 'Monaco', monospace;
+            color: var(--accent);
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .chart-wrap {
+            height: 300px;
+            margin-top: 30px;
+        }
 
         .history-list {
             max-height: 500px;
@@ -152,7 +240,10 @@
             opacity: 0.8;
         }
 
-        .history-item:hover { opacity: 1; background: rgba(255,255,255,0.03); }
+        .history-item:hover {
+            opacity: 1;
+            background: rgba(255,255,255,0.03);
+        }
 
         .theme-btn {
             background: var(--glass);
@@ -174,40 +265,69 @@
             -webkit-text-fill-color: transparent;
             letter-spacing: 3px;
             filter: drop-shadow(0 0 10px rgba(139, 92, 246, 0.5));
+            z-index: 10;
+        }
+
+        .wheel-result {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--accent);
+            margin-top: 15px;
         }
     </style>
 </head>
 <body data-theme="dark" oncontextmenu="return false;">
 
-<div class="container">
-    <div class="left-side">
-        <div class="glass-card">
-            <div class="header">
-                <h1>SOLVER PRO</h1>
-                <button class="theme-btn" onclick="toggleTheme()">🌓 Theme</button>
-            </div>
-            
-            <div class="input-group">
-                <input type="number" id="a" placeholder="a" step="any">
-                <input type="number" id="b" placeholder="b" step="any">
-                <input type="number" id="c" placeholder="c" step="any">
-            </div>
-            
-            <button class="btn-solve" onclick="calculate()">Вычислить решение</button>
+<div class="main-wrapper">
+    <!-- Навигация по вкладкам -->
+    <div class="tab-nav">
+        <button class="tab-btn active" data-tab="calc">🧮 Калькулятор</button>
+        <button class="tab-btn" data-tab="wheel">🎡 Колесо фортуны</button>
+    </div>
 
-            <div id="res-area" class="root-box"></div>
+    <!-- Вкладка калькулятора (оригинальный контент без изменений) -->
+    <div class="tab-content active" id="tab-calc">
+        <div class="container">
+            <div class="left-side">
+                <div class="glass-card">
+                    <div class="header">
+                        <h1>SOLVER PRO</h1>
+                        <button class="theme-btn" onclick="toggleTheme()">🌓 Theme</button>
+                    </div>
 
-            <div class="chart-wrap">
-                <canvas id="chart"></canvas>
+                    <div class="input-group">
+                        <input type="number" id="a" placeholder="a" step="any">
+                        <input type="number" id="b" placeholder="b" step="any">
+                        <input type="number" id="c" placeholder="c" step="any">
+                    </div>
+
+                    <button class="btn-solve" onclick="calculate()">Вычислить решение</button>
+
+                    <div id="res-area" class="root-box"></div>
+
+                    <div class="chart-wrap">
+                        <canvas id="chart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="right-side">
+                <div class="glass-card" style="height: 100%;">
+                    <h3 style="margin: 0; color: var(--primary);">История запросов</h3>
+                    <div id="h-list" class="history-list"></div>
+                    <button onclick="clearHistory()" style="margin-top: 20px; background: none; border: none; color: #ff4757; cursor: pointer; font-size: 0.8rem;">Очистить всё</button>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="right-side">
-        <div class="glass-card" style="height: 100%;">
-            <h3 style="margin: 0; color: var(--primary);">История запросов</h3>
-            <div id="h-list" class="history-list"></div>
-            <button onclick="clearHistory()" style="margin-top: 20px; background: none; border: none; color: #ff4757; cursor: pointer; font-size: 0.8rem;">Очистить всё</button>
+    <!-- Вкладка колеса фортуны -->
+    <div class="tab-content" id="tab-wheel">
+        <div class="glass-card wheel-container">
+            <h2 style="margin:0 0 20px; background: var(--grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Колесо фортуны</h2>
+            <canvas id="wheelCanvas" width="400" height="400" style="max-width: 100%; height: auto;"></canvas>
+            <button class="btn-spin" id="spinBtn">Испытать удачу</button>
+            <div class="wheel-result" id="wheelResult"></div>
         </div>
     </div>
 </div>
@@ -215,23 +335,59 @@
 <div class="author-tag">by TapePower</div>
 
 <script>
-    // Блокировка просмотра кода
+    // ================== Блокировка просмотра кода ==================
     document.onkeydown = function(e) {
-        if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 'I'.charCodeAt(0) || e.keyCode == 'J'.charCodeAt(0) || e.keyCode == 'C'.charCodeAt(0))) || (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0))) {
+        if (e.keyCode == 123 ||
+            (e.ctrlKey && e.shiftKey && (e.keyCode == 'I'.charCodeAt(0) || e.keyCode == 'J'.charCodeAt(0) || e.keyCode == 'C'.charCodeAt(0))) ||
+            (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0))) {
             return false;
         }
     };
 
+    // ================== Логика табов ==================
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
+    let currentTab = 'calc';
+
+    tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const tabName = btn.getAttribute('data-tab');
+            if (tabName === currentTab) return;
+            // Убираем активный класс у всех кнопок и контента
+            tabBtns.forEach(b => b.classList.remove('active'));
+            tabContents.forEach(c => c.classList.remove('active'));
+            // Активируем нужные
+            btn.classList.add('active');
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+            currentTab = tabName;
+
+            // При переключении на калькулятор обновим размер графика, если он существует
+            if (tabName === 'calc' && chart) {
+                setTimeout(() => {
+                    chart.resize();
+                }, 50);
+            }
+            // При переключении на колесо инициализируем его, если еще не инициализировано
+            if (tabName === 'wheel' && !wheelInitialized) {
+                initWheel();
+                wheelInitialized = true;
+            }
+        });
+    });
+
+    // ================== Оригинальный код калькулятора (без изменений) ==================
     let chart = null;
     let historyData = JSON.parse(localStorage.getItem('eq_history')) || [];
 
-    window.onload = () => { renderHistory(); };
+    window.onload = () => {
+        renderHistory();
+    };
 
     function toggleTheme() {
         const b = document.body;
         const t = b.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
         b.setAttribute('data-theme', t);
-        if(chart) calculate(); // Обновить цвета графика
+        if (chart) calculate(); // Обновить цвета графика
     }
 
     function calculate() {
@@ -281,13 +437,14 @@
     function updateChart(a, b, c, roots) {
         const ctx = document.getElementById('chart').getContext('2d');
         const mid = -b / (2 * a);
-        const labels = [], data = [];
-        for(let x = mid-5; x <= mid+5; x += 0.2) {
+        const labels = [],
+            data = [];
+        for (let x = mid - 5; x <= mid + 5; x += 0.2) {
             labels.push(x.toFixed(1));
-            data.push(a*x*x + b*x + c);
+            data.push(a * x * x + b * x + c);
         }
 
-        if(chart) chart.destroy();
+        if (chart) chart.destroy();
         const isDark = document.body.getAttribute('data-theme') === 'dark';
 
         chart = new Chart(ctx, {
@@ -306,10 +463,28 @@
                 responsive: true,
                 maintainAspectRatio: false,
                 scales: {
-                    x: { ticks: { color: isDark ? '#64748b' : '#94a3b8' }, grid: { display: false } },
-                    y: { ticks: { color: isDark ? '#64748b' : '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+                    x: {
+                        ticks: {
+                            color: isDark ? '#64748b' : '#94a3b8'
+                        },
+                        grid: {
+                            display: false
+                        }
+                    },
+                    y: {
+                        ticks: {
+                            color: isDark ? '#64748b' : '#94a3b8'
+                        },
+                        grid: {
+                            color: 'rgba(255,255,255,0.05)'
+                        }
+                    }
                 },
-                plugins: { legend: { display: false } }
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
             }
         });
     }
@@ -320,13 +495,14 @@
             a: r.length ? r.map(n => n.toFixed(4)).join('; ') : 'нет корней'
         };
         historyData.unshift(entry);
-        if(historyData.length > 20) historyData.pop();
+        if (historyData.length > 20) historyData.pop();
         localStorage.setItem('eq_history', JSON.stringify(historyData));
         renderHistory();
     }
 
     function renderHistory() {
         const list = document.getElementById('h-list');
+        if (!list) return;
         list.innerHTML = historyData.map(i => `
             <div class="history-item">
                 <div style="font-weight: 600; color: var(--text);">${i.q}</div>
@@ -340,6 +516,135 @@
         historyData = [];
         renderHistory();
     }
+
+    // ================== Колесо фортуны ==================
+    let wheelInitialized = false;
+    const sectors = [
+        { label: '🎁 Подарок', color: '#FF6384' },
+        { label: '💎 Джекпот', color: '#36A2EB' },
+        { label: '🍀 Удача', color: '#FFCE56' },
+        { label: '⭐ Сюрприз', color: '#4BC0C0' },
+        { label: '💸 100 монет', color: '#9966FF' },
+        { label: '😴 Попробуй ещё', color: '#FF9F40' },
+        { label: '🔥 Бонус', color: '#C9CBCF' },
+        { label: '🌈 Мегаприз', color: '#7BC8A4' }
+    ];
+
+    let wheelAngle = 0;
+    let spinning = false;
+    let spinVelocity = 0;
+    let spinAnimationId = null;
+
+    function initWheel() {
+        drawWheel(0);
+        document.getElementById('spinBtn').addEventListener('click', spinWheel);
+    }
+
+    function drawWheel(angle) {
+        const canvas = document.getElementById('wheelCanvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+        const radius = Math.min(centerX, centerY) - 10;
+        const numSectors = sectors.length;
+        const arc = (2 * Math.PI) / numSectors;
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Рисуем сектора
+        for (let i = 0; i < numSectors; i++) {
+            const startAngle = angle + i * arc;
+            const endAngle = startAngle + arc;
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY);
+            ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+            ctx.closePath();
+            ctx.fillStyle = sectors[i].color;
+            ctx.fill();
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Текст
+            ctx.save();
+            ctx.translate(centerX, centerY);
+            ctx.rotate(startAngle + arc / 2);
+            ctx.textAlign = 'right';
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 14px Inter, sans-serif';
+            ctx.shadowColor = 'rgba(0,0,0,0.5)';
+            ctx.shadowBlur = 4;
+            ctx.fillText(sectors[i].label, radius - 15, 5);
+            ctx.restore();
+        }
+
+        // Центральный круг
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, 20, 0, 2 * Math.PI);
+        ctx.fillStyle = '#fff';
+        ctx.fill();
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Указатель (стрелка сверху)
+        ctx.beginPath();
+        ctx.moveTo(centerX - 10, centerY - radius + 5);
+        ctx.lineTo(centerX + 10, centerY - radius + 5);
+        ctx.lineTo(centerX, centerY - radius - 15);
+        ctx.closePath();
+        ctx.fillStyle = '#FFD700';
+        ctx.fill();
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+    }
+
+    function spinWheel() {
+        if (spinning) return;
+        spinning = true;
+        document.getElementById('wheelResult').textContent = '...';
+        // Случайная сила вращения (10-20 рад/с) и дополнительный угол
+        spinVelocity = Math.random() * 10 + 15;
+        const additionalAngle = Math.random() * 2 * Math.PI;
+        const targetAngle = wheelAngle + spinVelocity * 3 + additionalAngle; // примерно 3 секунды
+        const startAngle = wheelAngle;
+        const startTime = performance.now();
+        const duration = 3000; // 3 секунды
+
+        function animate(now) {
+            const elapsed = now - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            // easing: замедление в конце
+            const easeOutCubic = 1 - Math.pow(1 - progress, 3);
+            const currentAngle = startAngle + (targetAngle - startAngle) * easeOutCubic;
+            wheelAngle = currentAngle % (2 * Math.PI);
+            drawWheel(wheelAngle);
+
+            if (progress < 1) {
+                spinAnimationId = requestAnimationFrame(animate);
+            } else {
+                // Определяем выигрышный сектор
+                const normalizedAngle = (wheelAngle % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
+                const arc = (2 * Math.PI) / sectors.length;
+                // Указатель находится сверху (угол -PI/2 или 3*PI/2). Скорректируем.
+                const pointerAngle = (3 * Math.PI / 2) % (2 * Math.PI); // верх
+                // Найдем сектор, в который попадает указатель
+                let sectorIndex = Math.floor(((pointerAngle - normalizedAngle + 2 * Math.PI) % (2 * Math.PI)) / arc);
+                sectorIndex = sectorIndex % sectors.length;
+                document.getElementById('wheelResult').textContent = `Выпало: ${sectors[sectorIndex].label}`;
+                spinning = false;
+                spinAnimationId = null;
+            }
+        }
+
+        requestAnimationFrame(animate);
+    }
+
+    // Инициализация колеса при загрузке страницы, если вкладка активна по умолчанию? 
+    // По умолчанию активен калькулятор, поэтому колесо инициализируем при открытии вкладки (в обработчике табов).
+    // На случай, если пользователь сразу переключится, флаг и вызов initWheel произойдет по клику на таб.
 </script>
 
 </body>
