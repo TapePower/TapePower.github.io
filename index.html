@@ -1,8 +1,10 @@
+Вот обновлённый полнофункциональный сайт с главной страницей‑меню, онлайн‑счётчиком, новой вкладкой «Время», улучшенным генератором чисел (без повторов), расширенным полем для секторов колеса и оптимизацией под мобильные устройства.
+```html
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=5.0">
     <title>Quantum Solver Pro</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js">
     </script>
@@ -32,6 +34,7 @@
             -webkit-user-select: none;
             user-select: none;
         }
+
         body {
             font-family: 'Inter', sans-serif;
             background-color: var(--bg);
@@ -45,17 +48,26 @@
             align-items: center;
             transition: background 0.5s ease;
         }
+
         .main-wrapper {
             max-width: 1100px;
             width: 100%;
             flex: 1;
         }
+
+        /* Навигация */
         .tab-nav {
             display: flex;
             gap: 10px;
             margin-bottom: 25px;
             justify-content: center;
             flex-wrap: wrap;
+            position: sticky;
+            top: 10px;
+            z-index: 20;
+            background: var(--bg);
+            padding: 10px 0;
+            border-radius: 20px;
         }
         .tab-btn {
             background: var(--glass);
@@ -70,6 +82,7 @@
             cursor: pointer;
             transition: all 0.3s;
             letter-spacing: 0.5px;
+            white-space: nowrap;
         }
         .tab-btn.active {
             background: var(--grad);
@@ -77,23 +90,21 @@
             color: #fff;
             box-shadow: 0 8px 20px rgba(139, 92, 246, 0.4);
         }
+
         .tab-content {
             display: none;
         }
         .tab-content.active {
             display: block;
         }
+
         .container {
             display: grid;
             grid-template-columns: 1fr 350px;
             gap: 25px;
         }
-        @media (max-width: 900px) {
-            .container {
-                grid-template-columns: 1fr;
-            }
-        }
 
+        /* Карточки */
         .glass-card {
             background: var(--glass);
             backdrop-filter: blur(12px);
@@ -102,14 +113,17 @@
             border-radius: 24px;
             padding: 35px;
             box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+            margin-bottom: 25px;
+            width: 100%;
         }
+
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 30px;
         }
-        h1, h2 {
+        h1, h2, h3 {
             margin: 0;
             font-weight: 800;
             letter-spacing: -1px;
@@ -117,13 +131,14 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
+
         .input-group {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 15px;
             margin-bottom: 25px;
         }
-        input, textarea {
+        input, textarea, select {
             background: rgba(0,0,0,0.2);
             border: 1px solid var(--glass-border);
             padding: 15px;
@@ -132,14 +147,17 @@
             font-size: 1.1rem;
             outline: none;
             transition: all 0.3s;
+            width: 100%;
+            font-family: inherit;
         }
-        [data-theme="light"] input, [data-theme="light"] textarea {
+        [data-theme="light"] input, [data-theme="light"] textarea, [data-theme="light"] select {
             background: #fff;
         }
-        input:focus, textarea:focus {
+        input:focus, textarea:focus, select:focus {
             border-color: var(--primary);
             box-shadow: 0 0 15px rgba(139, 92, 246, 0.3);
         }
+
         .btn {
             width: 100%;
             padding: 16px;
@@ -153,11 +171,13 @@
             text-transform: uppercase;
             transition: transform 0.2s, box-shadow 0.2s;
             margin-top: 15px;
+            letter-spacing: 0.5px;
         }
         .btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 10px 20px rgba(139, 92, 246, 0.4);
         }
+
         .theme-btn {
             background: var(--glass);
             border: 1px solid var(--glass-border);
@@ -166,7 +186,9 @@
             border-radius: 10px;
             cursor: pointer;
             font-size: 0.9rem;
+            white-space: nowrap;
         }
+
         .author-tag {
             position: fixed;
             bottom: 25px;
@@ -180,6 +202,24 @@
             filter: drop-shadow(0 0 10px rgba(139, 92, 246, 0.5));
             z-index: 10;
         }
+
+        .online-counter {
+            position: fixed;
+            bottom: 25px;
+            left: 25px;
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border-radius: 30px;
+            padding: 8px 18px;
+            font-size: 0.9rem;
+            color: var(--accent);
+            border: 1px solid var(--glass-border);
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
         .contact-email {
             text-align: center;
             margin-top: 40px;
@@ -193,6 +233,8 @@
             text-decoration: none;
             border-bottom: 1px dashed var(--accent);
         }
+
+        /* Подтабы */
         .subtab-nav {
             display: flex;
             gap: 8px;
@@ -220,6 +262,8 @@
         .subtab-content.active {
             display: block;
         }
+
+        /* Стили для генератора паролей */
         .password-settings {
             display: flex;
             flex-wrap: wrap;
@@ -260,6 +304,8 @@
             color: #ff4757;
             font-size: 0.9rem;
         }
+
+        /* Случайные числа */
         .random-numbers {
             font-size: 1.2rem;
             word-break: break-all;
@@ -280,19 +326,142 @@
             gap: 20px;
             align-items: center;
         }
+
+        /* Главная страница */
+        .home-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+        .home-card {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            backdrop-filter: blur(10px);
+        }
+        .home-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+        }
+        .home-card .icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+        .home-card .title {
+            font-weight: 700;
+            font-size: 1.3rem;
+            margin-bottom: 8px;
+        }
+        .home-card .desc {
+            opacity: 0.7;
+            font-size: 0.9rem;
+        }
+
+        /* Время */
+        .time-display {
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin: 20px 0;
+            font-feature-settings: "tnum";
+        }
+        .date-display {
+            font-size: 1.2rem;
+            opacity: 0.8;
+            text-align: center;
+        }
+
+        /* Мобильная адаптация */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            .tab-nav {
+                gap: 5px;
+                top: 5px;
+            }
+            .tab-btn {
+                padding: 10px 15px;
+                font-size: 0.85rem;
+                border-radius: 10px;
+            }
+            .glass-card {
+                padding: 20px;
+            }
+            .container {
+                grid-template-columns: 1fr;
+            }
+            .input-group {
+                grid-template-columns: 1fr;
+            }
+            .password-settings {
+                flex-direction: column;
+            }
+            .home-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .time-display {
+                font-size: 2rem;
+            }
+            .author-tag {
+                font-size: 1.1rem;
+            }
+            .online-counter {
+                font-size: 0.8rem;
+                padding: 5px 12px;
+            }
+        }
     </style>
 </head>
 <body data-theme="dark" oncontextmenu="return false;">
 
 <div class="main-wrapper">
+    <!-- Навигация по вкладкам -->
     <div class="tab-nav">
-        <button class="tab-btn active" data-tab="calc">🧮 Калькулятор</button>
+        <button class="tab-btn active" data-tab="home">🏠 Главная</button>
+        <button class="tab-btn" data-tab="calc">🧮 Калькулятор</button>
         <button class="tab-btn" data-tab="luck">🎲 Удача</button>
-        <button class="tab-btn" data-tab="password">🔐 Генератор паролей</button>
+        <button class="tab-btn" data-tab="password">🔐 Пароли</button>
+        <button class="tab-btn" data-tab="time">🕒 Время</button>
     </div>
 
-    <!-- Калькулятор -->
-    <div class="tab-content active" id="tab-calc">
+    <!-- 0. Главная страница -->
+    <div class="tab-content active" id="tab-home">
+        <div class="glass-card" style="text-align:center;">
+            <h1 style="font-size:2.5rem; margin-bottom:10px;">Quantum Solver Pro</h1>
+            <p style="opacity:0.8; font-size:1.1rem;">Набор инструментов для вычислений, случайностей и времени</p>
+            <div class="home-grid">
+                <div class="home-card" data-goto="calc">
+                    <div class="icon">🧮</div>
+                    <div class="title">Калькулятор</div>
+                    <div class="desc">Решение квадратных уравнений</div>
+                </div>
+                <div class="home-card" data-goto="luck">
+                    <div class="icon">🎲</div>
+                    <div class="title">Удача</div>
+                    <div class="desc">Колесо фортуны и случайные числа</div>
+                </div>
+                <div class="home-card" data-goto="password">
+                    <div class="icon">🔐</div>
+                    <div class="title">Генератор паролей</div>
+                    <div class="desc">Надёжные пароли для всего</div>
+                </div>
+                <div class="home-card" data-goto="time">
+                    <div class="icon">🕒</div>
+                    <div class="title">Мировое время</div>
+                    <div class="desc">Точное время в любом городе</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 1. Калькулятор -->
+    <div class="tab-content" id="tab-calc">
         <div class="container">
             <div class="left-side">
                 <div class="glass-card">
@@ -320,9 +489,9 @@
         </div>
     </div>
 
-    <!-- Удача (колесо + случайные числа) -->
+    <!-- 2. Удача (колесо + случайные числа) -->
     <div class="tab-content" id="tab-luck">
-        <div class="glass-card" style="margin-bottom:20px;">
+        <div class="glass-card">
             <div class="header">
                 <h2>Удача</h2>
                 <button class="theme-btn" onclick="toggleTheme()">🌓 Тема</button>
@@ -340,7 +509,7 @@
                     <button class="btn" id="spinBtn">Испытать удачу</button>
                     <div style="width:100%;">
                         <label>Сектора (каждый с новой строки):</label>
-                        <textarea id="sectorArea" rows="5" placeholder="Подарок&#10;Джекпот&#10;Удача&#10;Сюрприз&#10;100 монет">Подарок
+                        <textarea id="sectorArea" rows="8" placeholder="Подарок&#10;Джекпот&#10;Удача&#10;Сюрприз&#10;100 монет">Подарок
 Джекпот
 Удача
 Сюрприз
@@ -381,6 +550,9 @@
                             <label><input type="checkbox" id="excludeEnabled"> исключить числа</label>
                             <input type="text" id="excludeList" placeholder="список целых чисел через запятую" style="width:100%; margin-top:5px;">
                         </div>
+                        <div style="margin-top:15px;">
+                            <label><input type="checkbox" id="noRepeat"> исключить повторы</label>
+                        </div>
                         <button class="btn" id="generateRandomBtn">Сгенерировать</button>
                     </div>
                 </div>
@@ -388,7 +560,7 @@
         </div>
     </div>
 
-    <!-- Генератор паролей -->
+    <!-- 3. Генератор паролей -->
     <div class="tab-content" id="tab-password">
         <div class="glass-card">
             <div class="header">
@@ -426,11 +598,44 @@
         </div>
     </div>
 
-    <!-- Контактная почта с копированием -->
+    <!-- 4. Мировое время -->
+    <div class="tab-content" id="tab-time">
+        <div class="glass-card">
+            <div class="header">
+                <h2>Мировое время</h2>
+                <button class="theme-btn" onclick="toggleTheme()">🌓 Тема</button>
+            </div>
+            <div style="display:flex; flex-wrap:wrap; gap:15px; align-items:end; margin-bottom:30px;">
+                <div style="flex:1; min-width:200px;">
+                    <label>Город</label>
+                    <select id="citySelect" style="margin-top:5px;">
+                        <option value="Europe/Moscow">Москва, Россия</option>
+                        <option value="Europe/London">Лондон, Великобритания</option>
+                        <option value="America/New_York">Нью-Йорк, США</option>
+                        <option value="Asia/Tokyo">Токио, Япония</option>
+                        <option value="Asia/Shanghai">Пекин, Китай</option>
+                        <option value="Europe/Berlin">Берлин, Германия</option>
+                        <option value="America/Sao_Paulo">Сан-Паулу, Бразилия</option>
+                        <option value="Australia/Sydney">Сидней, Австралия</option>
+                        <option value="Pacific/Auckland">Окленд, Новая Зеландия</option>
+                        <option value="Africa/Cairo">Каир, Египет</option>
+                    </select>
+                </div>
+                <button class="btn" id="showTimeBtn" style="width:auto; margin-top:0;">Показать время</button>
+            </div>
+            <div class="time-display" id="timeDisplay">--:--:--</div>
+            <div class="date-display" id="dateDisplay">--</div>
+        </div>
+    </div>
+
+    <!-- Контактная почта -->
     <div class="contact-email" id="contactEmail" title="Нажмите, чтобы скопировать">
         📧 <span id="emailText">tape.power@outlook.com</span>
     </div>
 </div>
+
+<!-- Онлайн-счётчик -->
+<div class="online-counter" id="onlineCounter">👥 <span id="onlineCount">1</span> онлайн</div>
 
 <div class="author-tag">by TapePower</div>
 
@@ -444,6 +649,43 @@
         }
     };
 
+    // ================== Онлайн-счётчик ==================
+    const ONLINE_KEY = 'online_clients';
+    const clientId = Date.now() + Math.random().toString(36).substr(2, 9);
+    let onlineInterval;
+
+    function getOnlineList() {
+        try {
+            return JSON.parse(localStorage.getItem(ONLINE_KEY)) || [];
+        } catch(e) { return []; }
+    }
+    function setOnlineList(list) {
+        localStorage.setItem(ONLINE_KEY, JSON.stringify(list));
+    }
+
+    function updateOnlinePresence() {
+        const list = getOnlineList().filter(entry => (entry.id !== clientId) && (Date.now() - entry.time < 10000));
+        list.push({ id: clientId, time: Date.now() });
+        setOnlineList(list);
+        document.getElementById('onlineCount').textContent = list.length;
+    }
+
+    window.addEventListener('load', () => {
+        updateOnlinePresence();
+        onlineInterval = setInterval(updateOnlinePresence, 5000);
+    });
+    window.addEventListener('beforeunload', () => {
+        clearInterval(onlineInterval);
+        const list = getOnlineList().filter(entry => entry.id !== clientId);
+        setOnlineList(list);
+    });
+    window.addEventListener('storage', (e) => {
+        if (e.key === ONLINE_KEY) {
+            const list = getOnlineList().filter(entry => Date.now() - entry.time < 10000);
+            document.getElementById('onlineCount').textContent = list.length;
+        }
+    });
+
     // ================== Темы ==================
     function toggleTheme() {
         const b = document.body;
@@ -452,30 +694,48 @@
         if (typeof chart !== 'undefined' && chart) updateChartAfterTheme();
     }
 
-    // ================== Табы ==================
+    // ================== Управление вкладками ==================
     const tabBtns = document.querySelectorAll('.tab-btn');
     const tabContents = document.querySelectorAll('.tab-content');
-    let currentTab = 'calc';
+    let currentTab = 'home';
+
+    function switchTab(tabName) {
+        if (tabName === currentTab) return;
+        tabBtns.forEach(b => b.classList.remove('active'));
+        tabContents.forEach(c => c.classList.remove('active'));
+        const btn = document.querySelector(`.tab-btn[data-tab="${tabName}"]`);
+        const content = document.getElementById(`tab-${tabName}`);
+        if (btn) btn.classList.add('active');
+        if (content) content.classList.add('active');
+        currentTab = tabName;
+
+        // Инициализация по требованию
+        if (tabName === 'calc' && chart) setTimeout(() => chart.resize(), 50);
+        if (tabName === 'luck' && !wheelInitialized) {
+            initWheel();
+            wheelInitialized = true;
+        }
+        if (tabName === 'password' && !passwordInitialized) {
+            initPassword();
+            passwordInitialized = true;
+        }
+        if (tabName === 'time' && !timeInitialized) {
+            initTimeTab();
+            timeInitialized = true;
+        }
+    }
 
     tabBtns.forEach(btn => {
         btn.addEventListener('click', () => {
-            const tabName = btn.getAttribute('data-tab');
-            if (tabName === currentTab) return;
-            tabBtns.forEach(b => b.classList.remove('active'));
-            tabContents.forEach(c => c.classList.remove('active'));
-            btn.classList.add('active');
-            document.getElementById(`tab-${tabName}`).classList.add('active');
-            currentTab = tabName;
+            switchTab(btn.getAttribute('data-tab'));
+        });
+    });
 
-            if (tabName === 'calc' && chart) setTimeout(() => chart.resize(), 50);
-            if (tabName === 'luck' && !wheelInitialized) {
-                initWheel();
-                wheelInitialized = true;
-            }
-            if (tabName === 'password' && !passwordInitialized) {
-                initPassword();
-                passwordInitialized = true;
-            }
+    // Переход с главной страницы
+    document.querySelectorAll('.home-card').forEach(card => {
+        card.addEventListener('click', () => {
+            const target = card.getAttribute('data-goto');
+            if (target) switchTab(target);
         });
     });
 
@@ -672,7 +932,7 @@
         document.getElementById('saveRandomBtn').addEventListener('click', saveRandomNumbers);
         document.querySelectorAll('input[name="randomSource"]').forEach(r => r.addEventListener('change', toggleSource));
         toggleSource();
-        generateRandomNumbers(); // первоначальная генерация
+        generateRandomNumbers();
     }
 
     function toggleSource() {
@@ -684,6 +944,7 @@
     function generateRandomNumbers() {
         const count = parseInt(document.getElementById('randomCount').value) || 8;
         const isRange = document.querySelector('input[name="randomSource"]:checked').value === 'range';
+        const noRepeat = document.getElementById('noRepeat').checked;
         let pool = [];
         if (isRange) {
             const min = parseInt(document.getElementById('rangeMin').value) || 1;
@@ -702,9 +963,16 @@
             document.getElementById('randomNumbersDisplay').textContent = 'Нет доступных чисел';
             return;
         }
-        const result = [];
-        for (let i = 0; i < count; i++) {
-            result.push(pool[Math.floor(Math.random() * pool.length)]);
+        if (noRepeat && count > pool.length) {
+            document.getElementById('randomNumbersDisplay').textContent = `Ошибка: без повторов можно выбрать максимум ${pool.length} чисел`;
+            return;
+        }
+        let result;
+        if (noRepeat) {
+            const shuffled = [...pool].sort(() => Math.random() - 0.5);
+            result = shuffled.slice(0, count);
+        } else {
+            result = Array.from({ length: count }, () => pool[Math.floor(Math.random() * pool.length)]);
         }
         document.getElementById('randomNumbersDisplay').textContent = result.join(' ');
     }
@@ -767,6 +1035,43 @@
             }
             tbody.appendChild(row);
         }
+    }
+
+    // ================== Мировое время ==================
+    let timeInitialized = false;
+    let timeInterval = null;
+
+    function initTimeTab() {
+        document.getElementById('showTimeBtn').addEventListener('click', updateTimeDisplay);
+        updateTimeDisplay();
+    }
+
+    function updateTimeDisplay() {
+        const tz = document.getElementById('citySelect').value;
+        try {
+            const now = new Date();
+            const formatter = new Intl.DateTimeFormat('ru-RU', {
+                timeZone: tz,
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            });
+            const dateFormatter = new Intl.DateTimeFormat('ru-RU', {
+                timeZone: tz,
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                weekday: 'long'
+            });
+            document.getElementById('timeDisplay').textContent = formatter.format(now);
+            document.getElementById('dateDisplay').textContent = dateFormatter.format(now);
+        } catch (e) {
+            document.getElementById('timeDisplay').textContent = 'Ошибка';
+            document.getElementById('dateDisplay').textContent = '';
+        }
+        if (timeInterval) clearInterval(timeInterval);
+        timeInterval = setInterval(updateTimeDisplay, 1000);
     }
 
     // ================== Копирование email ==================
