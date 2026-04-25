@@ -3,136 +3,228 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Решение квадратных уравнений</title>
+    <title>Advanced Equation Solver</title>
     <style>
+        :root {
+            --primary: #6366f1;
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text: #f8fafc;
+            --accent: #22d3ee;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f7f6;
+            font-family: 'Inter', system-ui, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            margin: 0;
+            min-height: 100vh;
+            padding: 20px;
         }
-        .container {
-            background: white;
+
+        .main-layout {
+            display: grid;
+            grid-template-columns: 400px 300px;
+            gap: 20px;
+            max-width: 100%;
+        }
+
+        @media (max-width: 768px) {
+            .main-layout { grid-template-columns: 1fr; }
+        }
+
+        .card {
+            background: var(--card-bg);
             padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            width: 100%;
-            max-width: 400px;
-            text-align: center;
+            border-radius: 16px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255,255,255,0.1);
         }
-        h1 { color: #333; font-size: 1.5rem; margin-bottom: 1.5rem; }
-        .equation-view {
-            font-style: italic;
-            font-size: 1.2rem;
-            margin-bottom: 1rem;
-            color: #555;
+
+        h1 { margin-top: 0; font-size: 1.5rem; color: var(--accent); }
+
+        .input-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin: 20px 0;
         }
-        .input-group {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            margin-bottom: 1.5rem;
-        }
+
+        .input-group label { display: block; font-size: 0.8rem; margin-bottom: 5px; color: #94a3b8; }
+
         input {
-            width: 60px;
-            padding: 10px;
-            border: 2px solid #ddd;
-            border-radius: 6px;
+            width: 100%;
+            background: #0f172a;
+            border: 1px solid #334155;
+            padding: 12px;
+            border-radius: 8px;
+            color: white;
             font-size: 1rem;
-            text-align: center;
-            transition: border-color 0.3s;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
         }
-        input:focus {
-            border-color: #4A90E2;
-            outline: none;
-        }
+
+        input:focus { border-color: var(--primary); outline: none; }
+
         button {
-            background-color: #4A90E2;
+            width: 100%;
+            background: var(--primary);
             color: white;
             border: none;
-            padding: 12px 24px;
-            border-radius: 6px;
-            font-size: 1rem;
+            padding: 14px;
+            border-radius: 8px;
+            font-weight: 600;
             cursor: pointer;
-            width: 100%;
-            transition: background 0.3s;
+            transition: transform 0.1s, opacity 0.2s;
         }
-        button:hover { background-color: #357ABD; }
-        #result {
-            margin-top: 1.5rem;
-            text-align: left;
-            padding: 1rem;
-            border-radius: 6px;
-            background: #f9f9f9;
-            min-height: 50px;
-            display: none;
+
+        button:active { transform: scale(0.98); }
+        button:hover { opacity: 0.9; }
+
+        /* Оформление дробей */
+        .fraction-res {
+            display: inline-flex;
+            flex-direction: column;
+            vertical-align: middle;
+            text-align: center;
+            margin-right: 10px;
+            font-size: 0.9rem;
         }
-        .step { color: #666; font-size: 0.9rem; margin-bottom: 5px; }
-        .answer { font-weight: bold; color: #2c3e50; margin-top: 10px; }
+        .fraction-up { border-bottom: 1px solid var(--text); padding: 0 5px; }
+        .fraction-down { padding: 0 5px; }
+
+        .res-item { margin-bottom: 20px; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 10px; }
+
+        /* История */
+        .history-card { height: 500px; display: flex; flex-direction: column; }
+        .history-list { overflow-y: auto; flex-grow: 1; font-size: 0.85rem; }
+        .history-item { 
+            padding: 10px 0; 
+            border-bottom: 1px solid #334155; 
+            color: #94a3b8;
+        }
+
+        .watermark {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            font-size: 0.8rem;
+            color: #475569;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>Квадратное уравнение</h1>
-    <div class="equation-view">ax² + bx + c = 0</div>
-    
-    <div class="input-group">
-        <input type="number" id="a" placeholder="a" step="any">
-        <input type="number" id="b" placeholder="b" step="any">
-        <input type="number" id="c" placeholder="c" step="any">
+<div class="main-layout">
+    <div class="card">
+        <h1>Квадратное уравнение</h1>
+        <p style="color: #94a3b8">ax² + bx + c = 0</p>
+        
+        <div class="input-row">
+            <div class="input-group">
+                <label>Коэф. a</label>
+                <input type="number" id="a" placeholder="1" step="any">
+            </div>
+            <div class="input-group">
+                <label>Коэф. b</label>
+                <input type="number" id="b" placeholder="0" step="any">
+            </div>
+            <div class="input-group">
+                <label>Коэф. c</label>
+                <input type="number" id="c" placeholder="0" step="any">
+            </div>
+        </div>
+
+        <button onclick="solve()">Рассчитать корни</button>
+
+        <div id="output" style="margin-top: 25px;"></div>
     </div>
 
-    <button onclick="solve()">Решить уравнение</button>
-
-    <div id="result"></div>
+    <div class="card history-card">
+        <h2 style="font-size: 1.1rem; margin-top: 0;">История запросов</h2>
+        <div id="historyList" class="history-list">
+            <div style="color: #475569; text-align: center; margin-top: 20px;">История пуста</div>
+        </div>
+    </div>
 </div>
 
+<div class="watermark">by TapePower</div>
+
 <script>
+    let history = [];
+
     function solve() {
         const a = parseFloat(document.getElementById('a').value);
         const b = parseFloat(document.getElementById('b').value);
         const c = parseFloat(document.getElementById('c').value);
-        const resultDiv = document.getElementById('result');
+        const output = document.getElementById('output');
 
-        if (isNaN(a) || isNaN(b) || isNaN(c)) {
-            alert("Пожалуйста, введите все коэффициенты");
-            return;
-        }
-
+        if (isNaN(a) || isNaN(b) || isNaN(c)) return;
         if (a === 0) {
-            alert("Коэффициент 'a' не может быть равен 0 (это будет линейное уравнение)");
+            output.innerHTML = "Ошибка: 'a' не может быть 0";
             return;
         }
 
-        resultDiv.style.display = 'block';
-        resultDiv.innerHTML = '';
-
-        // Вычисляем дискриминант
         const D = b * b - 4 * a * c;
-        
-        let html = `<div class="step">1. Дискриминант D = b² - 4ac</div>`;
-        html += `<div class="step">D = ${b}² - 4 · ${a} · ${c} = <b>${D}</b></div>`;
+        let resultHTML = `<div class="res-item"><strong>D = ${D}</strong></div>`;
+        let roots = [];
 
         if (D > 0) {
-            const x1 = (-b + Math.sqrt(D)) / (2 * a);
-            const x2 = (-b - Math.sqrt(D)) / (2 * a);
-            html += `<div class="step">2. D > 0, значит 2 корня:</div>`;
-            html += `<div class="answer">x₁ = ${x1.toFixed(3)}</div>`;
-            html += `<div class="answer">x₂ = ${x2.toFixed(3)}</div>`;
+            const sqrtD = Math.sqrt(D);
+            const x1 = (-b + sqrtD) / (2 * a);
+            const x2 = (-b - sqrtD) / (2 * a);
+            
+            resultHTML += renderRoot("x₁", `-(${b}) + √${D}`, 2*a, x1);
+            resultHTML += renderRoot("x₂", `-(${b}) - √${D}`, 2*a, x2);
+            roots = [x1.toFixed(10), x2.toFixed(10)];
         } else if (D === 0) {
             const x = -b / (2 * a);
-            html += `<div class="step">2. D = 0, значит 1 корень:</div>`;
-            html += `<div class="answer">x = ${x.toFixed(3)}</div>`;
+            resultHTML += renderRoot("x", `-${b}`, 2*a, x);
+            roots = [x.toFixed(10)];
         } else {
-            html += `<div class="step">2. D < 0</div>`;
-            html += `<div class="answer">Действительных корней нет</div>`;
+            resultHTML += "<div>Корней среди действительных чисел нет</div>";
+            roots = ["Нет корней"];
         }
 
-        resultDiv.innerHTML = html;
+        output.innerHTML = resultHTML;
+        addToHistory(a, b, c, roots);
+    }
+
+    function renderRoot(label, top, bottom, val) {
+        return `
+            <div style="margin-bottom: 15px; display: flex; align-items: center;">
+                <span style="margin-right: 10px; color: var(--accent); font-weight: bold;">${label} =</span>
+                <div class="fraction-res">
+                    <div class="fraction-up">${top}</div>
+                    <div class="fraction-down">${bottom}</div>
+                </div>
+                <span>≈ ${val.toFixed(10)}</span>
+            </div>
+        `;
+    }
+
+    function addToHistory(a, b, c, roots) {
+        const entry = {
+            eq: `${a}x² ${b >= 0 ? '+' : ''}${b}x ${c >= 0 ? '+' : ''}${c} = 0`,
+            res: roots.join('; ')
+        };
+        history.unshift(entry);
+        updateHistoryUI();
+    }
+
+    function updateHistoryUI() {
+        const list = document.getElementById('historyList');
+        list.innerHTML = history.map(item => `
+            <div class="history-item">
+                <div style="color: white; margin-bottom: 4px;">${item.eq}</div>
+                <div>Ответ: ${item.res}</div>
+            </div>
+        `).join('');
     }
 </script>
 
