@@ -8,6 +8,15 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
         :root {
+            --bg: #f8fafc;
+            --glass: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(0, 0, 0, 0.05);
+            --text: #0f172a;
+            --primary: #6366f1;
+            --accent: #0ea5e9;
+            --grad: linear-gradient(135deg, #6366f1 0%, #0ea5e9 100%);
+        }
+        [data-theme="dark"] {
             --bg: #05070a;
             --glass: rgba(255, 255, 255, 0.03);
             --glass-border: rgba(255, 255, 255, 0.1);
@@ -17,445 +26,172 @@
             --grad: linear-gradient(135deg, #8b5cf6 0%, #06b6d4 100%);
         }
 
-        [data-theme="light"] {
-            --bg: #f8fafc;
-            --glass: rgba(255, 255, 255, 0.7);
-            --glass-border: rgba(0, 0, 0, 0.05);
-            --text: #0f172a;
-            --primary: #6366f1;
-            --accent: #0ea5e9;
-        }
-
-        * {
-            box-sizing: border-box;
-            -webkit-user-select: none;
-            user-select: none;
-        }
-
+        * { box-sizing: border-box; -webkit-user-select: none; user-select: none; }
         body {
             font-family: 'Inter', sans-serif;
             background-color: var(--bg);
             background-image: radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.1) 0%, transparent 50%);
             color: var(--text);
-            margin: 0;
-            padding: 20px;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            margin: 0; padding: 20px; min-height: 100vh;
+            display: flex; flex-direction: column; align-items: center;
             transition: background 0.5s ease;
         }
-
-        .main-wrapper {
-            max-width: 1100px;
-            width: 100%;
-            flex: 1;
-        }
+        .main-wrapper { max-width: 1100px; width: 100%; flex: 1; }
 
         .tab-nav {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 25px;
-            justify-content: center;
-            flex-wrap: wrap;
-            position: sticky;
-            top: 10px;
-            z-index: 20;
-            background: var(--bg);
-            padding: 10px 0;
-            border-radius: 20px;
+            display: flex; gap: 10px; margin-bottom: 25px; justify-content: center;
+            flex-wrap: wrap; position: sticky; top: 10px; z-index: 20;
+            background: var(--bg); padding: 10px 0; border-radius: 20px;
         }
         .tab-btn {
-            background: var(--glass);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid var(--glass-border);
-            color: var(--text);
-            padding: 12px 30px;
-            border-radius: 14px;
-            font-weight: 600;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.3s;
-            letter-spacing: 0.5px;
-            white-space: nowrap;
+            background: var(--glass); backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px); border: 1px solid var(--glass-border);
+            color: var(--text); padding: 12px 30px; border-radius: 14px;
+            font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.3s;
+            letter-spacing: 0.5px; white-space: nowrap;
         }
         .tab-btn.active {
-            background: var(--grad);
-            border-color: transparent;
-            color: #fff;
+            background: var(--grad); border-color: transparent; color: #fff;
             box-shadow: 0 8px 20px rgba(139, 92, 246, 0.4);
         }
-
-        .tab-content {
-            display: none;
-        }
-        .tab-content.active {
-            display: block;
-        }
-
-        .container {
-            display: grid;
-            grid-template-columns: 1fr 350px;
-            gap: 25px;
-        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .container { display: grid; grid-template-columns: 1fr 350px; gap: 25px; }
+        @media (max-width: 768px) { .container { grid-template-columns: 1fr; } }
 
         .glass-card {
-            background: var(--glass);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid var(--glass-border);
-            border-radius: 24px;
-            padding: 35px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
-            margin-bottom: 25px;
-            width: 100%;
+            background: var(--glass); backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px); border: 1px solid var(--glass-border);
+            border-radius: 24px; padding: 35px; box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+            margin-bottom: 25px; width: 100%;
         }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-        }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
         h1, h2, h3 {
-            margin: 0;
-            font-weight: 800;
-            letter-spacing: -1px;
-            background: var(--grad);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            margin: 0; font-weight: 800; letter-spacing: -1px;
+            background: var(--grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
-
-        .input-group {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            margin-bottom: 25px;
-        }
+        .input-group { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 25px; }
         input, textarea, select {
-            background: rgba(0,0,0,0.2);
-            border: 1px solid var(--glass-border);
-            padding: 15px;
-            border-radius: 12px;
-            color: var(--text);
-            font-size: 1.1rem;
-            outline: none;
-            transition: all 0.3s;
-            width: 100%;
-            font-family: inherit;
+            background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border);
+            padding: 15px; border-radius: 12px; color: var(--text);
+            font-size: 1.1rem; outline: none; transition: all 0.3s;
+            width: 100%; font-family: inherit;
         }
-        [data-theme="light"] input, [data-theme="light"] textarea, [data-theme="light"] select {
-            background: #fff;
-        }
+        [data-theme="light"] input, [data-theme="light"] textarea, [data-theme="light"] select { background: #fff; }
         input:focus, textarea:focus, select:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 15px rgba(139, 92, 246, 0.3);
+            border-color: var(--primary); box-shadow: 0 0 15px rgba(139, 92, 246, 0.3);
         }
-
         .btn {
-            width: 100%;
-            padding: 16px;
-            border-radius: 12px;
-            border: none;
-            background: var(--grad);
-            color: white;
-            font-weight: 700;
-            font-size: 1rem;
-            cursor: pointer;
-            text-transform: uppercase;
-            transition: transform 0.2s, box-shadow 0.2s;
-            margin-top: 15px;
-            letter-spacing: 0.5px;
+            width: 100%; padding: 16px; border-radius: 12px; border: none;
+            background: var(--grad); color: white; font-weight: 700; font-size: 1rem;
+            cursor: pointer; text-transform: uppercase; transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 15px; letter-spacing: 0.5px;
         }
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(139, 92, 246, 0.4);
-        }
-
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(139, 92, 246, 0.4); }
         .theme-btn {
-            background: var(--glass);
-            border: 1px solid var(--glass-border);
-            color: var(--text);
-            padding: 8px 15px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            white-space: nowrap;
+            background: var(--glass); border: 1px solid var(--glass-border);
+            color: var(--text); padding: 8px 15px; border-radius: 10px;
+            cursor: pointer; font-size: 0.9rem; white-space: nowrap;
         }
-
         .author-tag {
-            position: fixed;
-            bottom: 25px;
-            right: 25px;
-            font-weight: 900;
-            font-size: 1.4rem;
-            background: var(--grad);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            letter-spacing: 3px;
-            filter: drop-shadow(0 0 10px rgba(139, 92, 246, 0.5));
-            z-index: 10;
+            position: fixed; bottom: 25px; right: 25px; font-weight: 900; font-size: 1.4rem;
+            background: var(--grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            letter-spacing: 3px; filter: drop-shadow(0 0 10px rgba(139, 92, 246, 0.5)); z-index: 10;
         }
-
         .online-counter {
-            position: fixed;
-            bottom: 25px;
-            left: 25px;
-            background: var(--glass);
-            backdrop-filter: blur(10px);
-            border-radius: 30px;
-            padding: 8px 18px;
-            font-size: 0.9rem;
-            color: var(--accent);
-            border: 1px solid var(--glass-border);
-            z-index: 10;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            position: fixed; bottom: 25px; left: 25px; background: var(--glass);
+            backdrop-filter: blur(10px); border-radius: 30px; padding: 8px 18px;
+            font-size: 0.9rem; color: var(--accent); border: 1px solid var(--glass-border);
+            z-index: 10; display: flex; align-items: center; gap: 8px;
         }
+        .contact-email { text-align: center; margin-top: 40px; font-size: 1rem; color: var(--text); opacity: 0.8; cursor: pointer; }
+        .contact-email a { color: var(--accent); text-decoration: none; border-bottom: 1px dashed var(--accent); }
 
-        .contact-email {
-            text-align: center;
-            margin-top: 40px;
-            font-size: 1rem;
-            color: var(--text);
-            opacity: 0.8;
-            cursor: pointer;
-        }
-        .contact-email a {
-            color: var(--accent);
-            text-decoration: none;
-            border-bottom: 1px dashed var(--accent);
-        }
-
-        .subtab-nav {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 25px;
-            justify-content: center;
-        }
+        .subtab-nav { display: flex; gap: 8px; margin-bottom: 25px; justify-content: center; }
         .subtab-btn {
-            background: var(--glass);
-            border: 1px solid var(--glass-border);
-            color: var(--text);
-            padding: 8px 20px;
-            border-radius: 10px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: 0.3s;
+            background: var(--glass); border: 1px solid var(--glass-border);
+            color: var(--text); padding: 8px 20px; border-radius: 10px;
+            font-weight: 500; cursor: pointer; transition: 0.3s;
         }
-        .subtab-btn.active {
-            background: var(--accent);
-            border-color: var(--accent);
-            color: #fff;
-        }
-        .subtab-content {
-            display: none;
-        }
-        .subtab-content.active {
-            display: block;
-        }
+        .subtab-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+        .subtab-content { display: none; }
+        .subtab-content.active { display: block; }
 
-        .password-settings {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 25px;
-            align-items: flex-start;
-        }
-        .setting-group {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .setting-group label {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-weight: 500;
-            cursor: pointer;
-        }
-        .passwords-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
+        .password-settings { display: flex; flex-wrap: wrap; gap: 25px; align-items: flex-start; }
+        .setting-group { display: flex; flex-direction: column; gap: 10px; }
+        .setting-group label { display: flex; align-items: center; gap: 10px; font-weight: 500; cursor: pointer; }
+        .passwords-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         .passwords-table td {
-            padding: 12px 15px;
-            text-align: center;
-            border: 1px solid var(--glass-border);
-            font-family: 'Monaco', monospace;
-            font-size: 0.95rem;
-            color: var(--text);
-            cursor: pointer;
+            padding: 12px 15px; text-align: center; border: 1px solid var(--glass-border);
+            font-family: 'Monaco', monospace; font-size: 0.95rem; color: var(--text);
+            cursor: pointer; transition: background 0.2s;
+        }
+        .passwords-table td:hover { background: rgba(139, 92, 246, 0.15); }
+        .timestamp { margin-top: 15px; font-size: 0.9rem; opacity: 0.7; }
+        .error { color: #ff4757; font-size: 0.9rem; }
+
+        .random-numbers { font-size: 1.2rem; word-break: break-all; margin: 15px 0; font-family: monospace; }
+        .flex-row { display: flex; gap: 15px; align-items: center; flex-wrap: wrap; }
+        .flex-row input[type="number"] { width: 80px; }
+        .radio-group { display: flex; gap: 20px; align-items: center; }
+
+        .home-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 25px; margin-top: 30px; }
+        .home-card {
+            background: var(--glass); border: 1px solid var(--glass-border);
+            border-radius: 24px; padding: 30px; text-align: center; cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s; backdrop-filter: blur(10px);
+        }
+        .home-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.3); }
+        .home-card .icon { font-size: 3rem; margin-bottom: 15px; }
+        .home-card .title { font-weight: 700; font-size: 1.3rem; margin-bottom: 8px; }
+        .home-card .desc { opacity: 0.7; font-size: 0.9rem; }
+
+        .time-display { font-size: 2.5rem; font-weight: 700; text-align: center; margin: 20px 0; font-feature-settings: "tnum"; }
+        .date-display { font-size: 1.2rem; opacity: 0.8; text-align: center; }
+
+        .quiz-question { font-size: 2rem; text-align: center; margin: 20px 0; }
+        .answers { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0; }
+        .answer-btn {
+            padding: 20px; font-size: 1.1rem; background: var(--glass);
+            border: 1px solid var(--glass-border); border-radius: 16px;
+            cursor: pointer; transition: 0.2s; text-align: center; color: var(--text);
+        }
+        .answer-btn:hover { background: rgba(139, 92, 246, 0.2); }
+        .answer-btn.correct { background: #2ecc71; color: #fff; }
+        .answer-btn.wrong { background: #e74c3c; color: #fff; }
+        .quiz-score { font-size: 1.2rem; text-align: center; margin-bottom: 15px; }
+
+        /* Крестики-нолики */
+        .board { display: grid; grid-template-columns: repeat(3, 100px); gap: 10px; justify-content: center; margin: 20px 0; }
+        .cell {
+            width: 100px; height: 100px; background: var(--glass);
+            border: 1px solid var(--glass-border); border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2.5rem; font-weight: bold; cursor: pointer;
             transition: background 0.2s;
         }
-        .passwords-table td:hover {
-            background: rgba(139, 92, 246, 0.15);
-        }
-        .timestamp {
-            margin-top: 15px;
-            font-size: 0.9rem;
-            opacity: 0.7;
-        }
-        .error {
-            color: #ff4757;
-            font-size: 0.9rem;
-        }
-
-        .random-numbers {
-            font-size: 1.2rem;
-            word-break: break-all;
-            margin: 15px 0;
-            font-family: monospace;
-        }
-        .flex-row {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-        .flex-row input[type="number"] {
-            width: 80px;
-        }
-        .radio-group {
-            display: flex;
-            gap: 20px;
-            align-items: center;
-        }
-
-        .home-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 25px;
-            margin-top: 30px;
-        }
-        .home-card {
-            background: var(--glass);
-            border: 1px solid var(--glass-border);
-            border-radius: 24px;
-            padding: 30px;
-            text-align: center;
-            cursor: pointer;
-            transition: transform 0.3s, box-shadow 0.3s;
-            backdrop-filter: blur(10px);
-        }
-        .home-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.3);
-        }
-        .home-card .icon {
-            font-size: 3rem;
-            margin-bottom: 15px;
-        }
-        .home-card .title {
-            font-weight: 700;
-            font-size: 1.3rem;
-            margin-bottom: 8px;
-        }
-        .home-card .desc {
-            opacity: 0.7;
-            font-size: 0.9rem;
-        }
-
-        .time-display {
-            font-size: 2.5rem;
-            font-weight: 700;
-            text-align: center;
-            margin: 20px 0;
-            font-feature-settings: "tnum";
-        }
-        .date-display {
-            font-size: 1.2rem;
-            opacity: 0.8;
-            text-align: center;
-        }
-
-        /* Викторина */
-        .quiz-question {
-            font-size: 2rem;
-            text-align: center;
-            margin: 20px 0;
-        }
-        .answers {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin: 20px 0;
-        }
-        .answer-btn {
-            padding: 20px;
-            font-size: 1.1rem;
-            background: var(--glass);
-            border: 1px solid var(--glass-border);
-            border-radius: 16px;
-            cursor: pointer;
-            transition: 0.2s;
-            text-align: center;
-            color: var(--text);
-        }
-        .answer-btn:hover {
-            background: rgba(139, 92, 246, 0.2);
-        }
-        .answer-btn.correct {
-            background: #2ecc71;
-            color: #fff;
-        }
-        .answer-btn.wrong {
-            background: #e74c3c;
-            color: #fff;
-        }
-        .quiz-score {
-            font-size: 1.2rem;
-            text-align: center;
-            margin-bottom: 15px;
-        }
+        .cell:hover { background: rgba(139, 92, 246, 0.1); }
+        .cell.disabled { pointer-events: none; opacity: 0.7; }
+        .game-status { text-align: center; font-size: 1.3rem; margin-bottom: 15px; }
 
         @media (max-width: 768px) {
-            body {
-                padding: 10px;
-            }
-            .tab-nav {
-                gap: 5px;
-                top: 5px;
-            }
-            .tab-btn {
-                padding: 10px 15px;
-                font-size: 0.85rem;
-                border-radius: 10px;
-            }
-            .glass-card {
-                padding: 20px;
-            }
-            .container {
-                grid-template-columns: 1fr;
-            }
-            .input-group {
-                grid-template-columns: 1fr;
-            }
-            .password-settings {
-                flex-direction: column;
-            }
-            .home-grid {
-                grid-template-columns: 1fr 1fr;
-            }
-            .time-display {
-                font-size: 2rem;
-            }
-            .author-tag {
-                font-size: 1.1rem;
-            }
-            .online-counter {
-                font-size: 0.8rem;
-                padding: 5px 12px;
-            }
-            .answers {
-                grid-template-columns: 1fr;
-            }
+            body { padding: 10px; }
+            .tab-nav { gap: 5px; top: 5px; }
+            .tab-btn { padding: 10px 15px; font-size: 0.85rem; border-radius: 10px; }
+            .glass-card { padding: 20px; }
+            .input-group { grid-template-columns: 1fr; }
+            .password-settings { flex-direction: column; }
+            .home-grid { grid-template-columns: 1fr 1fr; }
+            .time-display { font-size: 2rem; }
+            .author-tag { font-size: 1.1rem; }
+            .online-counter { font-size: 0.8rem; padding: 5px 12px; }
+            .answers { grid-template-columns: 1fr; }
+            .board { grid-template-columns: repeat(3, 80px); }
+            .cell { width: 80px; height: 80px; font-size: 2rem; }
         }
     </style>
 </head>
-<body data-theme="dark" oncontextmenu="return false;">
+<body data-theme="light" oncontextmenu="return false;">
 
 <div class="main-wrapper">
     <div class="tab-nav">
@@ -466,6 +202,7 @@
         <button class="tab-btn" data-tab="time">🕒 Время</button>
         <button class="tab-btn" data-tab="translate">🌐 Перевод</button>
         <button class="tab-btn" data-tab="quiz">❓ Викторина</button>
+        <button class="tab-btn" data-tab="game">🎮 Игры</button>
     </div>
 
     <!-- Главная -->
@@ -478,8 +215,9 @@
                 <div class="home-card" data-goto="luck"><div class="icon">🎲</div><div class="title">Удача</div><div class="desc">Колесо фортуны и случайные числа</div></div>
                 <div class="home-card" data-goto="password"><div class="icon">🔐</div><div class="title">Генератор паролей</div><div class="desc">Надёжные пароли для всего</div></div>
                 <div class="home-card" data-goto="time"><div class="icon">🕒</div><div class="title">Мировое время</div><div class="desc">Точное время в любом городе</div></div>
-                <div class="home-card" data-goto="translate"><div class="icon">🌐</div><div class="title">Переводчик</div><div class="desc">Русский ↔ Английский</div></div>
+                <div class="home-card" data-goto="translate"><div class="icon">🌐</div><div class="title">Переводчик</div><div class="desc">Русский ↔ Английский и др.</div></div>
                 <div class="home-card" data-goto="quiz"><div class="icon">❓</div><div class="title">Викторина</div><div class="desc">Страны, столицы, флаги</div></div>
+                <div class="home-card" data-goto="game"><div class="icon">🎮</div><div class="title">Крестики-нолики</div><div class="desc">Игра для двоих</div></div>
             </div>
         </div>
     </div>
@@ -581,53 +319,45 @@
         </div>
     </div>
 
-    <!-- Время -->
+    <!-- Время с поиском -->
     <div class="tab-content" id="tab-time">
         <div class="glass-card">
             <div class="header"><h2>Мировое время</h2><button class="theme-btn" onclick="toggleTheme()">🌓 Тема</button></div>
             <div style="display:flex; flex-wrap:wrap; gap:15px; align-items:end; margin-bottom:30px;">
-                <div style="flex:1; min-width:200px;"><label>Город</label>
-                    <select id="citySelect" style="margin-top:5px;">
-                        <optgroup label="Европа">
-                            <option value="Europe/Moscow">Москва, Россия</option>
-                            <option value="Europe/London">Лондон, Великобритания</option>
-                            <option value="Europe/Berlin">Берлин, Германия</option>
-                            <option value="Europe/Paris">Париж, Франция</option>
-                            <option value="Europe/Rome">Рим, Италия</option>
-                            <option value="Europe/Madrid">Мадрид, Испания</option>
-                            <option value="Europe/Athens">Афины, Греция</option>
-                            <option value="Europe/Warsaw">Варшава, Польша</option>
-                        </optgroup>
-                        <optgroup label="Азия">
-                            <option value="Asia/Tokyo">Токио, Япония</option>
-                            <option value="Asia/Shanghai">Шанхай, Китай</option>
-                            <option value="Asia/Hong_Kong">Гонконг</option>
-                            <option value="Asia/Singapore">Сингапур</option>
-                            <option value="Asia/Dubai">Дубай, ОАЭ</option>
-                            <option value="Asia/Seoul">Сеул, Южная Корея</option>
-                            <option value="Asia/Bangkok">Бангкок, Таиланд</option>
-                            <option value="Asia/Kolkata">Калькутта, Индия</option>
-                        </optgroup>
-                        <optgroup label="Америка">
-                            <option value="America/New_York">Нью-Йорк, США</option>
-                            <option value="America/Los_Angeles">Лос-Анджелес, США</option>
-                            <option value="America/Chicago">Чикаго, США</option>
-                            <option value="America/Toronto">Торонто, Канада</option>
-                            <option value="America/Sao_Paulo">Сан-Паулу, Бразилия</option>
-                            <option value="America/Mexico_City">Мехико, Мексика</option>
-                            <option value="America/Buenos_Aires">Буэнос-Айрес, Аргентина</option>
-                        </optgroup>
-                        <optgroup label="Африка">
-                            <option value="Africa/Cairo">Каир, Египет</option>
-                            <option value="Africa/Lagos">Лагос, Нигерия</option>
-                            <option value="Africa/Nairobi">Найроби, Кения</option>
-                            <option value="Africa/Johannesburg">Йоханнесбург, ЮАР</option>
-                        </optgroup>
-                        <optgroup label="Океания">
-                            <option value="Australia/Sydney">Сидней, Австралия</option>
-                            <option value="Pacific/Auckland">Окленд, Новая Зеландия</option>
-                        </optgroup>
-                    </select>
+                <div style="flex:1; min-width:200px;">
+                    <label>Введите город</label>
+                    <input list="citiesList" id="cityInput" placeholder="Москва, Лондон..." style="margin-top:5px;">
+                    <datalist id="citiesList">
+                        <option value="Москва" data-tz="Europe/Moscow">
+                        <option value="Лондон" data-tz="Europe/London">
+                        <option value="Берлин" data-tz="Europe/Berlin">
+                        <option value="Париж" data-tz="Europe/Paris">
+                        <option value="Рим" data-tz="Europe/Rome">
+                        <option value="Мадрид" data-tz="Europe/Madrid">
+                        <option value="Афины" data-tz="Europe/Athens">
+                        <option value="Варшава" data-tz="Europe/Warsaw">
+                        <option value="Токио" data-tz="Asia/Tokyo">
+                        <option value="Шанхай" data-tz="Asia/Shanghai">
+                        <option value="Гонконг" data-tz="Asia/Hong_Kong">
+                        <option value="Сингапур" data-tz="Asia/Singapore">
+                        <option value="Дубай" data-tz="Asia/Dubai">
+                        <option value="Сеул" data-tz="Asia/Seoul">
+                        <option value="Бангкок" data-tz="Asia/Bangkok">
+                        <option value="Нью-Дели" data-tz="Asia/Kolkata">
+                        <option value="Нью-Йорк" data-tz="America/New_York">
+                        <option value="Лос-Анджелес" data-tz="America/Los_Angeles">
+                        <option value="Чикаго" data-tz="America/Chicago">
+                        <option value="Торонто" data-tz="America/Toronto">
+                        <option value="Сан-Паулу" data-tz="America/Sao_Paulo">
+                        <option value="Мехико" data-tz="America/Mexico_City">
+                        <option value="Буэнос-Айрес" data-tz="America/Buenos_Aires">
+                        <option value="Каир" data-tz="Africa/Cairo">
+                        <option value="Лагос" data-tz="Africa/Lagos">
+                        <option value="Найроби" data-tz="Africa/Nairobi">
+                        <option value="Йоханнесбург" data-tz="Africa/Johannesburg">
+                        <option value="Сидней" data-tz="Australia/Sydney">
+                        <option value="Окленд" data-tz="Pacific/Auckland">
+                    </datalist>
                 </div>
                 <button class="btn" id="showTimeBtn" style="width:auto; margin-top:0;">Показать время</button>
             </div>
@@ -640,15 +370,29 @@
     <div class="tab-content" id="tab-translate">
         <div class="glass-card">
             <div class="header"><h2>Переводчик</h2><button class="theme-btn" onclick="toggleTheme()">🌓 Тема</button></div>
-            <div style="display:flex; flex-direction:column; gap:20px;">
-                <textarea id="translateInput" rows="4" placeholder="Введите текст на русском..."></textarea>
-                <button class="btn" id="translateBtn">Перевести на английский</button>
-                <div style="padding:15px; background:rgba(0,0,0,0.2); border-radius:12px; min-height:60px;" id="translatedText"></div>
+            <div class="flex-row" style="margin-bottom:15px;">
+                <select id="langFrom" style="width:auto;">
+                    <option value="ru">Русский</option>
+                    <option value="en">Английский</option>
+                    <option value="fr">Французский</option>
+                    <option value="es">Испанский</option>
+                </select>
+                <span>→</span>
+                <select id="langTo" style="width:auto;">
+                    <option value="en">Английский</option>
+                    <option value="ru">Русский</option>
+                    <option value="fr">Французский</option>
+                    <option value="es">Испанский</option>
+                </select>
             </div>
+            <textarea id="translateInput" rows="4" placeholder="Введите текст..."></textarea>
+            <button class="btn" id="translateBtn">Перевести</button>
+            <div style="margin-top:15px; padding:15px; background:rgba(0,0,0,0.2); border-radius:12px; min-height:60px;" id="translatedText"></div>
+            <button class="btn" id="copyTranslationBtn" style="margin-top:5px;">Копировать перевод</button>
         </div>
     </div>
 
-    <!-- Викторина -->
+    <!-- Викторина с флагами картинками -->
     <div class="tab-content" id="tab-quiz">
         <div class="glass-card">
             <div class="header"><h2>Викторина</h2><button class="theme-btn" onclick="toggleTheme()">🌓 Тема</button></div>
@@ -656,6 +400,16 @@
             <div class="quiz-question" id="quizQuestion"></div>
             <div class="answers" id="quizAnswers"></div>
             <button class="btn" id="nextQuizBtn" style="display:none;">Следующий вопрос</button>
+        </div>
+    </div>
+
+    <!-- Игра Крестики-нолики -->
+    <div class="tab-content" id="tab-game">
+        <div class="glass-card">
+            <div class="header"><h2>Крестики-нолики</h2><button class="theme-btn" onclick="toggleTheme()">🌓 Тема</button></div>
+            <div class="game-status" id="gameStatus">Ход: ❌</div>
+            <div class="board" id="board"></div>
+            <button class="btn" id="resetGame">Новая игра</button>
         </div>
     </div>
 
@@ -714,6 +468,7 @@
             if (tabName === 'time' && !timeInitialized) { initTimeTab(); timeInitialized = true; }
             if (tabName === 'translate' && !translateInitialized) { initTranslate(); translateInitialized = true; }
             if (tabName === 'quiz' && !quizInitialized) { initQuiz(); quizInitialized = true; }
+            if (tabName === 'game' && !gameInitialized) { initGame(); gameInitialized = true; }
         };
         tabBtns.forEach(btn => btn.addEventListener('click', () => switchTab(btn.getAttribute('data-tab'))));
         document.querySelectorAll('.home-card').forEach(card => card.addEventListener('click', () => switchTab(card.getAttribute('data-goto'))));
@@ -808,34 +563,148 @@
         function generateRandomNumbers(){ const count=parseInt(document.getElementById('randomCount').value)||8; const isRange=document.querySelector('input[name="randomSource"]:checked').value==='range'; const noRepeat=document.getElementById('noRepeat').checked; let pool=[]; if(isRange){ const min=parseInt(document.getElementById('rangeMin').value)||1; const max=parseInt(document.getElementById('rangeMax').value)||100; for(let i=min;i<=max;i++) pool.push(i); }else{ const listStr=document.getElementById('customList').value; pool=listStr.split(',').map(s=>parseInt(s.trim())).filter(n=>!isNaN(n)); } const excludeEnabled=document.getElementById('excludeEnabled').checked; if(excludeEnabled){ const exc=document.getElementById('excludeList').value.split(',').map(s=>parseInt(s.trim())).filter(n=>!isNaN(n)); pool=pool.filter(n=>!exc.includes(n)); } if(pool.length===0){ document.getElementById('randomNumbersDisplay').textContent='Нет доступных чисел'; return; } if(noRepeat&&count>pool.length){ document.getElementById('randomNumbersDisplay').textContent=`Ошибка: без повторов можно выбрать максимум ${pool.length} чисел`; return; } let result; if(noRepeat){ const shuffled=[...pool].sort(()=>Math.random()-0.5); result=shuffled.slice(0,count); }else{ result=Array.from({length:count},()=>pool[Math.floor(Math.random()*pool.length)]); } document.getElementById('randomNumbersDisplay').textContent=result.join(' '); }
         function saveRandomNumbers(){ const text=document.getElementById('randomNumbersDisplay').textContent; navigator.clipboard.writeText(text).then(()=>alert('Числа скопированы')).catch(()=>alert('Ошибка')); }
 
-        // Пароли
+        // Пароли (клик копирует)
         let passwordInitialized=false;
         const ambiguousChars='I1l0o00sS5';
         function initPassword(){ document.getElementById('generateBtn').addEventListener('click',generatePasswords); generatePasswords(); }
         function generatePasswords(){ const lenInput=document.getElementById('passLength'),cntInput=document.getElementById('passCount'); let length=parseInt(lenInput.value)||10,count=parseInt(cntInput.value)||10; const errDiv=document.getElementById('passwordError'); errDiv.textContent=''; if(length>35){errDiv.textContent='Максимальная длина пароля — 35';lenInput.value=35;length=35;} if(count>99){errDiv.textContent='Максимальное количество — 99';cntInput.value=99;count=99;} const useUpper=document.getElementById('useUpper').checked,useLower=document.getElementById('useLower').checked,useDigits=document.getElementById('useDigits').checked,useSpace=document.getElementById('useSpace').checked,useSep=document.getElementById('useSeparators').checked,useSpec=document.getElementById('useSpecial').checked,exclAmb=document.getElementById('excludeAmbiguous').checked; let chars=''; if(useUpper)chars+='ABCDEFGHIJKLMNOPQRSTUVWXYZ'; if(useLower)chars+='abcdefghijklmnopqrstuvwxyz'; if(useDigits)chars+='0123456789'; if(useSpace)chars+=' '; if(useSep)chars+='-_'; if(useSpec)chars+='~!@#$%^&*()+'; if(chars.length===0){alert('Выберите хотя бы один набор символов');return;} if(exclAmb)chars=chars.split('').filter(c=>!ambiguousChars.includes(c)).join(''); const pwd=[]; for(let i=0;i<count;i++){ let s=''; for(let j=0;j<length;j++) s+=chars[Math.floor(Math.random()*chars.length)]; pwd.push(s); } const now=new Date(); const utc3=new Date(now.getTime()+3*60*60*1000); document.getElementById('timestamp').textContent=`Сгенерировано ${utc3.toISOString().replace('T',' ').replace(/\.\d+Z$/,' UTC+3')}`; const tbody=document.querySelector('#passwordsTable tbody'); tbody.innerHTML=''; for(let i=0;i<pwd.length;i+=3){ const row=document.createElement('tr'); for(let j=0;j<3;j++){ const td=document.createElement('td'); td.textContent=pwd[i+j]||''; td.addEventListener('click',(e)=>{ if(e.target.textContent){ navigator.clipboard.writeText(e.target.textContent).then(()=>alert('Пароль скопирован')).catch(()=>alert('Ошибка')); } }); row.appendChild(td); } tbody.appendChild(row); } }
+        // дополнительный обработчик на таблицу (бабблинг)
         document.getElementById('passwordsTable').addEventListener('click', (e) => { if(e.target.tagName === 'TD' && e.target.textContent) navigator.clipboard.writeText(e.target.textContent).then(()=>alert('Пароль скопирован')).catch(()=>alert('Ошибка')); });
 
-        // Время
+        // Время (поиск по datalist)
         let timeInitialized=false, timeInterval;
-        function initTimeTab(){ document.getElementById('showTimeBtn').addEventListener('click',updateTimeDisplay); updateTimeDisplay(); }
-        function updateTimeDisplay(){ const tz=document.getElementById('citySelect').value; try{ const now=new Date(); const formatter=new Intl.DateTimeFormat('ru-RU',{timeZone:tz,hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}); const dateFormatter=new Intl.DateTimeFormat('ru-RU',{timeZone:tz,year:'numeric',month:'long',day:'numeric',weekday:'long'}); document.getElementById('timeDisplay').textContent=formatter.format(now); document.getElementById('dateDisplay').textContent=dateFormatter.format(now); }catch(e){ document.getElementById('timeDisplay').textContent='Ошибка'; document.getElementById('dateDisplay').textContent=''; } if(timeInterval)clearInterval(timeInterval); timeInterval=setInterval(updateTimeDisplay,1000); }
+        function initTimeTab(){ 
+            document.getElementById('showTimeBtn').addEventListener('click', updateTimeDisplay); 
+            updateTimeDisplay(); 
+        }
+        function getSelectedTimezone() {
+            const input = document.getElementById('cityInput');
+            const val = input.value.trim();
+            const options = document.querySelectorAll('#citiesList option');
+            for (let opt of options) {
+                if (opt.value === val) return opt.getAttribute('data-tz');
+            }
+            return null;
+        }
+        function updateTimeDisplay(){ 
+            const tz = getSelectedTimezone(); 
+            if (!tz) {
+                document.getElementById('timeDisplay').textContent = 'Выберите город из списка';
+                document.getElementById('dateDisplay').textContent = '';
+                return;
+            }
+            try{ const now=new Date(); const formatter=new Intl.DateTimeFormat('ru-RU',{timeZone:tz,hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}); const dateFormatter=new Intl.DateTimeFormat('ru-RU',{timeZone:tz,year:'numeric',month:'long',day:'numeric',weekday:'long'}); document.getElementById('timeDisplay').textContent=formatter.format(now); document.getElementById('dateDisplay').textContent=dateFormatter.format(now); }catch(e){ document.getElementById('timeDisplay').textContent='Ошибка'; document.getElementById('dateDisplay').textContent=''; } 
+            if(timeInterval)clearInterval(timeInterval); 
+            timeInterval=setInterval(updateTimeDisplay,1000); 
+        }
 
-        // Перевод
+        // Перевод с выбором языков и копированием
         let translateInitialized=false;
-        function initTranslate(){ document.getElementById('translateBtn').addEventListener('click',translateText); }
-        async function translateText(){ const text=document.getElementById('translateInput').value.trim(); if(!text)return; const url=`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=ru|en`; try{ const response=await fetch(url); const data=await response.json(); document.getElementById('translatedText').textContent=data.responseData.translatedText; }catch(e){ document.getElementById('translatedText').textContent='Ошибка перевода'; } }
+        function initTranslate(){ 
+            document.getElementById('translateBtn').addEventListener('click',translateText); 
+            document.getElementById('copyTranslationBtn').addEventListener('click', copyTranslation); 
+        }
+        function getLangPair() {
+            const from = document.getElementById('langFrom').value;
+            const to = document.getElementById('langTo').value;
+            return `${from}|${to}`;
+        }
+        async function translateText(){ 
+            const text=document.getElementById('translateInput').value.trim(); 
+            if(!text)return; 
+            const langpair = getLangPair();
+            const url=`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${langpair}`; 
+            try{ const response=await fetch(url); const data=await response.json(); document.getElementById('translatedText').textContent=data.responseData.translatedText; }catch(e){ document.getElementById('translatedText').textContent='Ошибка перевода'; } 
+        }
+        function copyTranslation() {
+            const translated = document.getElementById('translatedText').textContent;
+            if (translated && translated !== 'Ошибка перевода') {
+                navigator.clipboard.writeText(translated).then(()=>alert('Перевод скопирован')).catch(()=>alert('Ошибка'));
+            }
+        }
 
-        // Викторина
+        // Викторина с флагами-картинками
         let quizInitialized=false;
         const countries = [
-            {country:'Россия',capital:'Москва',flag:'🇷🇺'},{country:'США',capital:'Вашингтон',flag:'🇺🇸'},{country:'Китай',capital:'Пекин',flag:'🇨🇳'},{country:'Япония',capital:'Токио',flag:'🇯🇵'},{country:'Германия',capital:'Берлин',flag:'🇩🇪'},{country:'Франция',capital:'Париж',flag:'🇫🇷'},{country:'Великобритания',capital:'Лондон',flag:'🇬🇧'},{country:'Италия',capital:'Рим',flag:'🇮🇹'},{country:'Испания',capital:'Мадрид',flag:'🇪🇸'},{country:'Канада',capital:'Оттава',flag:'🇨🇦'},{country:'Бразилия',capital:'Бразилиа',flag:'🇧🇷'},{country:'Индия',capital:'Нью-Дели',flag:'🇮🇳'},{country:'Австралия',capital:'Канберра',flag:'🇦🇺'},{country:'ЮАР',capital:'Претория',flag:'🇿🇦'},{country:'Мексика',capital:'Мехико',flag:'🇲🇽'},{country:'Аргентина',capital:'Буэнос-Айрес',flag:'🇦🇷'},{country:'Египет',capital:'Каир',flag:'🇪🇬'},{country:'Турция',capital:'Анкара',flag:'🇹🇷'},{country:'Южная Корея',capital:'Сеул',flag:'🇰🇷'},{country:'Швеция',capital:'Стокгольм',flag:'🇸🇪'},{country:'Норвегия',capital:'Осло',flag:'🇳🇴'},{country:'Нидерланды',capital:'Амстердам',flag:'🇳🇱'},{country:'Греция',capital:'Афины',flag:'🇬🇷'},{country:'Польша',capital:'Варшава',flag:'🇵🇱'},{country:'Украина',capital:'Киев',flag:'🇺🇦'},{country:'Чехия',capital:'Прага',flag:'🇨🇿'},{country:'Швейцария',capital:'Берн',flag:'🇨🇭'},{country:'Австрия',capital:'Вена',flag:'🇦🇹'},{country:'Ирландия',capital:'Дублин',flag:'🇮🇪'},{country:'Таиланд',capital:'Бангкок',flag:'🇹🇭'}
+            {country:'Россия',capital:'Москва',code:'ru'},{country:'США',capital:'Вашингтон',code:'us'},{country:'Китай',capital:'Пекин',code:'cn'},{country:'Япония',capital:'Токио',code:'jp'},{country:'Германия',capital:'Берлин',code:'de'},{country:'Франция',capital:'Париж',code:'fr'},{country:'Великобритания',capital:'Лондон',code:'gb'},{country:'Италия',capital:'Рим',code:'it'},{country:'Испания',capital:'Мадрид',code:'es'},{country:'Канада',capital:'Оттава',code:'ca'},{country:'Бразилия',capital:'Бразилиа',code:'br'},{country:'Индия',capital:'Нью-Дели',code:'in'},{country:'Австралия',capital:'Канберра',code:'au'},{country:'ЮАР',capital:'Претория',code:'za'},{country:'Мексика',capital:'Мехико',code:'mx'},{country:'Аргентина',capital:'Буэнос-Айрес',code:'ar'},{country:'Египет',capital:'Каир',code:'eg'},{country:'Турция',capital:'Анкара',code:'tr'},{country:'Южная Корея',capital:'Сеул',code:'kr'},{country:'Швеция',capital:'Стокгольм',code:'se'},{country:'Норвегия',capital:'Осло',code:'no'},{country:'Нидерланды',capital:'Амстердам',code:'nl'},{country:'Греция',capital:'Афины',code:'gr'},{country:'Польша',capital:'Варшава',code:'pl'},{country:'Украина',capital:'Киев',code:'ua'},{country:'Чехия',capital:'Прага',code:'cz'},{country:'Швейцария',capital:'Берн',code:'ch'},{country:'Австрия',capital:'Вена',code:'at'},{country:'Ирландия',capital:'Дублин',code:'ie'},{country:'Таиланд',capital:'Бангкок',code:'th'}
         ];
         let quizScore=[0,0], quizMode='flag-to-country', currentAnswer=null, answered=false;
         function initQuiz(){ document.getElementById('nextQuizBtn').addEventListener('click',nextQuiz); nextQuiz(); }
         function shuffleArray(arr){ for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]]; } return arr; }
-        function nextQuiz(){ answered=false; document.getElementById('nextQuizBtn').style.display='none'; const answersDiv=document.getElementById('quizAnswers'); answersDiv.innerHTML=''; const modes=['flag-to-country','country-to-capital','capital-to-country']; quizMode=modes[Math.floor(Math.random()*modes.length)]; const correctIndex=Math.floor(Math.random()*countries.length); const correct=countries[correctIndex]; const variants=[correct]; while(variants.length<4){ const rnd=countries[Math.floor(Math.random()*countries.length)]; if(!variants.includes(rnd)) variants.push(rnd); } shuffleArray(variants); let questionText=''; if(quizMode==='flag-to-country') questionText=`Какой стране принадлежит флаг ${correct.flag}?`; else if(quizMode==='country-to-capital') questionText=`Какая столица у страны ${correct.country}?`; else questionText=`Какой стране принадлежит столица ${correct.capital}?`; document.getElementById('quizQuestion').textContent=questionText; currentAnswer=correct; variants.forEach(v=>{ const btn=document.createElement('div'); btn.className='answer-btn'; if(quizMode==='country-to-capital') btn.textContent=v.capital; else btn.textContent=v.country; btn.addEventListener('click',()=>selectAnswer(v)); answersDiv.appendChild(btn); }); }
-        function selectAnswer(selected){ if(answered) return; answered=true; const buttons=document.querySelectorAll('.answer-btn'); buttons.forEach(b=>b.style.pointerEvents='none'); if(selected===currentAnswer){ quizScore[0]++; document.querySelector(`.answer-btn:nth-child(${Array.from(buttons).findIndex(b=>b.textContent=== (quizMode==='country-to-capital'?selected.capital:selected.country))+1})`).classList.add('correct'); }else{ quizScore[1]++; const correctBtn=Array.from(buttons).find(b=>b.textContent=== (quizMode==='country-to-capital'?currentAnswer.capital:currentAnswer.country)); if(correctBtn) correctBtn.classList.add('correct'); const wrongBtn=Array.from(buttons).find(b=>b.textContent=== (quizMode==='country-to-capital'?selected.capital:selected.country)); if(wrongBtn) wrongBtn.classList.add('wrong'); } document.getElementById('quizScore').textContent=`Правильно: ${quizScore[0]} / ${quizScore[0]+quizScore[1]}`; document.getElementById('nextQuizBtn').style.display='block'; }
+        function nextQuiz(){ answered=false; document.getElementById('nextQuizBtn').style.display='none'; const answersDiv=document.getElementById('quizAnswers'); answersDiv.innerHTML=''; const modes=['flag-to-country','country-to-capital','capital-to-country']; quizMode=modes[Math.floor(Math.random()*modes.length)]; const correctIndex=Math.floor(Math.random()*countries.length); const correct=countries[correctIndex]; const variants=[correct]; while(variants.length<4){ const rnd=countries[Math.floor(Math.random()*countries.length)]; if(!variants.includes(rnd)) variants.push(rnd); } shuffleArray(variants); let questionHTML=''; if(quizMode==='flag-to-country'){ questionHTML=`Какой стране принадлежит флаг <img src="https://flagcdn.com/32x24/${correct.code}.png" style="width:32px;height:24px;vertical-align:middle;">?`; } else if(quizMode==='country-to-capital') questionHTML=`Какая столица у страны ${correct.country}?`; else questionHTML=`Какой стране принадлежит столица ${correct.capital}?`; document.getElementById('quizQuestion').innerHTML=questionHTML; currentAnswer=correct; variants.forEach(v=>{ const btn=document.createElement('div'); btn.className='answer-btn'; if(quizMode==='country-to-capital') btn.textContent=v.capital; else btn.textContent=v.country; btn.addEventListener('click',()=>selectAnswer(v)); answersDiv.appendChild(btn); }); }
+        function selectAnswer(selected){ if(answered) return; answered=true; const buttons=document.querySelectorAll('.answer-btn'); buttons.forEach(b=>b.style.pointerEvents='none'); if(selected===currentAnswer){ quizScore[0]++; Array.from(buttons).find(b=>b.textContent=== (quizMode==='country-to-capital'?selected.capital:selected.country)).classList.add('correct'); }else{ quizScore[1]++; const correctBtn=Array.from(buttons).find(b=>b.textContent=== (quizMode==='country-to-capital'?currentAnswer.capital:currentAnswer.country)); if(correctBtn) correctBtn.classList.add('correct'); const wrongBtn=Array.from(buttons).find(b=>b.textContent=== (quizMode==='country-to-capital'?selected.capital:selected.country)); if(wrongBtn) wrongBtn.classList.add('wrong'); } document.getElementById('quizScore').textContent=`Правильно: ${quizScore[0]} / ${quizScore[0]+quizScore[1]}`; document.getElementById('nextQuizBtn').style.display='block'; }
         window.nextQuiz = nextQuiz;
+
+        // Крестики-нолики (hotseat)
+        let gameInitialized = false;
+        let board, currentPlayer, gameActive, gameStatus, resetBtn;
+        function initGame() {
+            board = ['','','','','','','','',''];
+            currentPlayer = '❌'; // X начинает
+            gameActive = true;
+            gameStatus = document.getElementById('gameStatus');
+            resetBtn = document.getElementById('resetGame');
+            document.getElementById('board').addEventListener('click', handleCellClick);
+            resetBtn.addEventListener('click', resetGame);
+            renderBoard();
+            gameStatus.textContent = `Ход: ${currentPlayer}`;
+        }
+        function renderBoard() {
+            const boardDiv = document.getElementById('board');
+            boardDiv.innerHTML = '';
+            for (let i = 0; i < 9; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                if (board[i] || !gameActive) cell.classList.add('disabled');
+                cell.textContent = board[i];
+                cell.dataset.index = i;
+                boardDiv.appendChild(cell);
+            }
+        }
+        function handleCellClick(e) {
+            if (!gameActive) return;
+            const index = e.target.dataset.index;
+            if (index === undefined || board[index] !== '') return;
+            board[index] = currentPlayer;
+            renderBoard();
+            if (checkWin()) {
+                gameStatus.textContent = `Победили ${currentPlayer}!`;
+                gameActive = false;
+                disableAllCells();
+                return;
+            }
+            if (board.every(cell => cell !== '')) {
+                gameStatus.textContent = 'Ничья!';
+                gameActive = false;
+                disableAllCells();
+                return;
+            }
+            currentPlayer = currentPlayer === '❌' ? '⭕' : '❌';
+            gameStatus.textContent = `Ход: ${currentPlayer}`;
+        }
+        function disableAllCells() {
+            document.querySelectorAll('.cell').forEach(c => c.classList.add('disabled'));
+        }
+        function checkWin() {
+            const wins = [
+                [0,1,2],[3,4,5],[6,7,8],
+                [0,3,6],[1,4,7],[2,5,8],
+                [0,4,8],[2,4,6]
+            ];
+            return wins.some(pattern => {
+                const [a,b,c] = pattern;
+                return board[a] && board[a] === board[b] && board[a] === board[c];
+            });
+        }
+        function resetGame() {
+            board = ['','','','','','','','',''];
+            currentPlayer = '❌';
+            gameActive = true;
+            renderBoard();
+            gameStatus.textContent = `Ход: ${currentPlayer}`;
+        }
+        // Инициализируем игру при первом открытии
+        gameInitialized = false;
 
         // Копирование email
         document.getElementById('contactEmail').addEventListener('click',()=>{ const email=document.getElementById('emailText').textContent; navigator.clipboard.writeText(email).then(()=>{ const el=document.getElementById('contactEmail'); el.style.opacity='1'; el.innerHTML='📋 Email скопирован!'; setTimeout(()=>{el.innerHTML='📧 <span id="emailText">tape.power@outlook.com</span>';},1500); }).catch(()=>alert('Ошибка')); });
