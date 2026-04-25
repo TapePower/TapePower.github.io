@@ -3,228 +3,346 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced Equation Solver</title>
+    <title>Professional Equation Solver</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --primary: #6366f1;
             --bg: #0f172a;
-            --card-bg: #1e293b;
+            --card: #1e293b;
             --text: #f8fafc;
+            --text-dim: #94a3b8;
+            --primary: #6366f1;
             --accent: #22d3ee;
+            --border: rgba(255, 255, 255, 0.1);
+            --history-item: rgba(255, 255, 255, 0.05);
+        }
+
+        [data-theme="light"] {
+            --bg: #f1f5f9;
+            --card: #ffffff;
+            --text: #1e293b;
+            --text-dim: #64748b;
+            --primary: #4f46e5;
+            --accent: #0891b2;
+            --border: rgba(0, 0, 0, 0.1);
+            --history-item: #f8fafc;
         }
 
         body {
-            font-family: 'Inter', system-ui, sans-serif;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
             background-color: var(--bg);
             color: var(--text);
             margin: 0;
+            padding: 40px 20px;
+            transition: all 0.3s ease;
             display: flex;
             justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
         }
 
-        .main-layout {
-            display: grid;
-            grid-template-columns: 400px 300px;
+        .wrapper {
+            max-width: 1000px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
             gap: 20px;
-            max-width: 100%;
         }
 
-        @media (max-width: 768px) {
-            .main-layout { grid-template-columns: 1fr; }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .theme-toggle {
+            background: var(--card);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 20px;
+        }
+
+        @media (max-width: 850px) {
+            .main-content { grid-template-columns: 1fr; }
         }
 
         .card {
-            background: var(--card-bg);
-            padding: 2rem;
-            border-radius: 16px;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255,255,255,0.1);
+            background: var(--card);
+            padding: 30px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
         }
-
-        h1 { margin-top: 0; font-size: 1.5rem; color: var(--accent); }
 
         .input-row {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            margin: 20px 0;
+            gap: 20px;
+            margin: 25px 0;
         }
-
-        .input-group label { display: block; font-size: 0.8rem; margin-bottom: 5px; color: #94a3b8; }
 
         input {
             width: 100%;
-            background: #0f172a;
-            border: 1px solid #334155;
+            background: var(--bg);
+            border: 2px solid var(--border);
             padding: 12px;
-            border-radius: 8px;
-            color: white;
-            font-size: 1rem;
+            border-radius: 10px;
+            color: var(--text);
+            font-size: 1.1rem;
             box-sizing: border-box;
-            transition: border-color 0.2s;
+            outline: none;
         }
 
-        input:focus { border-color: var(--primary); outline: none; }
+        input:focus { border-color: var(--primary); }
 
-        button {
+        button.solve-btn {
             width: 100%;
             background: var(--primary);
             color: white;
             border: none;
-            padding: 14px;
-            border-radius: 8px;
-            font-weight: 600;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: bold;
             cursor: pointer;
-            transition: transform 0.1s, opacity 0.2s;
+            transition: transform 0.1s;
         }
 
-        button:active { transform: scale(0.98); }
-        button:hover { opacity: 0.9; }
+        button.solve-btn:active { transform: scale(0.98); }
 
-        /* Оформление дробей */
-        .fraction-res {
+        /* Стилизация дроби и вывода */
+        .result-container {
+            margin-top: 30px;
+        }
+
+        .root-display {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 25px;
+            padding: 15px;
+            background: var(--history-item);
+            border-radius: 12px;
+        }
+
+        .label { color: var(--accent); font-weight: bold; font-size: 1.2rem; }
+
+        .fraction {
             display: inline-flex;
             flex-direction: column;
-            vertical-align: middle;
-            text-align: center;
-            margin-right: 10px;
-            font-size: 0.9rem;
+            align-items: center;
+            min-width: 120px;
         }
-        .fraction-up { border-bottom: 1px solid var(--text); padding: 0 5px; }
-        .fraction-down { padding: 0 5px; }
 
-        .res-item { margin-bottom: 20px; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 10px; }
+        .numerator { border-bottom: 2px solid var(--text); padding: 0 10px; text-align: center; width: 100%; }
+        .denominator { padding: 2px 10px; text-align: center; }
+
+        .approx-val {
+            font-size: 1.1rem;
+            font-family: monospace;
+            background: rgba(0,0,0,0.1);
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        /* График */
+        .chart-container {
+            margin-top: 20px;
+            height: 300px;
+        }
 
         /* История */
-        .history-card { height: 500px; display: flex; flex-direction: column; }
-        .history-list { overflow-y: auto; flex-grow: 1; font-size: 0.85rem; }
-        .history-item { 
-            padding: 10px 0; 
-            border-bottom: 1px solid #334155; 
-            color: #94a3b8;
+        .history-list {
+            height: 100%;
+            max-height: 600px;
+            overflow-y: auto;
         }
 
-        .watermark {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            font-size: 0.8rem;
-            color: #475569;
-            font-weight: bold;
-            letter-spacing: 1px;
+        .history-item {
+            background: var(--history-item);
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+            border: 1px solid var(--border);
+        }
+
+        .author {
+            margin-top: 30px;
+            text-align: right;
+            font-weight: 900;
+            font-size: 1.2rem;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(99, 102, 241, 0.3);
         }
     </style>
 </head>
-<body>
+<body data-theme="dark">
 
-<div class="main-layout">
-    <div class="card">
-        <h1>Квадратное уравнение</h1>
-        <p style="color: #94a3b8">ax² + bx + c = 0</p>
-        
-        <div class="input-row">
-            <div class="input-group">
-                <label>Коэф. a</label>
-                <input type="number" id="a" placeholder="1" step="any">
-            </div>
-            <div class="input-group">
-                <label>Коэф. b</label>
-                <input type="number" id="b" placeholder="0" step="any">
-            </div>
-            <div class="input-group">
-                <label>Коэф. c</label>
-                <input type="number" id="c" placeholder="0" step="any">
-            </div>
-        </div>
-
-        <button onclick="solve()">Рассчитать корни</button>
-
-        <div id="output" style="margin-top: 25px;"></div>
+<div class="wrapper">
+    <div class="header">
+        <h1 style="margin:0">Equation Master</h1>
+        <button class="theme-toggle" onclick="toggleTheme()">Сменить тему</button>
     </div>
 
-    <div class="card history-card">
-        <h2 style="font-size: 1.1rem; margin-top: 0;">История запросов</h2>
-        <div id="historyList" class="history-list">
-            <div style="color: #475569; text-align: center; margin-top: 20px;">История пуста</div>
+    <div class="main-content">
+        <div class="left-col">
+            <div class="card">
+                <div style="font-size: 1.2rem; margin-bottom: 10px; color: var(--text-dim)">ax² + bx + c = 0</div>
+                <div class="input-row">
+                    <input type="number" id="a" placeholder="a" step="any">
+                    <input type="number" id="b" placeholder="b" step="any">
+                    <input type="number" id="c" placeholder="c" step="any">
+                </div>
+                <button class="solve-btn" onclick="process()">Решить и построить график</button>
+
+                <div id="results" class="result-container"></div>
+                
+                <div class="chart-container">
+                    <canvas id="myChart"></canvas>
+                </div>
+            </div>
+            <div class="author">by TapePower</div>
+        </div>
+
+        <div class="card">
+            <h3 style="margin-top:0">История</h3>
+            <div id="history" class="history-list"></div>
         </div>
     </div>
 </div>
 
-<div class="watermark">by TapePower</div>
-
 <script>
-    let history = [];
+    let myChart = null;
 
-    function solve() {
+    function toggleTheme() {
+        const body = document.body;
+        const current = body.getAttribute('data-theme');
+        const next = current === 'dark' ? 'light' : 'dark';
+        body.setAttribute('data-theme', next);
+        if(myChart) updateChartTheme(next);
+    }
+
+    function process() {
         const a = parseFloat(document.getElementById('a').value);
         const b = parseFloat(document.getElementById('b').value);
         const c = parseFloat(document.getElementById('c').value);
-        const output = document.getElementById('output');
 
-        if (isNaN(a) || isNaN(b) || isNaN(c)) return;
-        if (a === 0) {
-            output.innerHTML = "Ошибка: 'a' не может быть 0";
-            return;
-        }
+        if (isNaN(a) || isNaN(b) || isNaN(c) || a === 0) return;
 
         const D = b * b - 4 * a * c;
-        let resultHTML = `<div class="res-item"><strong>D = ${D}</strong></div>`;
+        const resDiv = document.getElementById('results');
+        resDiv.innerHTML = `<div style="margin-bottom:15px"><b>Дискриминант D = ${D}</b></div>`;
+
         let roots = [];
 
-        if (D > 0) {
+        if (D >= 0) {
             const sqrtD = Math.sqrt(D);
-            const x1 = (-b + sqrtD) / (2 * a);
-            const x2 = (-b - sqrtD) / (2 * a);
-            
-            resultHTML += renderRoot("x₁", `-(${b}) + √${D}`, 2*a, x1);
-            resultHTML += renderRoot("x₂", `-(${b}) - √${D}`, 2*a, x2);
-            roots = [x1.toFixed(10), x2.toFixed(10)];
-        } else if (D === 0) {
-            const x = -b / (2 * a);
-            resultHTML += renderRoot("x", `-${b}`, 2*a, x);
-            roots = [x.toFixed(10)];
+            if (D > 0) {
+                const x1 = (-b + sqrtD) / (2 * a);
+                const x2 = (-b - sqrtD) / (2 * a);
+                resDiv.innerHTML += renderRootHTML("x₁", `-${b} + √${D}`, 2*a, x1);
+                resDiv.innerHTML += renderRootHTML("x₂", `-${b} - √${D}`, 2*a, x2);
+                roots = [x1, x2];
+            } else {
+                const x = -b / (2 * a);
+                resDiv.innerHTML += renderRootHTML("x", `-${b}`, 2*a, x);
+                roots = [x];
+            }
         } else {
-            resultHTML += "<div>Корней среди действительных чисел нет</div>";
-            roots = ["Нет корней"];
+            resDiv.innerHTML += "<p>Действительных корней нет.</p>";
         }
 
-        output.innerHTML = resultHTML;
+        drawGraph(a, b, c, roots);
         addToHistory(a, b, c, roots);
     }
 
-    function renderRoot(label, top, bottom, val) {
+    function renderRootHTML(name, num, den, val) {
         return `
-            <div style="margin-bottom: 15px; display: flex; align-items: center;">
-                <span style="margin-right: 10px; color: var(--accent); font-weight: bold;">${label} =</span>
-                <div class="fraction-res">
-                    <div class="fraction-up">${top}</div>
-                    <div class="fraction-down">${bottom}</div>
+            <div class="root-display">
+                <span class="label">${name} =</span>
+                <div class="fraction">
+                    <div class="numerator">${num}</div>
+                    <div class="denominator">${den}</div>
                 </div>
-                <span>≈ ${val.toFixed(10)}</span>
+                <span style="font-size: 1.2rem">≈</span>
+                <div class="approx-val">${val.toFixed(10)}</div>
             </div>
         `;
     }
 
-    function addToHistory(a, b, c, roots) {
-        const entry = {
-            eq: `${a}x² ${b >= 0 ? '+' : ''}${b}x ${c >= 0 ? '+' : ''}${c} = 0`,
-            res: roots.join('; ')
-        };
-        history.unshift(entry);
-        updateHistoryUI();
+    function drawGraph(a, b, c, roots) {
+        const ctx = document.getElementById('myChart').getContext('2d');
+        
+        // Определяем диапазон X
+        let centerX = -b / (2 * a);
+        let range = roots.length > 1 ? Math.abs(roots[0] - roots[1]) * 1.5 + 2 : 10;
+        if (isNaN(range)) range = 10;
+
+        const labels = [];
+        const data = [];
+        for (let x = centerX - range; x <= centerX + range; x += range / 50) {
+            labels.push(x.toFixed(2));
+            data.push(a * x * x + b * x + c);
+        }
+
+        if (myChart) myChart.destroy();
+
+        const isDark = document.body.getAttribute('data-theme') === 'dark';
+
+        myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'f(x) = ax² + bx + c',
+                    data: data,
+                    borderColor: '#6366f1',
+                    borderWidth: 3,
+                    pointRadius: 0,
+                    fill: false,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: { ticks: { display: false }, grid: { color: isDark ? '#334155' : '#e2e8f0' } },
+                    y: { grid: { color: isDark ? '#334155' : '#e2e8f0' } }
+                },
+                plugins: { legend: { display: false } }
+            }
+        });
     }
 
-    function updateHistoryUI() {
-        const list = document.getElementById('historyList');
-        list.innerHTML = history.map(item => `
-            <div class="history-item">
-                <div style="color: white; margin-bottom: 4px;">${item.eq}</div>
-                <div>Ответ: ${item.res}</div>
-            </div>
-        `).join('');
+    function addToHistory(a, b, c, roots) {
+        const container = document.getElementById('history');
+        const div = document.createElement('div');
+        div.className = 'history-item';
+        const rootStr = roots.length > 0 ? roots.map(r => r.toFixed(4)).join('; ') : "нет корней";
+        div.innerHTML = `
+            <div style="font-weight:bold">${a}x² ${b>=0?'+':''}${b}x ${c>=0?'+':''}${c} = 0</div>
+            <div style="color:var(--accent)">x: ${rootStr}</div>
+        `;
+        container.prepend(div);
+    }
+
+    function updateChartTheme(theme) {
+        const isDark = theme === 'dark';
+        myChart.options.scales.x.grid.color = isDark ? '#334155' : '#e2e8f0';
+        myChart.options.scales.y.grid.color = isDark ? '#334155' : '#e2e8f0';
+        myChart.update();
     }
 </script>
 
