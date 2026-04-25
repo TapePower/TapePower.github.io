@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quantum Solver Pro</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js">
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -52,7 +51,6 @@
             width: 100%;
         }
 
-        /* Табы */
         .tab-nav {
             display: flex;
             gap: 10px;
@@ -102,12 +100,18 @@
             }
         }
 
-        /* Стили для колеса (используются внутри таба) */
         .wheel-container {
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 25px;
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 35px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
         }
 
         .glass-card {
@@ -164,7 +168,7 @@
             box-shadow: 0 0 15px rgba(139, 92, 246, 0.3);
         }
 
-        .btn-solve, .btn-spin {
+        .btn-solve, .btn-spin, .btn-update-sectors {
             width: 100%;
             padding: 18px;
             border-radius: 12px;
@@ -176,9 +180,10 @@
             cursor: pointer;
             text-transform: uppercase;
             transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 10px;
         }
 
-        .btn-solve:hover, .btn-spin:hover {
+        .btn-solve:hover, .btn-spin:hover, .btn-update-sectors:hover {
             transform: translateY(-2px);
             box-shadow: 0 10px 20px rgba(139, 92, 246, 0.4);
         }
@@ -274,18 +279,28 @@
             color: var(--accent);
             margin-top: 15px;
         }
+
+        .sector-input-area {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+            align-items: center;
+        }
+
+        .sector-input {
+            flex: 1;
+        }
     </style>
 </head>
 <body data-theme="dark" oncontextmenu="return false;">
 
 <div class="main-wrapper">
-    <!-- Навигация по вкладкам -->
     <div class="tab-nav">
         <button class="tab-btn active" data-tab="calc">🧮 Калькулятор</button>
         <button class="tab-btn" data-tab="wheel">🎡 Колесо фортуны</button>
     </div>
 
-    <!-- Вкладка калькулятора (оригинальный контент без изменений) -->
+    <!-- Вкладка калькулятора (оригинал) -->
     <div class="tab-content active" id="tab-calc">
         <div class="container">
             <div class="left-side">
@@ -294,23 +309,16 @@
                         <h1>SOLVER PRO</h1>
                         <button class="theme-btn" onclick="toggleTheme()">🌓 Theme</button>
                     </div>
-
                     <div class="input-group">
                         <input type="number" id="a" placeholder="a" step="any">
                         <input type="number" id="b" placeholder="b" step="any">
                         <input type="number" id="c" placeholder="c" step="any">
                     </div>
-
                     <button class="btn-solve" onclick="calculate()">Вычислить решение</button>
-
                     <div id="res-area" class="root-box"></div>
-
-                    <div class="chart-wrap">
-                        <canvas id="chart"></canvas>
-                    </div>
+                    <div class="chart-wrap"><canvas id="chart"></canvas></div>
                 </div>
             </div>
-
             <div class="right-side">
                 <div class="glass-card" style="height: 100%;">
                     <h3 style="margin: 0; color: var(--primary);">История запросов</h3>
@@ -323,11 +331,15 @@
 
     <!-- Вкладка колеса фортуны -->
     <div class="tab-content" id="tab-wheel">
-        <div class="glass-card wheel-container">
+        <div class="wheel-container">
             <h2 style="margin:0 0 20px; background: var(--grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Колесо фортуны</h2>
             <canvas id="wheelCanvas" width="400" height="400" style="max-width: 100%; height: auto;"></canvas>
-            <button class="btn-spin" id="spinBtn">Испытать удачу</button>
             <div class="wheel-result" id="wheelResult"></div>
+            <button class="btn-spin" id="spinBtn">Испытать удачу</button>
+            <div class="sector-input-area">
+                <input type="text" id="sectorInput" class="sector-input" placeholder="Сектора через запятую" value="Подарок, Джекпот, Удача, Сюрприз, 100 монет, Ещё раз, Бонус, Мегаприз">
+                <button class="btn-update-sectors" id="updateSectorsBtn" style="width: auto; margin-top:0;">Обновить</button>
+            </div>
         </div>
     </div>
 </div>
@@ -353,21 +365,15 @@
         btn.addEventListener('click', () => {
             const tabName = btn.getAttribute('data-tab');
             if (tabName === currentTab) return;
-            // Убираем активный класс у всех кнопок и контента
             tabBtns.forEach(b => b.classList.remove('active'));
             tabContents.forEach(c => c.classList.remove('active'));
-            // Активируем нужные
             btn.classList.add('active');
             document.getElementById(`tab-${tabName}`).classList.add('active');
             currentTab = tabName;
 
-            // При переключении на калькулятор обновим размер графика, если он существует
             if (tabName === 'calc' && chart) {
-                setTimeout(() => {
-                    chart.resize();
-                }, 50);
+                setTimeout(() => chart.resize(), 50);
             }
-            // При переключении на колесо инициализируем его, если еще не инициализировано
             if (tabName === 'wheel' && !wheelInitialized) {
                 initWheel();
                 wheelInitialized = true;
@@ -375,7 +381,7 @@
         });
     });
 
-    // ================== Оригинальный код калькулятора (без изменений) ==================
+    // ================== Калькулятор (без изменений) ==================
     let chart = null;
     let historyData = JSON.parse(localStorage.getItem('eq_history')) || [];
 
@@ -387,14 +393,13 @@
         const b = document.body;
         const t = b.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
         b.setAttribute('data-theme', t);
-        if (chart) calculate(); // Обновить цвета графика
+        if (chart) calculate();
     }
 
     function calculate() {
         const a = parseFloat(document.getElementById('a').value);
         const b = parseFloat(document.getElementById('b').value);
         const c = parseFloat(document.getElementById('c').value);
-
         if (isNaN(a) || a === 0) return;
 
         const D = b * b - 4 * a * c;
@@ -437,16 +442,13 @@
     function updateChart(a, b, c, roots) {
         const ctx = document.getElementById('chart').getContext('2d');
         const mid = -b / (2 * a);
-        const labels = [],
-            data = [];
+        const labels = [], data = [];
         for (let x = mid - 5; x <= mid + 5; x += 0.2) {
             labels.push(x.toFixed(1));
             data.push(a * x * x + b * x + c);
         }
-
         if (chart) chart.destroy();
         const isDark = document.body.getAttribute('data-theme') === 'dark';
-
         chart = new Chart(ctx, {
             type: 'line',
             data: {
@@ -463,28 +465,10 @@
                 responsive: true,
                 maintainAspectRatio: false,
                 scales: {
-                    x: {
-                        ticks: {
-                            color: isDark ? '#64748b' : '#94a3b8'
-                        },
-                        grid: {
-                            display: false
-                        }
-                    },
-                    y: {
-                        ticks: {
-                            color: isDark ? '#64748b' : '#94a3b8'
-                        },
-                        grid: {
-                            color: 'rgba(255,255,255,0.05)'
-                        }
-                    }
+                    x: { ticks: { color: isDark ? '#64748b' : '#94a3b8' }, grid: { display: false } },
+                    y: { ticks: { color: isDark ? '#64748b' : '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } }
                 },
-                plugins: {
-                    legend: {
-                        display: false
-                    }
-                }
+                plugins: { legend: { display: false } }
             }
         });
     }
@@ -517,29 +501,72 @@
         renderHistory();
     }
 
-    // ================== Колесо фортуны ==================
+    // ================== Колесо фортуны (с пользовательскими секторами и звуком) ==================
     let wheelInitialized = false;
-    const sectors = [
-        { label: '🎁 Подарок', color: '#FF6384' },
-        { label: '💎 Джекпот', color: '#36A2EB' },
-        { label: '🍀 Удача', color: '#FFCE56' },
-        { label: '⭐ Сюрприз', color: '#4BC0C0' },
-        { label: '💸 100 монет', color: '#9966FF' },
-        { label: '😴 Попробуй ещё', color: '#FF9F40' },
-        { label: '🔥 Бонус', color: '#C9CBCF' },
-        { label: '🌈 Мегаприз', color: '#7BC8A4' }
+    // Дефолтные цвета для секторов
+    const defaultColors = [
+        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40', '#C9CBCF', '#7BC8A4',
+        '#E74C3C', '#3498DB', '#2ECC71', '#F1C40F', '#9B59B6', '#1ABC9C', '#E67E22', '#34495E'
     ];
 
+    // Текущие сектора
+    let sectors = [];
     let wheelAngle = 0;
     let spinning = false;
-    let spinVelocity = 0;
-    let spinAnimationId = null;
+    let lastTickAngle = 0;
+    let audioCtx = null;
 
-    function initWheel() {
-        drawWheel(0);
-        document.getElementById('spinBtn').addEventListener('click', spinWheel);
+    // Функция для получения AudioContext
+    function getAudioContext() {
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        return audioCtx;
     }
 
+    // Проигрывание звука щелчка
+    function playTick() {
+        try {
+            const ctx = getAudioContext();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'square';
+            osc.frequency.value = 800;
+            gain.gain.value = 0.1;
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start();
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
+            osc.stop(ctx.currentTime + 0.05);
+        } catch (e) {
+            // Игнорируем ошибки аудио
+        }
+    }
+
+    // Инициализация колеса
+    function initWheel() {
+        updateSectorsFromInput();
+        drawWheel(wheelAngle);
+        document.getElementById('spinBtn').addEventListener('click', spinWheel);
+        document.getElementById('updateSectorsBtn').addEventListener('click', updateSectorsFromInput);
+    }
+
+    // Обновить сектора из текстового поля
+    function updateSectorsFromInput() {
+        const input = document.getElementById('sectorInput');
+        const newSectors = input.value.split(',').map(s => s.trim()).filter(s => s.length > 0);
+        if (newSectors.length === 0) {
+            sectors = ['Сектор 1', 'Сектор 2'];
+        } else {
+            sectors = newSectors.map((label, index) => ({
+                label: label,
+                color: defaultColors[index % defaultColors.length]
+            }));
+        }
+        drawWheel(wheelAngle);
+    }
+
+    // Рисование колеса
     function drawWheel(angle) {
         const canvas = document.getElementById('wheelCanvas');
         if (!canvas) return;
@@ -552,7 +579,6 @@
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // Рисуем сектора
         for (let i = 0; i < numSectors; i++) {
             const startAngle = angle + i * arc;
             const endAngle = startAngle + arc;
@@ -566,7 +592,6 @@
             ctx.lineWidth = 2;
             ctx.stroke();
 
-            // Текст
             ctx.save();
             ctx.translate(centerX, centerY);
             ctx.rotate(startAngle + arc / 2);
@@ -601,50 +626,53 @@
         ctx.stroke();
     }
 
+    // Вращение колеса
     function spinWheel() {
         if (spinning) return;
+        if (sectors.length === 0) {
+            updateSectorsFromInput();
+            if (sectors.length === 0) return;
+        }
         spinning = true;
         document.getElementById('wheelResult').textContent = '...';
-        // Случайная сила вращения (10-20 рад/с) и дополнительный угол
-        spinVelocity = Math.random() * 10 + 15;
+        const spinVelocity = Math.random() * 10 + 15;
         const additionalAngle = Math.random() * 2 * Math.PI;
-        const targetAngle = wheelAngle + spinVelocity * 3 + additionalAngle; // примерно 3 секунды
+        const targetAngle = wheelAngle + spinVelocity * 3 + additionalAngle;
         const startAngle = wheelAngle;
         const startTime = performance.now();
-        const duration = 3000; // 3 секунды
+        const duration = 3000;
+        lastTickAngle = startAngle;
 
         function animate(now) {
             const elapsed = now - startTime;
             const progress = Math.min(elapsed / duration, 1);
-            // easing: замедление в конце
             const easeOutCubic = 1 - Math.pow(1 - progress, 3);
             const currentAngle = startAngle + (targetAngle - startAngle) * easeOutCubic;
             wheelAngle = currentAngle % (2 * Math.PI);
             drawWheel(wheelAngle);
 
+            // Звук щелчка при пересечении границы сектора
+            const arc = (2 * Math.PI) / sectors.length;
+            const angleDiff = Math.abs(currentAngle - lastTickAngle);
+            if (angleDiff >= arc) {
+                playTick();
+                lastTickAngle = currentAngle - (angleDiff % arc);
+            }
+
             if (progress < 1) {
-                spinAnimationId = requestAnimationFrame(animate);
+                requestAnimationFrame(animate);
             } else {
-                // Определяем выигрышный сектор
-                const normalizedAngle = (wheelAngle % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
-                const arc = (2 * Math.PI) / sectors.length;
-                // Указатель находится сверху (угол -PI/2 или 3*PI/2). Скорректируем.
-                const pointerAngle = (3 * Math.PI / 2) % (2 * Math.PI); // верх
-                // Найдем сектор, в который попадает указатель
+                const normalizedAngle = ((wheelAngle % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+                const pointerAngle = (3 * Math.PI / 2) % (2 * Math.PI);
                 let sectorIndex = Math.floor(((pointerAngle - normalizedAngle + 2 * Math.PI) % (2 * Math.PI)) / arc);
                 sectorIndex = sectorIndex % sectors.length;
                 document.getElementById('wheelResult').textContent = `Выпало: ${sectors[sectorIndex].label}`;
                 spinning = false;
-                spinAnimationId = null;
             }
         }
 
         requestAnimationFrame(animate);
     }
-
-    // Инициализация колеса при загрузке страницы, если вкладка активна по умолчанию? 
-    // По умолчанию активен калькулятор, поэтому колесо инициализируем при открытии вкладки (в обработчике табов).
-    // На случай, если пользователь сразу переключится, флаг и вызов initWheel произойдет по клику на таб.
 </script>
 
 </body>
