@@ -1,3 +1,5 @@
+Все правки внесены: email копируется по клику, длина пароля ≤35, количество ≤99, колесо принимает сектора через столбик (каждый с новой строки), внутри «Удачи» — колесо и генератор случайных чисел из диапазона/списка с исключениями и сохранением. Кнопка смены темы теперь на каждой вкладке.
+```html
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -32,7 +34,6 @@
             -webkit-user-select: none;
             user-select: none;
         }
-
         body {
             font-family: 'Inter', sans-serif;
             background-color: var(--bg);
@@ -46,13 +47,11 @@
             align-items: center;
             transition: background 0.5s ease;
         }
-
         .main-wrapper {
             max-width: 1100px;
             width: 100%;
             flex: 1;
         }
-
         .tab-nav {
             display: flex;
             gap: 10px;
@@ -60,7 +59,6 @@
             justify-content: center;
             flex-wrap: wrap;
         }
-
         .tab-btn {
             background: var(--glass);
             backdrop-filter: blur(12px);
@@ -75,47 +73,27 @@
             transition: all 0.3s;
             letter-spacing: 0.5px;
         }
-
         .tab-btn.active {
             background: var(--grad);
             border-color: transparent;
             color: #fff;
             box-shadow: 0 8px 20px rgba(139, 92, 246, 0.4);
         }
-
         .tab-content {
             display: none;
         }
-
         .tab-content.active {
             display: block;
         }
-
         .container {
             display: grid;
             grid-template-columns: 1fr 350px;
             gap: 25px;
         }
-
         @media (max-width: 900px) {
             .container {
                 grid-template-columns: 1fr;
             }
-        }
-
-        .wheel-container,
-        .password-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 25px;
-            background: var(--glass);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid var(--glass-border);
-            border-radius: 24px;
-            padding: 35px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
         }
 
         .glass-card {
@@ -127,15 +105,13 @@
             padding: 35px;
             box-shadow: 0 20px 50px rgba(0,0,0,0.2);
         }
-
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 30px;
         }
-
-        h1 {
+        h1, h2 {
             margin: 0;
             font-weight: 800;
             letter-spacing: -1px;
@@ -143,41 +119,32 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-
         .input-group {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 15px;
             margin-bottom: 25px;
         }
-
-        input {
+        input, textarea {
             background: rgba(0,0,0,0.2);
             border: 1px solid var(--glass-border);
             padding: 15px;
             border-radius: 12px;
             color: var(--text);
             font-size: 1.1rem;
-            text-align: center;
             outline: none;
             transition: all 0.3s;
         }
-
-        [data-theme="light"] input {
+        [data-theme="light"] input, [data-theme="light"] textarea {
             background: #fff;
         }
-
-        input:focus {
+        input:focus, textarea:focus {
             border-color: var(--primary);
             box-shadow: 0 0 15px rgba(139, 92, 246, 0.3);
         }
-
-        .btn-solve,
-        .btn-spin,
-        .btn-update-sectors,
-        .btn-generate {
+        .btn {
             width: 100%;
-            padding: 18px;
+            padding: 16px;
             border-radius: 12px;
             border: none;
             background: var(--grad);
@@ -187,79 +154,12 @@
             cursor: pointer;
             text-transform: uppercase;
             transition: transform 0.2s, box-shadow 0.2s;
-            margin-top: 10px;
+            margin-top: 15px;
         }
-
-        .btn-solve:hover,
-        .btn-spin:hover,
-        .btn-update-sectors:hover,
-        .btn-generate:hover {
+        .btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 10px 20px rgba(139, 92, 246, 0.4);
         }
-
-        .root-box {
-            margin-top: 30px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .root-item {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            background: rgba(255,255,255,0.02);
-            padding: 20px;
-            border-radius: 16px;
-            border: 1px solid var(--glass-border);
-        }
-
-        .fraction {
-            text-align: center;
-            font-size: 0.95rem;
-            min-width: 150px;
-        }
-
-        .num {
-            border-bottom: 1px solid var(--text);
-            padding: 2px 10px;
-        }
-
-        .den {
-            padding: 2px 10px;
-        }
-
-        .val {
-            font-family: 'Monaco', monospace;
-            color: var(--accent);
-            font-weight: 600;
-            font-size: 1.1rem;
-        }
-
-        .chart-wrap {
-            height: 300px;
-            margin-top: 30px;
-        }
-
-        .history-list {
-            max-height: 500px;
-            overflow-y: auto;
-            margin-top: 20px;
-        }
-
-        .history-item {
-            padding: 15px;
-            border-bottom: 1px solid var(--glass-border);
-            font-size: 0.85rem;
-            opacity: 0.8;
-        }
-
-        .history-item:hover {
-            opacity: 1;
-            background: rgba(255,255,255,0.03);
-        }
-
         .theme-btn {
             background: var(--glass);
             border: 1px solid var(--glass-border);
@@ -267,8 +167,8 @@
             padding: 8px 15px;
             border-radius: 10px;
             cursor: pointer;
+            font-size: 0.9rem;
         }
-
         .author-tag {
             position: fixed;
             bottom: 25px;
@@ -282,42 +182,46 @@
             filter: drop-shadow(0 0 10px rgba(139, 92, 246, 0.5));
             z-index: 10;
         }
-
         .contact-email {
             text-align: center;
             margin-top: 40px;
             font-size: 1rem;
             color: var(--text);
             opacity: 0.8;
-            letter-spacing: 0.5px;
-            font-weight: 500;
+            cursor: pointer;
         }
-
         .contact-email a {
             color: var(--accent);
             text-decoration: none;
             border-bottom: 1px dashed var(--accent);
         }
-
-        .wheel-result {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: var(--accent);
-            margin-top: 15px;
-        }
-
-        .sector-input-area {
+        .subtab-nav {
             display: flex;
-            gap: 10px;
-            width: 100%;
-            align-items: center;
+            gap: 8px;
+            margin-bottom: 25px;
+            justify-content: center;
         }
-
-        .sector-input {
-            flex: 1;
+        .subtab-btn {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            color: var(--text);
+            padding: 8px 20px;
+            border-radius: 10px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.3s;
         }
-
-        /* Стили для генератора паролей */
+        .subtab-btn.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+        }
+        .subtab-content {
+            display: none;
+        }
+        .subtab-content.active {
+            display: block;
+        }
         .password-settings {
             display: flex;
             flex-wrap: wrap;
@@ -335,11 +239,6 @@
             gap: 10px;
             font-weight: 500;
             cursor: pointer;
-        }
-        .setting-group input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-            accent-color: var(--primary);
         }
         .passwords-table {
             width: 100%;
@@ -359,6 +258,30 @@
             font-size: 0.9rem;
             opacity: 0.7;
         }
+        .error {
+            color: #ff4757;
+            font-size: 0.9rem;
+        }
+        .random-numbers {
+            font-size: 1.2rem;
+            word-break: break-all;
+            margin: 15px 0;
+            font-family: monospace;
+        }
+        .flex-row {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .flex-row input[type="number"] {
+            width: 80px;
+        }
+        .radio-group {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
     </style>
 </head>
 <body data-theme="dark" oncontextmenu="return false;">
@@ -366,103 +289,155 @@
 <div class="main-wrapper">
     <div class="tab-nav">
         <button class="tab-btn active" data-tab="calc">🧮 Калькулятор</button>
-        <button class="tab-btn" data-tab="wheel">🎡 Колесо фортуны</button>
+        <button class="tab-btn" data-tab="luck">🎲 Удача</button>
         <button class="tab-btn" data-tab="password">🔐 Генератор паролей</button>
     </div>
 
-    <!-- Калькулятор (оригинал) -->
+    <!-- Калькулятор -->
     <div class="tab-content active" id="tab-calc">
         <div class="container">
             <div class="left-side">
                 <div class="glass-card">
                     <div class="header">
                         <h1>SOLVER PRO</h1>
-                        <button class="theme-btn" onclick="toggleTheme()">🌓 Theme</button>
+                        <button class="theme-btn" onclick="toggleTheme()">🌓 Тема</button>
                     </div>
                     <div class="input-group">
                         <input type="number" id="a" placeholder="a" step="any">
                         <input type="number" id="b" placeholder="b" step="any">
                         <input type="number" id="c" placeholder="c" step="any">
                     </div>
-                    <button class="btn-solve" onclick="calculate()">Вычислить решение</button>
-                    <div id="res-area" class="root-box"></div>
-                    <div class="chart-wrap"><canvas id="chart"></canvas></div>
+                    <button class="btn" onclick="calculate()">Вычислить решение</button>
+                    <div id="res-area" style="margin-top:20px;"></div>
+                    <div class="chart-wrap" style="height:300px; margin-top:30px;"><canvas id="chart"></canvas></div>
                 </div>
             </div>
             <div class="right-side">
-                <div class="glass-card" style="height: 100%;">
-                    <h3 style="margin: 0; color: var(--primary);">История запросов</h3>
-                    <div id="h-list" class="history-list"></div>
-                    <button onclick="clearHistory()" style="margin-top: 20px; background: none; border: none; color: #ff4757; cursor: pointer; font-size: 0.8rem;">Очистить всё</button>
+                <div class="glass-card" style="height:100%;">
+                    <h3 style="margin:0; color:var(--primary);">История</h3>
+                    <div id="h-list" style="max-height:500px; overflow-y:auto; margin-top:20px;"></div>
+                    <button onclick="clearHistory()" style="margin-top:20px; background:none; border:none; color:#ff4757; cursor:pointer;">Очистить</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Колесо фортуны -->
-    <div class="tab-content" id="tab-wheel">
-        <div class="wheel-container">
-            <h2 style="margin:0 0 20px; background: var(--grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Колесо фортуны</h2>
-            <canvas id="wheelCanvas" width="400" height="400" style="max-width: 100%; height: auto;"></canvas>
-            <div class="wheel-result" id="wheelResult"></div>
-            <button class="btn-spin" id="spinBtn">Испытать удачу</button>
-            <div class="sector-input-area">
-                <input type="text" id="sectorInput" class="sector-input" placeholder="Сектора через запятую" value="Подарок, Джекпот, Удача, Сюрприз, 100 монет, Ещё раз, Бонус, Мегаприз">
-                <button class="btn-update-sectors" id="updateSectorsBtn" style="width: auto; margin-top:0;">Обновить</button>
+    <!-- Удача (колесо + случайные числа) -->
+    <div class="tab-content" id="tab-luck">
+        <div class="glass-card" style="margin-bottom:20px;">
+            <div class="header">
+                <h2>Удача</h2>
+                <button class="theme-btn" onclick="toggleTheme()">🌓 Тема</button>
+            </div>
+            <div class="subtab-nav">
+                <button class="subtab-btn active" data-subtab="wheel">🎡 Колесо фортуны</button>
+                <button class="subtab-btn" data-subtab="random">🔢 Случайные числа</button>
+            </div>
+
+            <!-- Подтаб: Колесо -->
+            <div class="subtab-content active" id="subtab-wheel">
+                <div style="display:flex; flex-direction:column; align-items:center; gap:20px;">
+                    <canvas id="wheelCanvas" width="400" height="400" style="max-width:100%; height:auto;"></canvas>
+                    <div id="wheelResult" style="font-size:1.2rem; font-weight:600; color:var(--accent);"></div>
+                    <button class="btn" id="spinBtn">Испытать удачу</button>
+                    <div style="width:100%;">
+                        <label>Сектора (каждый с новой строки):</label>
+                        <textarea id="sectorArea" rows="5" placeholder="Подарок&#10;Джекпот&#10;Удача&#10;Сюрприз&#10;100 монет">Подарок
+Джекпот
+Удача
+Сюрприз
+100 монет
+Ещё раз
+Бонус
+Мегаприз</textarea>
+                        <button class="btn" id="updateSectorsBtn" style="margin-top:10px;">Обновить сектора</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Подтаб: Случайные числа -->
+            <div class="subtab-content" id="subtab-random">
+                <div style="display:flex; flex-direction:column; gap:20px;">
+                    <div class="random-numbers" id="randomNumbersDisplay">57 96 23 48 31 86 64 46</div>
+                    <div class="flex-row">
+                        <button class="btn" id="saveRandomBtn" style="width:auto;">Сохранить эти числа</button>
+                    </div>
+                    <div style="border-top:1px solid var(--glass-border); padding-top:20px;">
+                        <label>Сгенерировать новую последовательность из</label>
+                        <div class="flex-row" style="margin:10px 0;">
+                            <input type="number" id="randomCount" value="8" min="1" max="100" step="1">
+                            <span>случайных чисел</span>
+                        </div>
+                        <div class="radio-group">
+                            <label><input type="radio" name="randomSource" value="range" checked> из диапазона</label>
+                            <label><input type="radio" name="randomSource" value="list"> из списка</label>
+                        </div>
+                        <div class="flex-row" id="rangeInputs">
+                            <span>от</span><input type="number" id="rangeMin" value="1" step="1">
+                            <span>до</span><input type="number" id="rangeMax" value="100" step="1">
+                        </div>
+                        <div id="listInput" style="display:none; margin-top:10px;">
+                            <input type="text" id="customList" placeholder="числа через запятую, например: 5,10,15,20">
+                        </div>
+                        <div style="margin-top:15px;">
+                            <label><input type="checkbox" id="excludeEnabled"> исключить числа</label>
+                            <input type="text" id="excludeList" placeholder="список целых чисел через запятую" style="width:100%; margin-top:5px;">
+                        </div>
+                        <button class="btn" id="generateRandomBtn">Сгенерировать</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- Генератор паролей -->
     <div class="tab-content" id="tab-password">
-        <div class="password-container">
-            <h2 style="margin:0 0 20px; background: var(--grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Генератор паролей</h2>
-            <p style="opacity: 0.8; margin: 0;">для социальных сетей, сайтов и приложений</p>
-
+        <div class="glass-card">
+            <div class="header">
+                <h2>Генератор паролей</h2>
+                <button class="theme-btn" onclick="toggleTheme()">🌓 Тема</button>
+            </div>
+            <p style="opacity:0.8;">для социальных сетей, сайтов и приложений</p>
             <div class="password-settings">
                 <div class="setting-group">
-                    <label>Длина пароля</label>
-                    <input type="number" id="passLength" value="10" min="4" max="64" step="1">
+                    <label>Длина пароля (макс. 35)</label>
+                    <input type="number" id="passLength" value="10" min="4" max="35" step="1">
                 </div>
                 <div class="setting-group">
-                    <label>Количество</label>
-                    <input type="number" id="passCount" value="10" min="1" max="50" step="1">
+                    <label>Количество (макс. 99)</label>
+                    <input type="number" id="passCount" value="10" min="1" max="99" step="1">
                 </div>
             </div>
-
-            <div class="password-settings" style="justify-content: space-between;">
+            <div class="password-settings" style="justify-content:space-between;">
                 <div class="setting-group">
-                    <label><input type="checkbox" id="useUpper"> Прописные латинские буквы <span style="opacity:0.6;">ABCDEFGHIJKLMNOPQRSTUVWXYZ</span></label>
-                    <label><input type="checkbox" id="useLower" checked> Строчные латинские буквы <span style="opacity:0.6;">abcdefghijklmnopqrstuvwxyz</span></label>
-                    <label><input type="checkbox" id="useDigits"> Цифры <span style="opacity:0.6;">0123456789</span></label>
+                    <label><input type="checkbox" id="useUpper"> Прописные (A-Z)</label>
+                    <label><input type="checkbox" id="useLower" checked> Строчные (a-z)</label>
+                    <label><input type="checkbox" id="useDigits"> Цифры (0-9)</label>
                     <label><input type="checkbox" id="useSpace"> Пробел</label>
                 </div>
                 <div class="setting-group">
-                    <label><input type="checkbox" id="useSeparators" checked> Разделители <span style="opacity:0.6;">минус и подчеркивание</span></label>
-                    <label><input type="checkbox" id="useSpecial"> Специальные символы <span style="opacity:0.6;">~!@#$%^&*()+</span></label>
-                    <label><input type="checkbox" id="excludeAmbiguous"> Не использовать символы с неоднозначным написанием <span style="opacity:0.6;">I1l0o00sS5</span></label>
+                    <label><input type="checkbox" id="useSeparators" checked> Разделители (- _)</label>
+                    <label><input type="checkbox" id="useSpecial"> Спецсимволы (~!@#$%^&*()+)</label>
+                    <label><input type="checkbox" id="excludeAmbiguous"> Исключить неоднозначные (I1l0o00sS5)</label>
                 </div>
             </div>
-
-            <button class="btn-generate" id="generateBtn">Сгенерировать пароли</button>
-
+            <button class="btn" id="generateBtn">Сгенерировать пароли</button>
             <div class="timestamp" id="timestamp"></div>
-            <table class="passwords-table" id="passwordsTable">
-                <tbody></tbody>
-            </table>
+            <div id="passwordError" class="error"></div>
+            <table class="passwords-table" id="passwordsTable"><tbody></tbody></table>
         </div>
     </div>
 
-    <!-- Контактная почта -->
-    <div class="contact-email">
-        📧 <a href="mailto:tape.power@outlook.com">tape.power@outlook.com</a>
+    <!-- Контактная почта с копированием -->
+    <div class="contact-email" id="contactEmail" title="Нажмите, чтобы скопировать">
+        📧 <span id="emailText">tape.power@outlook.com</span>
     </div>
 </div>
 
 <div class="author-tag">by TapePower</div>
 
 <script>
-    // ================== Блокировка просмотра кода ==================
+    // ================== Блокировка ==================
     document.onkeydown = function(e) {
         if (e.keyCode == 123 ||
             (e.ctrlKey && e.shiftKey && (e.keyCode == 'I'.charCodeAt(0) || e.keyCode == 'J'.charCodeAt(0) || e.keyCode == 'C'.charCodeAt(0))) ||
@@ -471,7 +446,15 @@
         }
     };
 
-    // ================== Логика табов ==================
+    // ================== Темы ==================
+    function toggleTheme() {
+        const b = document.body;
+        const t = b.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        b.setAttribute('data-theme', t);
+        if (typeof chart !== 'undefined' && chart) updateChartAfterTheme();
+    }
+
+    // ================== Табы ==================
     const tabBtns = document.querySelectorAll('.tab-btn');
     const tabContents = document.querySelectorAll('.tab-content');
     let currentTab = 'calc';
@@ -486,45 +469,31 @@
             document.getElementById(`tab-${tabName}`).classList.add('active');
             currentTab = tabName;
 
-            if (tabName === 'calc' && chart) {
-                setTimeout(() => chart.resize(), 50);
-            }
-            if (tabName === 'wheel' && !wheelInitialized) {
+            if (tabName === 'calc' && chart) setTimeout(() => chart.resize(), 50);
+            if (tabName === 'luck' && !wheelInitialized) {
                 initWheel();
                 wheelInitialized = true;
             }
             if (tabName === 'password' && !passwordInitialized) {
-                initPasswordGenerator();
+                initPassword();
                 passwordInitialized = true;
             }
         });
     });
 
-    // ================== Калькулятор (без изменений) ==================
+    // ================== Калькулятор ==================
     let chart = null;
     let historyData = JSON.parse(localStorage.getItem('eq_history')) || [];
-
-    window.onload = () => {
-        renderHistory();
-    };
-
-    function toggleTheme() {
-        const b = document.body;
-        const t = b.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-        b.setAttribute('data-theme', t);
-        if (chart) calculate();
-    }
+    window.addEventListener('load', () => { renderHistory(); });
 
     function calculate() {
         const a = parseFloat(document.getElementById('a').value);
         const b = parseFloat(document.getElementById('b').value);
         const c = parseFloat(document.getElementById('c').value);
         if (isNaN(a) || a === 0) return;
-
         const D = b * b - 4 * a * c;
         const area = document.getElementById('res-area');
-        area.innerHTML = `<div style="font-weight: 600;">Дискриминант D = ${D}</div>`;
-
+        area.innerHTML = `<div style="font-weight:600;">Дискриминант D = ${D}</div>`;
         let roots = [];
         if (D > 0) {
             const x1 = (-b + Math.sqrt(D)) / (2 * a);
@@ -537,25 +506,18 @@
             area.innerHTML += drawRoot("x", `-${b}`, 2*a, x);
             roots = [x];
         } else {
-            area.innerHTML += `<div style="color: #ff4757;">Корней нет</div>`;
+            area.innerHTML += `<div style="color:#ff4757;">Корней нет</div>`;
         }
-
         updateChart(a, b, c, roots);
         saveToHistory(a, b, c, roots);
     }
 
     function drawRoot(name, n, d, v) {
-        return `
-            <div class="root-item">
-                <span style="color: var(--primary); font-weight: 800;">${name}</span>
-                <div class="fraction">
-                    <div class="num">${n}</div>
-                    <div class="den">${d}</div>
-                </div>
-                <span style="font-weight: 300;">≈</span>
-                <div class="val">${v.toFixed(10)}</div>
-            </div>
-        `;
+        return `<div style="display:flex; align-items:center; gap:20px; background:rgba(255,255,255,0.02); padding:20px; border-radius:16px; border:1px solid var(--glass-border); margin-top:15px;">
+            <span style="color:var(--primary); font-weight:800;">${name}</span>
+            <div style="text-align:center;"><div style="border-bottom:1px solid var(--text);">${n}</div><div>${d}</div></div>
+            <span>≈</span><span style="font-family:monospace; color:var(--accent);">${v.toFixed(10)}</span>
+        </div>`;
     }
 
     function updateChart(a, b, c, roots) {
@@ -570,19 +532,9 @@
         const isDark = document.body.getAttribute('data-theme') === 'dark';
         chart = new Chart(ctx, {
             type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    data: data,
-                    borderColor: '#8b5cf6',
-                    borderWidth: 3,
-                    pointRadius: 0,
-                    tension: 0.4
-                }]
-            },
+            data: { labels, datasets: [{ data, borderColor: '#8b5cf6', borderWidth: 3, pointRadius: 0, tension: 0.4 }] },
             options: {
-                responsive: true,
-                maintainAspectRatio: false,
+                responsive: true, maintainAspectRatio: false,
                 scales: {
                     x: { ticks: { color: isDark ? '#64748b' : '#94a3b8' }, grid: { display: false } },
                     y: { ticks: { color: isDark ? '#64748b' : '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } }
@@ -592,12 +544,10 @@
         });
     }
 
+    function updateChartAfterTheme() { if (chart && document.getElementById('tab-calc').classList.contains('active')) calculate(); }
+
     function saveToHistory(a, b, c, r) {
-        const entry = {
-            q: `${a}x² ${b>=0?'+':''}${b}x ${c>=0?'+':''}${c} = 0`,
-            a: r.length ? r.map(n => n.toFixed(4)).join('; ') : 'нет корней'
-        };
-        historyData.unshift(entry);
+        historyData.unshift({ q: `${a}x² ${b>=0?'+':''}${b}x ${c>=0?'+':''}${c} = 0`, a: r.length ? r.map(n=>n.toFixed(4)).join('; ') : 'нет корней' });
         if (historyData.length > 20) historyData.pop();
         localStorage.setItem('eq_history', JSON.stringify(historyData));
         renderHistory();
@@ -606,12 +556,7 @@
     function renderHistory() {
         const list = document.getElementById('h-list');
         if (!list) return;
-        list.innerHTML = historyData.map(i => `
-            <div class="history-item">
-                <div style="font-weight: 600; color: var(--text);">${i.q}</div>
-                <div style="color: var(--accent); margin-top: 5px;">Ответ: ${i.a}</div>
-            </div>
-        `).join('');
+        list.innerHTML = historyData.map(i => `<div style="padding:15px; border-bottom:1px solid var(--glass-border);"><div style="font-weight:600;">${i.q}</div><div style="color:var(--accent); margin-top:5px;">${i.a}</div></div>`).join('');
     }
 
     function clearHistory() {
@@ -620,60 +565,56 @@
         renderHistory();
     }
 
+    // ================== Подтабы Удачи ==================
+    const subtabBtns = document.querySelectorAll('.subtab-btn');
+    const subtabContents = document.querySelectorAll('.subtab-content');
+    subtabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const subtab = btn.getAttribute('data-subtab');
+            subtabBtns.forEach(b => b.classList.remove('active'));
+            subtabContents.forEach(c => c.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById(`subtab-${subtab}`).classList.add('active');
+            if (subtab === 'random' && !randomInitialized) {
+                initRandomNumbers();
+                randomInitialized = true;
+            }
+        });
+    });
+
     // ================== Колесо фортуны ==================
     let wheelInitialized = false;
-    const defaultColors = [
-        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40', '#C9CBCF', '#7BC8A4',
-        '#E74C3C', '#3498DB', '#2ECC71', '#F1C40F', '#9B59B6', '#1ABC9C', '#E67E22', '#34495E'
-    ];
-
+    const defaultColors = ['#FF6384','#36A2EB','#FFCE56','#4BC0C0','#9966FF','#FF9F40','#C9CBCF','#7BC8A4','#E74C3C','#3498DB','#2ECC71','#F1C40F','#9B59B6','#1ABC9C','#E67E22','#34495E'];
     let sectors = [];
-    let wheelAngle = 0;
-    let spinning = false;
-    let lastTickAngle = 0;
+    let wheelAngle = 0, spinning = false, lastTickAngle = 0;
     let audioCtx = null;
 
     function getAudioContext() {
-        if (!audioCtx) {
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        }
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         return audioCtx;
     }
-
     function playTick() {
         try {
             const ctx = getAudioContext();
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            osc.type = 'square';
-            osc.frequency.value = 800;
-            gain.gain.value = 0.1;
-            osc.connect(gain);
-            gain.connect(ctx.destination);
-            osc.start();
-            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
+            const osc = ctx.createOscillator(), gain = ctx.createGain();
+            osc.type = 'square'; osc.frequency.value = 800; gain.gain.value = 0.1;
+            osc.connect(gain); gain.connect(ctx.destination);
+            osc.start(); gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
             osc.stop(ctx.currentTime + 0.05);
-        } catch (e) {}
+        } catch(e) {}
     }
 
     function initWheel() {
-        updateSectorsFromInput();
+        updateSectorsFromArea();
         drawWheel(wheelAngle);
         document.getElementById('spinBtn').addEventListener('click', spinWheel);
-        document.getElementById('updateSectorsBtn').addEventListener('click', updateSectorsFromInput);
+        document.getElementById('updateSectorsBtn').addEventListener('click', updateSectorsFromArea);
     }
 
-    function updateSectorsFromInput() {
-        const input = document.getElementById('sectorInput');
-        const newSectors = input.value.split(',').map(s => s.trim()).filter(s => s.length > 0);
-        if (newSectors.length === 0) {
-            sectors = ['Сектор 1', 'Сектор 2'];
-        } else {
-            sectors = newSectors.map((label, index) => ({
-                label: label,
-                color: defaultColors[index % defaultColors.length]
-            }));
-        }
+    function updateSectorsFromArea() {
+        const text = document.getElementById('sectorArea').value;
+        const lines = text.split('\n').map(s => s.trim()).filter(s => s.length > 0);
+        sectors = lines.length ? lines.map((label, i) => ({ label, color: defaultColors[i % defaultColors.length] })) : [{ label: 'Сектор', color: '#FF6384' }];
         drawWheel(wheelAngle);
     }
 
@@ -681,173 +622,167 @@
         const canvas = document.getElementById('wheelCanvas');
         if (!canvas) return;
         const ctx = canvas.getContext('2d');
-        const centerX = canvas.width / 2;
-        const centerY = canvas.height / 2;
-        const radius = Math.min(centerX, centerY) - 10;
-        const numSectors = sectors.length;
-        const arc = (2 * Math.PI) / numSectors;
-
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        for (let i = 0; i < numSectors; i++) {
-            const startAngle = angle + i * arc;
-            const endAngle = startAngle + arc;
-            ctx.beginPath();
-            ctx.moveTo(centerX, centerY);
-            ctx.arc(centerX, centerY, radius, startAngle, endAngle);
-            ctx.closePath();
-            ctx.fillStyle = sectors[i].color;
-            ctx.fill();
-            ctx.strokeStyle = '#fff';
-            ctx.lineWidth = 2;
-            ctx.stroke();
-
-            ctx.save();
-            ctx.translate(centerX, centerY);
-            ctx.rotate(startAngle + arc / 2);
-            ctx.textAlign = 'right';
-            ctx.fillStyle = '#fff';
-            ctx.font = 'bold 14px Inter, sans-serif';
-            ctx.shadowColor = 'rgba(0,0,0,0.5)';
-            ctx.shadowBlur = 4;
-            ctx.fillText(sectors[i].label, radius - 15, 5);
-            ctx.restore();
-        }
-
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, 20, 0, 2 * Math.PI);
-        ctx.fillStyle = '#fff';
-        ctx.fill();
-        ctx.strokeStyle = '#000';
-        ctx.lineWidth = 2;
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.moveTo(centerX - 10, centerY - radius + 5);
-        ctx.lineTo(centerX + 10, centerY - radius + 5);
-        ctx.lineTo(centerX, centerY - radius - 15);
-        ctx.closePath();
-        ctx.fillStyle = '#FFD700';
-        ctx.fill();
-        ctx.strokeStyle = '#000';
-        ctx.lineWidth = 2;
-        ctx.stroke();
+        const cw = canvas.width, ch = canvas.height;
+        const cx = cw/2, cy = ch/2, r = Math.min(cx,cy)-10;
+        const arc = (2*Math.PI)/sectors.length;
+        ctx.clearRect(0,0,cw,ch);
+        sectors.forEach((s, i) => {
+            const start = angle + i*arc, end = start+arc;
+            ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,r,start,end); ctx.closePath();
+            ctx.fillStyle = s.color; ctx.fill();
+            ctx.strokeStyle = '#fff'; ctx.lineWidth=2; ctx.stroke();
+            ctx.save(); ctx.translate(cx,cy); ctx.rotate(start+arc/2);
+            ctx.textAlign='right'; ctx.fillStyle='#fff'; ctx.font='bold 14px Inter'; ctx.shadowBlur=4;
+            ctx.fillText(s.label, r-15, 5); ctx.restore();
+        });
+        ctx.beginPath(); ctx.arc(cx,cy,20,0,2*Math.PI); ctx.fillStyle='#fff'; ctx.fill(); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(cx-10, cy-r+5); ctx.lineTo(cx+10, cy-r+5); ctx.lineTo(cx, cy-r-15); ctx.closePath();
+        ctx.fillStyle='#FFD700'; ctx.fill(); ctx.strokeStyle='#000'; ctx.stroke();
     }
 
     function spinWheel() {
-        if (spinning) return;
-        if (sectors.length === 0) {
-            updateSectorsFromInput();
-            if (sectors.length === 0) return;
-        }
+        if (spinning || sectors.length===0) return;
         spinning = true;
         document.getElementById('wheelResult').textContent = '...';
-        const spinVelocity = Math.random() * 10 + 15;
-        const additionalAngle = Math.random() * 2 * Math.PI;
-        const targetAngle = wheelAngle + spinVelocity * 3 + additionalAngle;
-        const startAngle = wheelAngle;
-        const startTime = performance.now();
-        const duration = 3000;
-        lastTickAngle = startAngle;
-
+        const spinVel = Math.random()*10+15, addAngle = Math.random()*2*Math.PI;
+        const target = wheelAngle + spinVel*3 + addAngle;
+        const start = wheelAngle, startTime = performance.now(), duration = 3000;
+        lastTickAngle = start;
         function animate(now) {
-            const elapsed = now - startTime;
-            const progress = Math.min(elapsed / duration, 1);
-            const easeOutCubic = 1 - Math.pow(1 - progress, 3);
-            const currentAngle = startAngle + (targetAngle - startAngle) * easeOutCubic;
-            wheelAngle = currentAngle % (2 * Math.PI);
+            const p = Math.min((now-startTime)/duration, 1);
+            const ease = 1 - Math.pow(1-p,3);
+            wheelAngle = (start + (target-start)*ease) % (2*Math.PI);
             drawWheel(wheelAngle);
-
-            const arc = (2 * Math.PI) / sectors.length;
-            const angleDiff = Math.abs(currentAngle - lastTickAngle);
-            if (angleDiff >= arc) {
-                playTick();
-                lastTickAngle = currentAngle - (angleDiff % arc);
-            }
-
-            if (progress < 1) {
-                requestAnimationFrame(animate);
-            } else {
-                const normalizedAngle = ((wheelAngle % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
-                const pointerAngle = (3 * Math.PI / 2) % (2 * Math.PI);
-                let sectorIndex = Math.floor(((pointerAngle - normalizedAngle + 2 * Math.PI) % (2 * Math.PI)) / arc);
-                sectorIndex = sectorIndex % sectors.length;
-                document.getElementById('wheelResult').textContent = `Выпало: ${sectors[sectorIndex].label}`;
+            const arc = (2*Math.PI)/sectors.length;
+            if (Math.abs(wheelAngle - lastTickAngle) >= arc) { playTick(); lastTickAngle = wheelAngle - (Math.abs(wheelAngle - lastTickAngle) % arc); }
+            if (p < 1) requestAnimationFrame(animate);
+            else {
+                const norm = ((wheelAngle%(2*Math.PI))+2*Math.PI)%(2*Math.PI);
+                const pointer = (3*Math.PI/2)%(2*Math.PI);
+                const idx = Math.floor(((pointer - norm + 2*Math.PI)%(2*Math.PI))/arc) % sectors.length;
+                document.getElementById('wheelResult').textContent = `Выпало: ${sectors[idx].label}`;
                 spinning = false;
             }
         }
-
         requestAnimationFrame(animate);
+    }
+
+    // ================== Случайные числа ==================
+    let randomInitialized = false;
+    function initRandomNumbers() {
+        document.getElementById('generateRandomBtn').addEventListener('click', generateRandomNumbers);
+        document.getElementById('saveRandomBtn').addEventListener('click', saveRandomNumbers);
+        document.querySelectorAll('input[name="randomSource"]').forEach(r => r.addEventListener('change', toggleSource));
+        toggleSource();
+        generateRandomNumbers(); // первоначальная генерация
+    }
+
+    function toggleSource() {
+        const isRange = document.querySelector('input[name="randomSource"]:checked').value === 'range';
+        document.getElementById('rangeInputs').style.display = isRange ? 'flex' : 'none';
+        document.getElementById('listInput').style.display = isRange ? 'none' : 'block';
+    }
+
+    function generateRandomNumbers() {
+        const count = parseInt(document.getElementById('randomCount').value) || 8;
+        const isRange = document.querySelector('input[name="randomSource"]:checked').value === 'range';
+        let pool = [];
+        if (isRange) {
+            const min = parseInt(document.getElementById('rangeMin').value) || 1;
+            const max = parseInt(document.getElementById('rangeMax').value) || 100;
+            for (let i = min; i <= max; i++) pool.push(i);
+        } else {
+            const listStr = document.getElementById('customList').value;
+            pool = listStr.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n));
+        }
+        const excludeEnabled = document.getElementById('excludeEnabled').checked;
+        if (excludeEnabled) {
+            const exc = document.getElementById('excludeList').value.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n));
+            pool = pool.filter(n => !exc.includes(n));
+        }
+        if (pool.length === 0) {
+            document.getElementById('randomNumbersDisplay').textContent = 'Нет доступных чисел';
+            return;
+        }
+        const result = [];
+        for (let i = 0; i < count; i++) {
+            result.push(pool[Math.floor(Math.random() * pool.length)]);
+        }
+        document.getElementById('randomNumbersDisplay').textContent = result.join(' ');
+    }
+
+    function saveRandomNumbers() {
+        const text = document.getElementById('randomNumbersDisplay').textContent;
+        navigator.clipboard.writeText(text).then(() => alert('Числа скопированы в буфер обмена')).catch(() => alert('Не удалось скопировать'));
     }
 
     // ================== Генератор паролей ==================
     let passwordInitialized = false;
-
     const ambiguousChars = 'I1l0o00sS5';
-
-    function initPasswordGenerator() {
+    function initPassword() {
         document.getElementById('generateBtn').addEventListener('click', generatePasswords);
-        generatePasswords(); // сразу показать пример
+        generatePasswords();
     }
 
     function generatePasswords() {
-        const length = parseInt(document.getElementById('passLength').value) || 10;
-        const count = parseInt(document.getElementById('passCount').value) || 10;
+        const lenInput = document.getElementById('passLength');
+        const cntInput = document.getElementById('passCount');
+        let length = parseInt(lenInput.value) || 10;
+        let count = parseInt(cntInput.value) || 10;
+        const errDiv = document.getElementById('passwordError');
+        errDiv.textContent = '';
+        if (length > 35) { errDiv.textContent = 'Максимальная длина пароля — 35'; lenInput.value = 35; length = 35; }
+        if (count > 99) { errDiv.textContent = 'Максимальное количество — 99'; cntInput.value = 99; count = 99; }
         const useUpper = document.getElementById('useUpper').checked;
         const useLower = document.getElementById('useLower').checked;
         const useDigits = document.getElementById('useDigits').checked;
         const useSpace = document.getElementById('useSpace').checked;
-        const useSeparators = document.getElementById('useSeparators').checked;
-        const useSpecial = document.getElementById('useSpecial').checked;
-        const excludeAmbiguous = document.getElementById('excludeAmbiguous').checked;
-
+        const useSep = document.getElementById('useSeparators').checked;
+        const useSpec = document.getElementById('useSpecial').checked;
+        const exclAmb = document.getElementById('excludeAmbiguous').checked;
         let chars = '';
         if (useUpper) chars += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
         if (useLower) chars += 'abcdefghijklmnopqrstuvwxyz';
         if (useDigits) chars += '0123456789';
         if (useSpace) chars += ' ';
-        if (useSeparators) chars += '-_';
-        if (useSpecial) chars += '~!@#$%^&*()+';
-
-        if (chars.length === 0) {
-            alert('Выберите хотя бы один набор символов');
-            return;
-        }
-
-        if (excludeAmbiguous) {
-            chars = chars.split('').filter(c => !ambiguousChars.includes(c)).join('');
-        }
-
-        const passwords = [];
+        if (useSep) chars += '-_';
+        if (useSpec) chars += '~!@#$%^&*()+';
+        if (chars.length === 0) { alert('Выберите хотя бы один набор символов'); return; }
+        if (exclAmb) chars = chars.split('').filter(c => !ambiguousChars.includes(c)).join('');
+        const pwd = [];
         for (let i = 0; i < count; i++) {
-            let pwd = '';
-            for (let j = 0; j < length; j++) {
-                pwd += chars[Math.floor(Math.random() * chars.length)];
-            }
-            passwords.push(pwd);
+            let s = '';
+            for (let j = 0; j < length; j++) s += chars[Math.floor(Math.random() * chars.length)];
+            pwd.push(s);
         }
-
-        // Отображение даты и времени UTC+3
         const now = new Date();
-        const utc3 = new Date(now.getTime() + 3 * 60 * 60 * 1000);
-        const dateStr = utc3.toISOString().replace('T', ' ').replace(/\.\d+Z$/, ' UTC+3');
-        document.getElementById('timestamp').textContent = `Сгенерировано ${dateStr}`;
-
-        // Таблица: 3 колонки
+        const utc3 = new Date(now.getTime() + 3*60*60*1000);
+        document.getElementById('timestamp').textContent = `Сгенерировано ${utc3.toISOString().replace('T',' ').replace(/\.\d+Z$/,' UTC+3')}`;
         const tbody = document.querySelector('#passwordsTable tbody');
         tbody.innerHTML = '';
-        const cols = 3;
-        for (let i = 0; i < passwords.length; i += cols) {
+        for (let i = 0; i < pwd.length; i += 3) {
             const row = document.createElement('tr');
-            for (let j = 0; j < cols; j++) {
+            for (let j = 0; j < 3; j++) {
                 const td = document.createElement('td');
-                td.textContent = passwords[i + j] || '';
+                td.textContent = pwd[i+j] || '';
                 row.appendChild(td);
             }
             tbody.appendChild(row);
         }
     }
+
+    // ================== Копирование email ==================
+    document.getElementById('contactEmail').addEventListener('click', () => {
+        const email = document.getElementById('emailText').textContent;
+        navigator.clipboard.writeText(email).then(() => {
+            const el = document.getElementById('contactEmail');
+            el.style.opacity = '1';
+            el.innerHTML = '📋 Email скопирован!';
+            setTimeout(() => { el.innerHTML = '📧 <span id="emailText">tape.power@outlook.com</span>'; }, 1500);
+        }).catch(() => alert('Не удалось скопировать'));
+    });
 </script>
 
 </body>
 </html>
+```
