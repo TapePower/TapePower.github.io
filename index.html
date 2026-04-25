@@ -177,6 +177,10 @@
         .quote-text { font-size: 1.5rem; font-style: italic; text-align: center; margin: 20px 0; line-height: 1.4; }
         .quote-author { font-size: 1rem; text-align: center; opacity: 0.8; }
 
+        /* Поддержка */
+        .support-form { display: flex; flex-direction: column; gap: 15px; max-width: 500px; margin: 0 auto; }
+        .support-form input, .support-form textarea { font-size: 1rem; }
+
         @media (max-width: 768px) {
             body { padding: 10px; }
             .tab-nav { gap: 5px; top: 5px; }
@@ -208,7 +212,8 @@
         <button class="tab-btn" data-tab="quiz">❓ Викторина</button>
         <button class="tab-btn" data-tab="game">🎮 Игры</button>
         <button class="tab-btn" data-tab="quotes">💬 Цитаты</button>
-        <button class="tab-btn" data-tab="donate">❤️ Поддержать</button>
+        <button class="tab-btn" data-tab="support">✉️ Поддержка</button>
+        <button class="tab-btn" data-tab="donate">❤️ Донат</button>
     </div>
 
     <!-- Главная -->
@@ -225,12 +230,13 @@
                 <div class="home-card" data-goto="quiz"><div class="icon">❓</div><div class="title">Викторина</div><div class="desc">Страны, столицы, флаги</div></div>
                 <div class="home-card" data-goto="game"><div class="icon">🎮</div><div class="title">Крестики-нолики</div><div class="desc">Игра для двоих</div></div>
                 <div class="home-card" data-goto="quotes"><div class="icon">💬</div><div class="title">Цитаты</div><div class="desc">Мотивация на каждый день</div></div>
+                <div class="home-card" data-goto="support"><div class="icon">✉️</div><div class="title">Поддержка</div><div class="desc">Свяжитесь с нами</div></div>
                 <div class="home-card" data-goto="donate"><div class="icon">❤️</div><div class="title">Поддержать</div><div class="desc">Помочь проекту</div></div>
             </div>
         </div>
     </div>
 
-    <!-- Калькулятор (без изменений) -->
+    <!-- Калькулятор -->
     <div class="tab-content" id="tab-calc">
         <div class="container">
             <div class="left-side">
@@ -414,7 +420,25 @@
         </div>
     </div>
 
-    <!-- Поддержать автора -->
+    <!-- Поддержка (Formspree) -->
+    <div class="tab-content" id="tab-support">
+        <div class="glass-card">
+            <div class="header"><h2>Написать в поддержку</h2><button class="theme-btn" onclick="toggleTheme()">🌓 Тема</button></div>
+            <form id="supportForm" class="support-form" action="https://formspree.io/f/xzdywgae" method="POST">
+                <input type="text" name="name" placeholder="Ваше имя" required>
+                <input type="email" name="email" placeholder="Ваш email" required>
+                <textarea name="message" rows="5" placeholder="Ваше сообщение" required></textarea>
+                <input type="hidden" name="_subject" value="Сообщение с Unified Service">
+                <input type="text" name="_gotcha" style="display:none">
+                <button type="submit" class="btn">Отправить</button>
+            </form>
+            <p style="text-align:center; margin-top:15px; opacity:0.7;">Ответ поступит на вашу почту</p>
+            <div id="supportSuccess" style="display:none; color: #2ecc71; text-align:center; margin-top:10px;">Сообщение отправлено!</div>
+            <div id="supportError" style="display:none; color: #ff4757; text-align:center; margin-top:10px;"></div>
+        </div>
+    </div>
+
+    <!-- Донат (пробный) -->
     <div class="tab-content" id="tab-donate">
         <div class="glass-card">
             <div class="header"><h2>Поддержать проект</h2><button class="theme-btn" onclick="toggleTheme()">🌓 Тема</button></div>
@@ -436,6 +460,7 @@
 
 <script>
     (function() {
+        // Блокировка
         document.onkeydown = function(e) {
             if (e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74 || e.keyCode == 67)) || (e.ctrlKey && e.keyCode == 85)) return false;
         };
@@ -484,11 +509,12 @@
             if (tabName === 'quiz' && !quizInitialized) { initQuiz(); quizInitialized = true; }
             if (tabName === 'game' && !gameInitialized) { initGame(); gameInitialized = true; }
             if (tabName === 'quotes' && !quotesInitialized) { initQuotes(); quotesInitialized = true; }
+            if (tabName === 'support' && !supportInitialized) { initSupport(); supportInitialized = true; }
         };
         tabBtns.forEach(btn => btn.addEventListener('click', () => switchTab(btn.getAttribute('data-tab'))));
         document.querySelectorAll('.home-card').forEach(card => card.addEventListener('click', () => switchTab(card.getAttribute('data-goto'))));
 
-        // Калькулятор
+        // Калькулятор (без изменений)
         let chart = null;
         let historyData = JSON.parse(localStorage.getItem('eq_history')) || [];
         window.addEventListener('load', () => renderHistory());
@@ -598,7 +624,7 @@
         async function translateText(){ const text=document.getElementById('translateInput').value.trim(); if(!text)return; const langpair = getLangPair(); const url=`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${langpair}`; try{ const response=await fetch(url); const data=await response.json(); if(data.responseStatus && data.responseStatus !== 200) { document.getElementById('translatedText').textContent = 'Ошибка перевода: ' + data.responseDetails; } else { document.getElementById('translatedText').textContent = data.responseData.translatedText || 'Перевод не получен'; } }catch(e){ document.getElementById('translatedText').textContent='Ошибка сети'; } }
         function copyTranslation() { const translated = document.getElementById('translatedText').textContent; if (translated && translated !== 'Ошибка перевода' && translated !== 'Ошибка сети') { navigator.clipboard.writeText(translated).then(()=>alert('Перевод скопирован')).catch(()=>alert('Ошибка')); } }
 
-        // Викторина (флаги через flagcdn, по порядку)
+        // Викторина
         let quizInitialized=false;
         const countries = [
             {country:'Россия',capital:'Москва',code:'ru'},{country:'США',capital:'Вашингтон',code:'us'},{country:'Китай',capital:'Пекин',code:'cn'},{country:'Япония',capital:'Токио',code:'jp'},{country:'Германия',capital:'Берлин',code:'de'},{country:'Франция',capital:'Париж',code:'fr'},{country:'Великобритания',capital:'Лондон',code:'gb'},{country:'Италия',capital:'Рим',code:'it'},{country:'Испания',capital:'Мадрид',code:'es'},{country:'Канада',capital:'Оттава',code:'ca'},{country:'Бразилия',capital:'Бразилиа',code:'br'},{country:'Индия',capital:'Нью-Дели',code:'in'},{country:'Австралия',capital:'Канберра',code:'au'},{country:'ЮАР',capital:'Претория',code:'za'},{country:'Мексика',capital:'Мехико',code:'mx'},{country:'Аргентина',capital:'Буэнос-Айрес',code:'ar'},{country:'Египет',capital:'Каир',code:'eg'},{country:'Турция',capital:'Анкара',code:'tr'},{country:'Южная Корея',capital:'Сеул',code:'kr'},{country:'Швеция',capital:'Стокгольм',code:'se'},{country:'Норвегия',capital:'Осло',code:'no'},{country:'Нидерланды',capital:'Амстердам',code:'nl'},{country:'Греция',capital:'Афины',code:'gr'},{country:'Польша',capital:'Варшава',code:'pl'},{country:'Украина',capital:'Киев',code:'ua'},{country:'Чехия',capital:'Прага',code:'cz'},{country:'Швейцария',capital:'Берн',code:'ch'},{country:'Австрия',capital:'Вена',code:'at'},{country:'Ирландия',capital:'Дублин',code:'ie'},{country:'Таиланд',capital:'Бангкок',code:'th'}
@@ -607,102 +633,18 @@
         const quizModes = ['flag-to-country', 'country-to-capital', 'capital-to-country'];
         function initQuiz(){ document.getElementById('nextQuizBtn').addEventListener('click',nextQuiz); nextQuiz(); }
         function shuffleArray(arr){ for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]]; } return arr; }
-        function nextQuiz(){
-            answered=false; document.getElementById('nextQuizBtn').style.display='none';
-            const answersDiv=document.getElementById('quizAnswers'); answersDiv.innerHTML='';
-            const mode = quizModes[quizModeIndex % 3];
-            quizModeIndex++;
-            const correctIndex=Math.floor(Math.random()*countries.length);
-            const correct=countries[correctIndex];
-            const variants=[correct];
-            while(variants.length<4){ const rnd=countries[Math.floor(Math.random()*countries.length)]; if(!variants.includes(rnd)) variants.push(rnd); }
-            shuffleArray(variants);
-            let questionHTML='';
-            if(mode==='flag-to-country'){
-                questionHTML=`Какой стране принадлежит флаг <img src="https://flagcdn.com/48x36/${correct.code}.png" style="width:48px;height:36px;vertical-align:middle;" onerror="this.style.display='none';this.nextElementSibling.style.display='inline';"> <span style="display:none;">[${correct.code}]</span>?`;
-            } else if(mode==='country-to-capital'){
-                questionHTML=`Какая столица у страны ${correct.country}?`;
-            } else {
-                questionHTML=`Какой стране принадлежит столица ${correct.capital}?`;
-            }
-            document.getElementById('quizQuestion').innerHTML=questionHTML;
-            currentAnswer=correct;
-            variants.forEach(v=>{
-                const btn=document.createElement('div'); btn.className='answer-btn';
-                btn.textContent = (mode==='country-to-capital')? v.capital : v.country;
-                btn.addEventListener('click',()=>selectAnswer(v));
-                answersDiv.appendChild(btn);
-            });
-        }
-        function selectAnswer(selected){
-            if(answered) return; answered=true;
-            const buttons=document.querySelectorAll('.answer-btn');
-            buttons.forEach(b=>b.style.pointerEvents='none');
-            if(selected===currentAnswer){
-                quizScore[0]++;
-                const correctBtn = Array.from(buttons).find(b=>b.textContent=== (quizModes[(quizModeIndex-1)%3]==='country-to-capital'?selected.capital:selected.country));
-                if(correctBtn) correctBtn.classList.add('correct');
-            }else{
-                quizScore[1]++;
-                const correctBtn = Array.from(buttons).find(b=>b.textContent=== (quizModes[(quizModeIndex-1)%3]==='country-to-capital'?currentAnswer.capital:currentAnswer.country));
-                if(correctBtn) correctBtn.classList.add('correct');
-                const wrongBtn = Array.from(buttons).find(b=>b.textContent=== (quizModes[(quizModeIndex-1)%3]==='country-to-capital'?selected.capital:selected.country));
-                if(wrongBtn) wrongBtn.classList.add('wrong');
-            }
-            document.getElementById('quizScore').textContent=`Правильно: ${quizScore[0]} / ${quizScore[0]+quizScore[1]}`;
-            document.getElementById('nextQuizBtn').style.display='block';
-        }
+        function nextQuiz(){ answered=false; document.getElementById('nextQuizBtn').style.display='none'; const answersDiv=document.getElementById('quizAnswers'); answersDiv.innerHTML=''; const mode = quizModes[quizModeIndex % 3]; quizModeIndex++; const correctIndex=Math.floor(Math.random()*countries.length); const correct=countries[correctIndex]; const variants=[correct]; while(variants.length<4){ const rnd=countries[Math.floor(Math.random()*countries.length)]; if(!variants.includes(rnd)) variants.push(rnd); } shuffleArray(variants); let questionHTML=''; if(mode==='flag-to-country'){ questionHTML=`Какой стране принадлежит флаг <img src="https://flagcdn.com/48x36/${correct.code}.png" style="width:48px;height:36px;vertical-align:middle;" onerror="this.style.display='none';this.nextElementSibling.style.display='inline';"> <span style="display:none;">[${correct.code}]</span>?`; } else if(mode==='country-to-capital'){ questionHTML=`Какая столица у страны ${correct.country}?`; } else { questionHTML=`Какой стране принадлежит столица ${correct.capital}?`; } document.getElementById('quizQuestion').innerHTML=questionHTML; currentAnswer=correct; variants.forEach(v=>{ const btn=document.createElement('div'); btn.className='answer-btn'; btn.textContent = (mode==='country-to-capital')? v.capital : v.country; btn.addEventListener('click',()=>selectAnswer(v)); answersDiv.appendChild(btn); }); }
+        function selectAnswer(selected){ if(answered) return; answered=true; const buttons=document.querySelectorAll('.answer-btn'); buttons.forEach(b=>b.style.pointerEvents='none'); if(selected===currentAnswer){ quizScore[0]++; const correctBtn = Array.from(buttons).find(b=>b.textContent=== (quizModes[(quizModeIndex-1)%3]==='country-to-capital'?selected.capital:selected.country)); if(correctBtn) correctBtn.classList.add('correct'); }else{ quizScore[1]++; const correctBtn = Array.from(buttons).find(b=>b.textContent=== (quizModes[(quizModeIndex-1)%3]==='country-to-capital'?currentAnswer.capital:currentAnswer.country)); if(correctBtn) correctBtn.classList.add('correct'); const wrongBtn = Array.from(buttons).find(b=>b.textContent=== (quizModes[(quizModeIndex-1)%3]==='country-to-capital'?selected.capital:selected.country)); if(wrongBtn) wrongBtn.classList.add('wrong'); } document.getElementById('quizScore').textContent=`Правильно: ${quizScore[0]} / ${quizScore[0]+quizScore[1]}`; document.getElementById('nextQuizBtn').style.display='block'; }
         window.nextQuiz = nextQuiz;
 
         // Крестики-нолики
         let gameInitialized = false;
         let board, currentPlayer, gameActive, gameStatus, resetBtn;
-        function initGame() {
-            board = ['','','','','','','','',''];
-            currentPlayer = '❌';
-            gameActive = true;
-            gameStatus = document.getElementById('gameStatus');
-            resetBtn = document.getElementById('resetGame');
-            document.getElementById('board').addEventListener('click', handleCellClick);
-            resetBtn.addEventListener('click', resetGame);
-            renderBoard();
-            gameStatus.textContent = `Ход: ${currentPlayer}`;
-        }
-        function renderBoard() {
-            const boardDiv = document.getElementById('board');
-            boardDiv.innerHTML = '';
-            for (let i = 0; i < 9; i++) {
-                const cell = document.createElement('div');
-                cell.className = 'cell';
-                if (board[i] || !gameActive) cell.classList.add('disabled');
-                cell.textContent = board[i];
-                cell.dataset.index = i;
-                boardDiv.appendChild(cell);
-            }
-        }
-        function handleCellClick(e) {
-            if (!gameActive) return;
-            const index = e.target.dataset.index;
-            if (index === undefined || board[index] !== '') return;
-            board[index] = currentPlayer;
-            renderBoard();
-            if (checkWin()) {
-                gameStatus.textContent = `Победили ${currentPlayer}!`; gameActive = false; return;
-            }
-            if (board.every(cell => cell !== '')) {
-                gameStatus.textContent = 'Ничья!'; gameActive = false; return;
-            }
-            currentPlayer = currentPlayer === '❌' ? '⭕' : '❌';
-            gameStatus.textContent = `Ход: ${currentPlayer}`;
-        }
-        function checkWin() {
-            const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
-            return wins.some(w=> board[w[0]] && board[w[0]]===board[w[1]] && board[w[0]]===board[w[2]]);
-        }
-        function resetGame() {
-            board = ['','','','','','','','','']; currentPlayer = '❌'; gameActive = true;
-            renderBoard(); gameStatus.textContent = `Ход: ${currentPlayer}`;
-        }
+        function initGame() { board = ['','','','','','','','','']; currentPlayer = '❌'; gameActive = true; gameStatus = document.getElementById('gameStatus'); resetBtn = document.getElementById('resetGame'); document.getElementById('board').addEventListener('click', handleCellClick); resetBtn.addEventListener('click', resetGame); renderBoard(); gameStatus.textContent = `Ход: ${currentPlayer}`; }
+        function renderBoard() { const boardDiv = document.getElementById('board'); boardDiv.innerHTML = ''; for (let i = 0; i < 9; i++) { const cell = document.createElement('div'); cell.className = 'cell'; if (board[i] || !gameActive) cell.classList.add('disabled'); cell.textContent = board[i]; cell.dataset.index = i; boardDiv.appendChild(cell); } }
+        function handleCellClick(e) { if (!gameActive) return; const index = e.target.dataset.index; if (index === undefined || board[index] !== '') return; board[index] = currentPlayer; renderBoard(); if (checkWin()) { gameStatus.textContent = `Победили ${currentPlayer}!`; gameActive = false; return; } if (board.every(cell => cell !== '')) { gameStatus.textContent = 'Ничья!'; gameActive = false; return; } currentPlayer = currentPlayer === '❌' ? '⭕' : '❌'; gameStatus.textContent = `Ход: ${currentPlayer}`; }
+        function checkWin() { const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]]; return wins.some(w=> board[w[0]] && board[w[0]]===board[w[1]] && board[w[0]]===board[w[2]]); }
+        function resetGame() { board = ['','','','','','','','','']; currentPlayer = '❌'; gameActive = true; renderBoard(); gameStatus.textContent = `Ход: ${currentPlayer}`; }
 
         // Цитаты
         let quotesInitialized = false;
@@ -713,25 +655,46 @@
             { text: "Не считай дни. Пусть каждый день считается.", author: "Мухаммед Али" },
             { text: "Успех — это способность шагать от поражения к поражению, не теряя энтузиазма.", author: "Уинстон Черчилль" }
         ];
-        function initQuotes() {
-            document.getElementById('newQuoteBtn').addEventListener('click', showRandomQuote);
-            document.getElementById('copyQuoteBtn').addEventListener('click', copyQuote);
-            showRandomQuote();
-        }
-        function showRandomQuote() {
-            const q = quotes[Math.floor(Math.random() * quotes.length)];
-            document.getElementById('quoteText').textContent = `«${q.text}»`;
-            document.getElementById('quoteAuthor').textContent = `— ${q.author}`;
-        }
-        function copyQuote() {
-            const text = document.getElementById('quoteText').textContent + ' ' + document.getElementById('quoteAuthor').textContent;
-            navigator.clipboard.writeText(text).then(()=>alert('Цитата скопирована')).catch(()=>alert('Ошибка'));
+        function initQuotes() { document.getElementById('newQuoteBtn').addEventListener('click', showRandomQuote); document.getElementById('copyQuoteBtn').addEventListener('click', copyQuote); showRandomQuote(); }
+        function showRandomQuote() { const q = quotes[Math.floor(Math.random() * quotes.length)]; document.getElementById('quoteText').textContent = `«${q.text}»`; document.getElementById('quoteAuthor').textContent = `— ${q.author}`; }
+        function copyQuote() { const text = document.getElementById('quoteText').textContent + ' ' + document.getElementById('quoteAuthor').textContent; navigator.clipboard.writeText(text).then(()=>alert('Цитата скопирована')).catch(()=>alert('Ошибка')); }
+
+        // Поддержка (Formspree)
+        let supportInitialized = false;
+        function initSupport() {
+            const form = document.getElementById('supportForm');
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const formData = new FormData(form);
+                const submitBtn = form.querySelector('button[type="submit"]');
+                submitBtn.textContent = 'Отправка...';
+                submitBtn.disabled = true;
+                try {
+                    const response = await fetch('https://formspree.io/f/xzdywgae', {
+                        method: 'POST',
+                        body: formData,
+                        headers: { 'Accept': 'application/json' }
+                    });
+                    if (response.ok) {
+                        document.getElementById('supportSuccess').style.display = 'block';
+                        document.getElementById('supportError').style.display = 'none';
+                        form.reset();
+                    } else {
+                        const data = await response.json();
+                        document.getElementById('supportError').textContent = data.error || 'Ошибка отправки';
+                        document.getElementById('supportError').style.display = 'block';
+                    }
+                } catch (err) {
+                    document.getElementById('supportError').textContent = 'Ошибка сети';
+                    document.getElementById('supportError').style.display = 'block';
+                }
+                submitBtn.textContent = 'Отправить';
+                submitBtn.disabled = false;
+            });
         }
 
         // Донат (пробный)
-        window.donate = function(amount) {
-            alert(`Пробный режим: спасибо за поддержку в ${amount} ₽! Деньги не отправляются.`);
-        };
+        window.donate = function(amount) { alert(`Пробный режим: спасибо за поддержку в ${amount} ₽! Деньги не отправляются.`); };
 
         // Копирование email
         document.getElementById('contactEmail').addEventListener('click',()=>{ const email=document.getElementById('emailText').textContent; navigator.clipboard.writeText(email).then(()=>{ const el=document.getElementById('contactEmail'); el.style.opacity='1'; el.innerHTML='📋 Email скопирован!'; setTimeout(()=>{el.innerHTML='📧 <span id="emailText">tape.power@outlook.com</span>';},1500); }).catch(()=>alert('Ошибка')); });
