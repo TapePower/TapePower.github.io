@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=5.0">
     <title>Quantum Solver Pro</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js">
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -53,7 +52,6 @@
             flex: 1;
         }
 
-        /* Навигация */
         .tab-nav {
             display: flex;
             gap: 10px;
@@ -102,7 +100,6 @@
             gap: 25px;
         }
 
-        /* Карточки */
         .glass-card {
             background: var(--glass);
             backdrop-filter: blur(12px);
@@ -232,7 +229,6 @@
             border-bottom: 1px dashed var(--accent);
         }
 
-        /* Подтабы */
         .subtab-nav {
             display: flex;
             gap: 8px;
@@ -261,7 +257,6 @@
             display: block;
         }
 
-        /* Стили для генератора паролей */
         .password-settings {
             display: flex;
             flex-wrap: wrap;
@@ -292,6 +287,11 @@
             font-family: 'Monaco', monospace;
             font-size: 0.95rem;
             color: var(--text);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .passwords-table td:hover {
+            background: rgba(139, 92, 246, 0.15);
         }
         .timestamp {
             margin-top: 15px;
@@ -303,7 +303,6 @@
             font-size: 0.9rem;
         }
 
-        /* Случайные числа */
         .random-numbers {
             font-size: 1.2rem;
             word-break: break-all;
@@ -325,7 +324,6 @@
             align-items: center;
         }
 
-        /* Главная страница */
         .home-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -360,7 +358,6 @@
             font-size: 0.9rem;
         }
 
-        /* Время */
         .time-display {
             font-size: 2.5rem;
             font-weight: 700;
@@ -374,7 +371,46 @@
             text-align: center;
         }
 
-        /* Мобильная адаптация */
+        /* Викторина */
+        .quiz-question {
+            font-size: 2rem;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .answers {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .answer-btn {
+            padding: 20px;
+            font-size: 1.1rem;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            cursor: pointer;
+            transition: 0.2s;
+            text-align: center;
+            color: var(--text);
+        }
+        .answer-btn:hover {
+            background: rgba(139, 92, 246, 0.2);
+        }
+        .answer-btn.correct {
+            background: #2ecc71;
+            color: #fff;
+        }
+        .answer-btn.wrong {
+            background: #e74c3c;
+            color: #fff;
+        }
+        .quiz-score {
+            font-size: 1.2rem;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
         @media (max-width: 768px) {
             body {
                 padding: 10px;
@@ -413,60 +449,47 @@
                 font-size: 0.8rem;
                 padding: 5px 12px;
             }
+            .answers {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body data-theme="dark" oncontextmenu="return false;">
 
 <div class="main-wrapper">
-    <!-- Навигация по вкладкам -->
     <div class="tab-nav">
         <button class="tab-btn active" data-tab="home">🏠 Главная</button>
         <button class="tab-btn" data-tab="calc">🧮 Калькулятор</button>
         <button class="tab-btn" data-tab="luck">🎲 Удача</button>
         <button class="tab-btn" data-tab="password">🔐 Пароли</button>
         <button class="tab-btn" data-tab="time">🕒 Время</button>
+        <button class="tab-btn" data-tab="translate">🌐 Перевод</button>
+        <button class="tab-btn" data-tab="quiz">❓ Викторина</button>
     </div>
 
-    <!-- 0. Главная страница -->
+    <!-- Главная -->
     <div class="tab-content active" id="tab-home">
         <div class="glass-card" style="text-align:center;">
             <h1 style="font-size:2.5rem; margin-bottom:10px;">Quantum Solver Pro</h1>
             <p style="opacity:0.8; font-size:1.1rem;">Набор инструментов для вычислений, случайностей и времени</p>
             <div class="home-grid">
-                <div class="home-card" data-goto="calc">
-                    <div class="icon">🧮</div>
-                    <div class="title">Калькулятор</div>
-                    <div class="desc">Решение квадратных уравнений</div>
-                </div>
-                <div class="home-card" data-goto="luck">
-                    <div class="icon">🎲</div>
-                    <div class="title">Удача</div>
-                    <div class="desc">Колесо фортуны и случайные числа</div>
-                </div>
-                <div class="home-card" data-goto="password">
-                    <div class="icon">🔐</div>
-                    <div class="title">Генератор паролей</div>
-                    <div class="desc">Надёжные пароли для всего</div>
-                </div>
-                <div class="home-card" data-goto="time">
-                    <div class="icon">🕒</div>
-                    <div class="title">Мировое время</div>
-                    <div class="desc">Точное время в любом городе</div>
-                </div>
+                <div class="home-card" data-goto="calc"><div class="icon">🧮</div><div class="title">Калькулятор</div><div class="desc">Решение квадратных уравнений</div></div>
+                <div class="home-card" data-goto="luck"><div class="icon">🎲</div><div class="title">Удача</div><div class="desc">Колесо фортуны и случайные числа</div></div>
+                <div class="home-card" data-goto="password"><div class="icon">🔐</div><div class="title">Генератор паролей</div><div class="desc">Надёжные пароли для всего</div></div>
+                <div class="home-card" data-goto="time"><div class="icon">🕒</div><div class="title">Мировое время</div><div class="desc">Точное время в любом городе</div></div>
+                <div class="home-card" data-goto="translate"><div class="icon">🌐</div><div class="title">Переводчик</div><div class="desc">Русский ↔ Английский</div></div>
+                <div class="home-card" data-goto="quiz"><div class="icon">❓</div><div class="title">Викторина</div><div class="desc">Страны, столицы, флаги</div></div>
             </div>
         </div>
     </div>
 
-    <!-- 1. Калькулятор -->
+    <!-- Калькулятор -->
     <div class="tab-content" id="tab-calc">
         <div class="container">
             <div class="left-side">
                 <div class="glass-card">
-                    <div class="header">
-                        <h1>SOLVER PRO</h1>
-                        <button class="theme-btn" onclick="toggleTheme()">🌓 Тема</button>
-                    </div>
+                    <div class="header"><h1>SOLVER PRO</h1><button class="theme-btn" onclick="toggleTheme()">🌓 Тема</button></div>
                     <div class="input-group">
                         <input type="number" id="a" placeholder="a" step="any">
                         <input type="number" id="b" placeholder="b" step="any">
@@ -487,70 +510,41 @@
         </div>
     </div>
 
-    <!-- 2. Удача (колесо + случайные числа) -->
+    <!-- Удача -->
     <div class="tab-content" id="tab-luck">
         <div class="glass-card">
-            <div class="header">
-                <h2>Удача</h2>
-                <button class="theme-btn" onclick="toggleTheme()">🌓 Тема</button>
-            </div>
+            <div class="header"><h2>Удача</h2><button class="theme-btn" onclick="toggleTheme()">🌓 Тема</button></div>
             <div class="subtab-nav">
                 <button class="subtab-btn active" data-subtab="wheel">🎡 Колесо фортуны</button>
                 <button class="subtab-btn" data-subtab="random">🔢 Случайные числа</button>
             </div>
-
-            <!-- Подтаб: Колесо -->
             <div class="subtab-content active" id="subtab-wheel">
                 <div style="display:flex; flex-direction:column; align-items:center; gap:20px;">
                     <canvas id="wheelCanvas" width="400" height="400" style="max-width:100%; height:auto;"></canvas>
                     <div id="wheelResult" style="font-size:1.2rem; font-weight:600; color:var(--accent);"></div>
                     <button class="btn" id="spinBtn">Испытать удачу</button>
-                    <div style="width:100%;">
-                        <label>Сектора (каждый с новой строки):</label>
-                        <textarea id="sectorArea" rows="8" placeholder="Подарок&#10;Джекпот&#10;Удача&#10;Сюрприз&#10;100 монет">Подарок
+                    <div style="width:100%;"><label>Сектора (каждый с новой строки):</label><textarea id="sectorArea" rows="8">Подарок
 Джекпот
 Удача
 Сюрприз
 100 монет
 Ещё раз
 Бонус
-Мегаприз</textarea>
-                        <button class="btn" id="updateSectorsBtn" style="margin-top:10px;">Обновить сектора</button>
-                    </div>
+Мегаприз</textarea><button class="btn" id="updateSectorsBtn" style="margin-top:10px;">Обновить сектора</button></div>
                 </div>
             </div>
-
-            <!-- Подтаб: Случайные числа -->
             <div class="subtab-content" id="subtab-random">
                 <div style="display:flex; flex-direction:column; gap:20px;">
                     <div class="random-numbers" id="randomNumbersDisplay">57 96 23 48 31 86 64 46</div>
-                    <div class="flex-row">
-                        <button class="btn" id="saveRandomBtn" style="width:auto;">Сохранить эти числа</button>
-                    </div>
+                    <div class="flex-row"><button class="btn" id="saveRandomBtn" style="width:auto;">Сохранить эти числа</button></div>
                     <div style="border-top:1px solid var(--glass-border); padding-top:20px;">
                         <label>Сгенерировать новую последовательность из</label>
-                        <div class="flex-row" style="margin:10px 0;">
-                            <input type="number" id="randomCount" value="8" min="1" max="100" step="1">
-                            <span>случайных чисел</span>
-                        </div>
-                        <div class="radio-group">
-                            <label><input type="radio" name="randomSource" value="range" checked> из диапазона</label>
-                            <label><input type="radio" name="randomSource" value="list"> из списка</label>
-                        </div>
-                        <div class="flex-row" id="rangeInputs">
-                            <span>от</span><input type="number" id="rangeMin" value="1" step="1">
-                            <span>до</span><input type="number" id="rangeMax" value="100" step="1">
-                        </div>
-                        <div id="listInput" style="display:none; margin-top:10px;">
-                            <input type="text" id="customList" placeholder="числа через запятую, например: 5,10,15,20">
-                        </div>
-                        <div style="margin-top:15px;">
-                            <label><input type="checkbox" id="excludeEnabled"> исключить числа</label>
-                            <input type="text" id="excludeList" placeholder="список целых чисел через запятую" style="width:100%; margin-top:5px;">
-                        </div>
-                        <div style="margin-top:15px;">
-                            <label><input type="checkbox" id="noRepeat"> исключить повторы</label>
-                        </div>
+                        <div class="flex-row" style="margin:10px 0;"><input type="number" id="randomCount" value="8" min="1" max="100" step="1"><span>случайных чисел</span></div>
+                        <div class="radio-group"><label><input type="radio" name="randomSource" value="range" checked> из диапазона</label><label><input type="radio" name="randomSource" value="list"> из списка</label></div>
+                        <div class="flex-row" id="rangeInputs"><span>от</span><input type="number" id="rangeMin" value="1" step="1"><span>до</span><input type="number" id="rangeMax" value="100" step="1"></div>
+                        <div id="listInput" style="display:none; margin-top:10px;"><input type="text" id="customList" placeholder="числа через запятую, например: 5,10,15,20"></div>
+                        <div style="margin-top:15px;"><label><input type="checkbox" id="excludeEnabled"> исключить числа</label><input type="text" id="excludeList" placeholder="список целых чисел через запятую" style="width:100%; margin-top:5px;"></div>
+                        <div style="margin-top:15px;"><label><input type="checkbox" id="noRepeat"> исключить повторы</label></div>
                         <button class="btn" id="generateRandomBtn">Сгенерировать</button>
                     </div>
                 </div>
@@ -558,23 +552,14 @@
         </div>
     </div>
 
-    <!-- 3. Генератор паролей -->
+    <!-- Пароли -->
     <div class="tab-content" id="tab-password">
         <div class="glass-card">
-            <div class="header">
-                <h2>Генератор паролей</h2>
-                <button class="theme-btn" onclick="toggleTheme()">🌓 Тема</button>
-            </div>
+            <div class="header"><h2>Генератор паролей</h2><button class="theme-btn" onclick="toggleTheme()">🌓 Тема</button></div>
             <p style="opacity:0.8;">для социальных сетей, сайтов и приложений</p>
             <div class="password-settings">
-                <div class="setting-group">
-                    <label>Длина пароля (макс. 35)</label>
-                    <input type="number" id="passLength" value="10" min="4" max="35" step="1">
-                </div>
-                <div class="setting-group">
-                    <label>Количество (макс. 99)</label>
-                    <input type="number" id="passCount" value="10" min="1" max="99" step="1">
-                </div>
+                <div class="setting-group"><label>Длина пароля (макс. 35)</label><input type="number" id="passLength" value="10" min="4" max="35" step="1"></div>
+                <div class="setting-group"><label>Количество (макс. 99)</label><input type="number" id="passCount" value="10" min="1" max="99" step="1"></div>
             </div>
             <div class="password-settings" style="justify-content:space-between;">
                 <div class="setting-group">
@@ -596,27 +581,52 @@
         </div>
     </div>
 
-    <!-- 4. Мировое время -->
+    <!-- Время -->
     <div class="tab-content" id="tab-time">
         <div class="glass-card">
-            <div class="header">
-                <h2>Мировое время</h2>
-                <button class="theme-btn" onclick="toggleTheme()">🌓 Тема</button>
-            </div>
+            <div class="header"><h2>Мировое время</h2><button class="theme-btn" onclick="toggleTheme()">🌓 Тема</button></div>
             <div style="display:flex; flex-wrap:wrap; gap:15px; align-items:end; margin-bottom:30px;">
-                <div style="flex:1; min-width:200px;">
-                    <label>Город</label>
+                <div style="flex:1; min-width:200px;"><label>Город</label>
                     <select id="citySelect" style="margin-top:5px;">
-                        <option value="Europe/Moscow">Москва, Россия</option>
-                        <option value="Europe/London">Лондон, Великобритания</option>
-                        <option value="America/New_York">Нью-Йорк, США</option>
-                        <option value="Asia/Tokyo">Токио, Япония</option>
-                        <option value="Asia/Shanghai">Пекин, Китай</option>
-                        <option value="Europe/Berlin">Берлин, Германия</option>
-                        <option value="America/Sao_Paulo">Сан-Паулу, Бразилия</option>
-                        <option value="Australia/Sydney">Сидней, Австралия</option>
-                        <option value="Pacific/Auckland">Окленд, Новая Зеландия</option>
-                        <option value="Africa/Cairo">Каир, Египет</option>
+                        <optgroup label="Европа">
+                            <option value="Europe/Moscow">Москва, Россия</option>
+                            <option value="Europe/London">Лондон, Великобритания</option>
+                            <option value="Europe/Berlin">Берлин, Германия</option>
+                            <option value="Europe/Paris">Париж, Франция</option>
+                            <option value="Europe/Rome">Рим, Италия</option>
+                            <option value="Europe/Madrid">Мадрид, Испания</option>
+                            <option value="Europe/Athens">Афины, Греция</option>
+                            <option value="Europe/Warsaw">Варшава, Польша</option>
+                        </optgroup>
+                        <optgroup label="Азия">
+                            <option value="Asia/Tokyo">Токио, Япония</option>
+                            <option value="Asia/Shanghai">Шанхай, Китай</option>
+                            <option value="Asia/Hong_Kong">Гонконг</option>
+                            <option value="Asia/Singapore">Сингапур</option>
+                            <option value="Asia/Dubai">Дубай, ОАЭ</option>
+                            <option value="Asia/Seoul">Сеул, Южная Корея</option>
+                            <option value="Asia/Bangkok">Бангкок, Таиланд</option>
+                            <option value="Asia/Kolkata">Калькутта, Индия</option>
+                        </optgroup>
+                        <optgroup label="Америка">
+                            <option value="America/New_York">Нью-Йорк, США</option>
+                            <option value="America/Los_Angeles">Лос-Анджелес, США</option>
+                            <option value="America/Chicago">Чикаго, США</option>
+                            <option value="America/Toronto">Торонто, Канада</option>
+                            <option value="America/Sao_Paulo">Сан-Паулу, Бразилия</option>
+                            <option value="America/Mexico_City">Мехико, Мексика</option>
+                            <option value="America/Buenos_Aires">Буэнос-Айрес, Аргентина</option>
+                        </optgroup>
+                        <optgroup label="Африка">
+                            <option value="Africa/Cairo">Каир, Египет</option>
+                            <option value="Africa/Lagos">Лагос, Нигерия</option>
+                            <option value="Africa/Nairobi">Найроби, Кения</option>
+                            <option value="Africa/Johannesburg">Йоханнесбург, ЮАР</option>
+                        </optgroup>
+                        <optgroup label="Океания">
+                            <option value="Australia/Sydney">Сидней, Австралия</option>
+                            <option value="Pacific/Auckland">Окленд, Новая Зеландия</option>
+                        </optgroup>
                     </select>
                 </div>
                 <button class="btn" id="showTimeBtn" style="width:auto; margin-top:0;">Показать время</button>
@@ -626,463 +636,210 @@
         </div>
     </div>
 
-    <!-- Контактная почта -->
-    <div class="contact-email" id="contactEmail" title="Нажмите, чтобы скопировать">
-        📧 <span id="emailText">tape.power@outlook.com</span>
+    <!-- Перевод -->
+    <div class="tab-content" id="tab-translate">
+        <div class="glass-card">
+            <div class="header"><h2>Переводчик</h2><button class="theme-btn" onclick="toggleTheme()">🌓 Тема</button></div>
+            <div style="display:flex; flex-direction:column; gap:20px;">
+                <textarea id="translateInput" rows="4" placeholder="Введите текст на русском..."></textarea>
+                <button class="btn" id="translateBtn">Перевести на английский</button>
+                <div style="padding:15px; background:rgba(0,0,0,0.2); border-radius:12px; min-height:60px;" id="translatedText"></div>
+            </div>
+        </div>
     </div>
+
+    <!-- Викторина -->
+    <div class="tab-content" id="tab-quiz">
+        <div class="glass-card">
+            <div class="header"><h2>Викторина</h2><button class="theme-btn" onclick="toggleTheme()">🌓 Тема</button></div>
+            <div class="quiz-score" id="quizScore">Правильно: 0 / 0</div>
+            <div class="quiz-question" id="quizQuestion"></div>
+            <div class="answers" id="quizAnswers"></div>
+            <button class="btn" id="nextQuizBtn" style="display:none;">Следующий вопрос</button>
+        </div>
+    </div>
+
+    <div class="contact-email" id="contactEmail" title="Нажмите, чтобы скопировать">📧 <span id="emailText">tape.power@outlook.com</span></div>
 </div>
 
-<!-- Онлайн-счётчик -->
 <div class="online-counter" id="onlineCounter">👥 <span id="onlineCount">1</span> онлайн</div>
-
 <div class="author-tag">by TapePower</div>
 
 <script>
-    // ================== Блокировка ==================
-    document.onkeydown = function(e) {
-        if (e.keyCode == 123 ||
-            (e.ctrlKey && e.shiftKey && (e.keyCode == 'I'.charCodeAt(0) || e.keyCode == 'J'.charCodeAt(0) || e.keyCode == 'C'.charCodeAt(0))) ||
-            (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0))) {
-            return false;
-        }
-    };
+    (function() {
+        // Блокировка
+        document.onkeydown = function(e) {
+            if (e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74 || e.keyCode == 67)) || (e.ctrlKey && e.keyCode == 85)) return false;
+        };
 
-    // ================== Онлайн-счётчик ==================
-    const ONLINE_KEY = 'online_clients';
-    const clientId = Date.now() + Math.random().toString(36).substr(2, 9);
-    let onlineInterval;
-
-    function getOnlineList() {
-        try {
-            return JSON.parse(localStorage.getItem(ONLINE_KEY)) || [];
-        } catch(e) { return []; }
-    }
-    function setOnlineList(list) {
-        localStorage.setItem(ONLINE_KEY, JSON.stringify(list));
-    }
-
-    function updateOnlinePresence() {
-        const list = getOnlineList().filter(entry => (entry.id !== clientId) && (Date.now() - entry.time < 10000));
-        list.push({ id: clientId, time: Date.now() });
-        setOnlineList(list);
-        document.getElementById('onlineCount').textContent = list.length;
-    }
-
-    window.addEventListener('load', () => {
-        updateOnlinePresence();
-        onlineInterval = setInterval(updateOnlinePresence, 5000);
-    });
-    window.addEventListener('beforeunload', () => {
-        clearInterval(onlineInterval);
-        const list = getOnlineList().filter(entry => entry.id !== clientId);
-        setOnlineList(list);
-    });
-    window.addEventListener('storage', (e) => {
-        if (e.key === ONLINE_KEY) {
-            const list = getOnlineList().filter(entry => Date.now() - entry.time < 10000);
+        // Онлайн-счётчик
+        const ONLINE_KEY = 'online_clients';
+        const clientId = Date.now() + Math.random().toString(36).substr(2, 9);
+        function getOnlineList() { try { return JSON.parse(localStorage.getItem(ONLINE_KEY)) || []; } catch(e) { return []; } }
+        function setOnlineList(l) { localStorage.setItem(ONLINE_KEY, JSON.stringify(l)); }
+        function updateOnlinePresence() {
+            const list = getOnlineList().filter(e => (e.id !== clientId) && (Date.now() - e.time < 10000));
+            list.push({ id: clientId, time: Date.now() });
+            setOnlineList(list);
             document.getElementById('onlineCount').textContent = list.length;
         }
-    });
+        window.addEventListener('load', () => { updateOnlinePresence(); setInterval(updateOnlinePresence, 5000); });
+        window.addEventListener('beforeunload', () => { setOnlineList(getOnlineList().filter(e => e.id !== clientId)); });
+        window.addEventListener('storage', (e) => { if (e.key === ONLINE_KEY) document.getElementById('onlineCount').textContent = getOnlineList().filter(e => Date.now() - e.time < 10000).length; });
 
-    // ================== Темы ==================
-    function toggleTheme() {
-        const b = document.body;
-        const t = b.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-        b.setAttribute('data-theme', t);
-        if (typeof chart !== 'undefined' && chart) updateChartAfterTheme();
-    }
+        // Темы
+        window.toggleTheme = function() {
+            const b = document.body;
+            const t = b.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            b.setAttribute('data-theme', t);
+            if (typeof chart !== 'undefined' && chart) updateChartAfterTheme();
+        };
 
-    // ================== Управление вкладками ==================
-    const tabBtns = document.querySelectorAll('.tab-btn');
-    const tabContents = document.querySelectorAll('.tab-content');
-    let currentTab = 'home';
+        // Табы
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+        let currentTab = 'home';
+        window.switchTab = function(tabName) {
+            if (tabName === currentTab) return;
+            tabBtns.forEach(b => b.classList.remove('active'));
+            tabContents.forEach(c => c.classList.remove('active'));
+            const btn = document.querySelector(`.tab-btn[data-tab="${tabName}"]`);
+            const content = document.getElementById(`tab-${tabName}`);
+            if (btn) btn.classList.add('active');
+            if (content) content.classList.add('active');
+            currentTab = tabName;
+            if (tabName === 'calc' && chart) setTimeout(() => chart.resize(), 50);
+            if (tabName === 'luck' && !wheelInitialized) { initWheel(); wheelInitialized = true; }
+            if (tabName === 'password' && !passwordInitialized) { initPassword(); passwordInitialized = true; }
+            if (tabName === 'time' && !timeInitialized) { initTimeTab(); timeInitialized = true; }
+            if (tabName === 'translate' && !translateInitialized) { initTranslate(); translateInitialized = true; }
+            if (tabName === 'quiz' && !quizInitialized) { initQuiz(); quizInitialized = true; }
+        };
+        tabBtns.forEach(btn => btn.addEventListener('click', () => switchTab(btn.getAttribute('data-tab'))));
+        document.querySelectorAll('.home-card').forEach(card => card.addEventListener('click', () => switchTab(card.getAttribute('data-goto'))));
 
-    function switchTab(tabName) {
-        if (tabName === currentTab) return;
-        tabBtns.forEach(b => b.classList.remove('active'));
-        tabContents.forEach(c => c.classList.remove('active'));
-        const btn = document.querySelector(`.tab-btn[data-tab="${tabName}"]`);
-        const content = document.getElementById(`tab-${tabName}`);
-        if (btn) btn.classList.add('active');
-        if (content) content.classList.add('active');
-        currentTab = tabName;
-
-        // Инициализация по требованию
-        if (tabName === 'calc' && chart) setTimeout(() => chart.resize(), 50);
-        if (tabName === 'luck' && !wheelInitialized) {
-            initWheel();
-            wheelInitialized = true;
+        // Калькулятор
+        let chart = null;
+        let historyData = JSON.parse(localStorage.getItem('eq_history')) || [];
+        window.addEventListener('load', () => renderHistory());
+        function calculate() {
+            const a = parseFloat(document.getElementById('a').value);
+            const b = parseFloat(document.getElementById('b').value);
+            const c = parseFloat(document.getElementById('c').value);
+            if (isNaN(a) || a === 0) return;
+            const D = b*b - 4*a*c;
+            const area = document.getElementById('res-area');
+            area.innerHTML = `<div style="font-weight:600;">Дискриминант D = ${D}</div>`;
+            let roots = [];
+            if (D > 0) {
+                const x1 = (-b + Math.sqrt(D))/(2*a);
+                const x2 = (-b - Math.sqrt(D))/(2*a);
+                area.innerHTML += drawRoot("x₁", `-${b} + √${D}`, 2*a, x1);
+                area.innerHTML += drawRoot("x₂", `-${b} - √${D}`, 2*a, x2);
+                roots = [x1, x2];
+            } else if (D === 0) {
+                const x = -b/(2*a);
+                area.innerHTML += drawRoot("x", `-${b}`, 2*a, x);
+                roots = [x];
+            } else area.innerHTML += `<div style="color:#ff4757;">Корней нет</div>`;
+            updateChart(a,b,c,roots);
+            saveToHistory(a,b,c,roots);
         }
-        if (tabName === 'password' && !passwordInitialized) {
-            initPassword();
-            passwordInitialized = true;
+        function drawRoot(name, n, d, v) {
+            return `<div style="display:flex;align-items:center;gap:20px;background:rgba(255,255,255,0.02);padding:20px;border-radius:16px;border:1px solid var(--glass-border);margin-top:15px;">
+                <span style="color:var(--primary);font-weight:800;">${name}</span>
+                <div style="text-align:center;"><div style="border-bottom:1px solid var(--text);">${n}</div><div>${d}</div></div>
+                <span>≈</span><span style="font-family:monospace;color:var(--accent);">${v.toFixed(10)}</span></div>`;
         }
-        if (tabName === 'time' && !timeInitialized) {
-            initTimeTab();
-            timeInitialized = true;
-        }
-    }
-
-    tabBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            switchTab(btn.getAttribute('data-tab'));
-        });
-    });
-
-    // Переход с главной страницы
-    document.querySelectorAll('.home-card').forEach(card => {
-        card.addEventListener('click', () => {
-            const target = card.getAttribute('data-goto');
-            if (target) switchTab(target);
-        });
-    });
-
-    // ================== Калькулятор ==================
-    let chart = null;
-    let historyData = JSON.parse(localStorage.getItem('eq_history')) || [];
-    window.addEventListener('load', () => { renderHistory(); });
-
-    function calculate() {
-        const a = parseFloat(document.getElementById('a').value);
-        const b = parseFloat(document.getElementById('b').value);
-        const c = parseFloat(document.getElementById('c').value);
-        if (isNaN(a) || a === 0) return;
-        const D = b * b - 4 * a * c;
-        const area = document.getElementById('res-area');
-        area.innerHTML = `<div style="font-weight:600;">Дискриминант D = ${D}</div>`;
-        let roots = [];
-        if (D > 0) {
-            const x1 = (-b + Math.sqrt(D)) / (2 * a);
-            const x2 = (-b - Math.sqrt(D)) / (2 * a);
-            area.innerHTML += drawRoot("x₁", `-${b} + √${D}`, 2*a, x1);
-            area.innerHTML += drawRoot("x₂", `-${b} - √${D}`, 2*a, x2);
-            roots = [x1, x2];
-        } else if (D === 0) {
-            const x = -b / (2 * a);
-            area.innerHTML += drawRoot("x", `-${b}`, 2*a, x);
-            roots = [x];
-        } else {
-            area.innerHTML += `<div style="color:#ff4757;">Корней нет</div>`;
-        }
-        updateChart(a, b, c, roots);
-        saveToHistory(a, b, c, roots);
-    }
-
-    function drawRoot(name, n, d, v) {
-        return `<div style="display:flex; align-items:center; gap:20px; background:rgba(255,255,255,0.02); padding:20px; border-radius:16px; border:1px solid var(--glass-border); margin-top:15px;">
-            <span style="color:var(--primary); font-weight:800;">${name}</span>
-            <div style="text-align:center;"><div style="border-bottom:1px solid var(--text);">${n}</div><div>${d}</div></div>
-            <span>≈</span><span style="font-family:monospace; color:var(--accent);">${v.toFixed(10)}</span>
-        </div>`;
-    }
-
-    function updateChart(a, b, c, roots) {
-        const ctx = document.getElementById('chart').getContext('2d');
-        const mid = -b / (2 * a);
-        const labels = [], data = [];
-        for (let x = mid - 5; x <= mid + 5; x += 0.2) {
-            labels.push(x.toFixed(1));
-            data.push(a * x * x + b * x + c);
-        }
-        if (chart) chart.destroy();
-        const isDark = document.body.getAttribute('data-theme') === 'dark';
-        chart = new Chart(ctx, {
-            type: 'line',
-            data: { labels, datasets: [{ data, borderColor: '#8b5cf6', borderWidth: 3, pointRadius: 0, tension: 0.4 }] },
-            options: {
-                responsive: true, maintainAspectRatio: false,
-                scales: {
-                    x: { ticks: { color: isDark ? '#64748b' : '#94a3b8' }, grid: { display: false } },
-                    y: { ticks: { color: isDark ? '#64748b' : '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } }
-                },
-                plugins: { legend: { display: false } }
-            }
-        });
-    }
-
-    function updateChartAfterTheme() { if (chart && document.getElementById('tab-calc').classList.contains('active')) calculate(); }
-
-    function saveToHistory(a, b, c, r) {
-        historyData.unshift({ q: `${a}x² ${b>=0?'+':''}${b}x ${c>=0?'+':''}${c} = 0`, a: r.length ? r.map(n=>n.toFixed(4)).join('; ') : 'нет корней' });
-        if (historyData.length > 20) historyData.pop();
-        localStorage.setItem('eq_history', JSON.stringify(historyData));
-        renderHistory();
-    }
-
-    function renderHistory() {
-        const list = document.getElementById('h-list');
-        if (!list) return;
-        list.innerHTML = historyData.map(i => `<div style="padding:15px; border-bottom:1px solid var(--glass-border);"><div style="font-weight:600;">${i.q}</div><div style="color:var(--accent); margin-top:5px;">${i.a}</div></div>`).join('');
-    }
-
-    function clearHistory() {
-        localStorage.removeItem('eq_history');
-        historyData = [];
-        renderHistory();
-    }
-
-    // ================== Подтабы Удачи ==================
-    const subtabBtns = document.querySelectorAll('.subtab-btn');
-    const subtabContents = document.querySelectorAll('.subtab-content');
-    subtabBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            const subtab = btn.getAttribute('data-subtab');
-            subtabBtns.forEach(b => b.classList.remove('active'));
-            subtabContents.forEach(c => c.classList.remove('active'));
-            btn.classList.add('active');
-            document.getElementById(`subtab-${subtab}`).classList.add('active');
-            if (subtab === 'random' && !randomInitialized) {
-                initRandomNumbers();
-                randomInitialized = true;
-            }
-        });
-    });
-
-    // ================== Колесо фортуны ==================
-    let wheelInitialized = false;
-    const defaultColors = ['#FF6384','#36A2EB','#FFCE56','#4BC0C0','#9966FF','#FF9F40','#C9CBCF','#7BC8A4','#E74C3C','#3498DB','#2ECC71','#F1C40F','#9B59B6','#1ABC9C','#E67E22','#34495E'];
-    let sectors = [];
-    let wheelAngle = 0, spinning = false, lastTickAngle = 0;
-    let audioCtx = null;
-
-    function getAudioContext() {
-        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        return audioCtx;
-    }
-    function playTick() {
-        try {
-            const ctx = getAudioContext();
-            const osc = ctx.createOscillator(), gain = ctx.createGain();
-            osc.type = 'square'; osc.frequency.value = 800; gain.gain.value = 0.1;
-            osc.connect(gain); gain.connect(ctx.destination);
-            osc.start(); gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
-            osc.stop(ctx.currentTime + 0.05);
-        } catch(e) {}
-    }
-
-    function initWheel() {
-        updateSectorsFromArea();
-        drawWheel(wheelAngle);
-        document.getElementById('spinBtn').addEventListener('click', spinWheel);
-        document.getElementById('updateSectorsBtn').addEventListener('click', updateSectorsFromArea);
-    }
-
-    function updateSectorsFromArea() {
-        const text = document.getElementById('sectorArea').value;
-        const lines = text.split('\n').map(s => s.trim()).filter(s => s.length > 0);
-        sectors = lines.length ? lines.map((label, i) => ({ label, color: defaultColors[i % defaultColors.length] })) : [{ label: 'Сектор', color: '#FF6384' }];
-        drawWheel(wheelAngle);
-    }
-
-    function drawWheel(angle) {
-        const canvas = document.getElementById('wheelCanvas');
-        if (!canvas) return;
-        const ctx = canvas.getContext('2d');
-        const cw = canvas.width, ch = canvas.height;
-        const cx = cw/2, cy = ch/2, r = Math.min(cx,cy)-10;
-        const arc = (2*Math.PI)/sectors.length;
-        ctx.clearRect(0,0,cw,ch);
-        sectors.forEach((s, i) => {
-            const start = angle + i*arc, end = start+arc;
-            ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,r,start,end); ctx.closePath();
-            ctx.fillStyle = s.color; ctx.fill();
-            ctx.strokeStyle = '#fff'; ctx.lineWidth=2; ctx.stroke();
-            ctx.save(); ctx.translate(cx,cy); ctx.rotate(start+arc/2);
-            ctx.textAlign='right'; ctx.fillStyle='#fff'; ctx.font='bold 14px Inter'; ctx.shadowBlur=4;
-            ctx.fillText(s.label, r-15, 5); ctx.restore();
-        });
-        ctx.beginPath(); ctx.arc(cx,cy,20,0,2*Math.PI); ctx.fillStyle='#fff'; ctx.fill(); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(cx-10, cy-r+5); ctx.lineTo(cx+10, cy-r+5); ctx.lineTo(cx, cy-r-15); ctx.closePath();
-        ctx.fillStyle='#FFD700'; ctx.fill(); ctx.strokeStyle='#000'; ctx.stroke();
-    }
-
-    function spinWheel() {
-        if (spinning || sectors.length===0) return;
-        spinning = true;
-        document.getElementById('wheelResult').textContent = '...';
-        const spinVel = Math.random()*10+15, addAngle = Math.random()*2*Math.PI;
-        const target = wheelAngle + spinVel*3 + addAngle;
-        const start = wheelAngle, startTime = performance.now(), duration = 3000;
-        lastTickAngle = start;
-        function animate(now) {
-            const p = Math.min((now-startTime)/duration, 1);
-            const ease = 1 - Math.pow(1-p,3);
-            wheelAngle = (start + (target-start)*ease) % (2*Math.PI);
-            drawWheel(wheelAngle);
-            const arc = (2*Math.PI)/sectors.length;
-            if (Math.abs(wheelAngle - lastTickAngle) >= arc) { playTick(); lastTickAngle = wheelAngle - (Math.abs(wheelAngle - lastTickAngle) % arc); }
-            if (p < 1) requestAnimationFrame(animate);
-            else {
-                const norm = ((wheelAngle%(2*Math.PI))+2*Math.PI)%(2*Math.PI);
-                const pointer = (3*Math.PI/2)%(2*Math.PI);
-                const idx = Math.floor(((pointer - norm + 2*Math.PI)%(2*Math.PI))/arc) % sectors.length;
-                document.getElementById('wheelResult').textContent = `Выпало: ${sectors[idx].label}`;
-                spinning = false;
-            }
-        }
-        requestAnimationFrame(animate);
-    }
-
-    // ================== Случайные числа ==================
-    let randomInitialized = false;
-    function initRandomNumbers() {
-        document.getElementById('generateRandomBtn').addEventListener('click', generateRandomNumbers);
-        document.getElementById('saveRandomBtn').addEventListener('click', saveRandomNumbers);
-        document.querySelectorAll('input[name="randomSource"]').forEach(r => r.addEventListener('change', toggleSource));
-        toggleSource();
-        generateRandomNumbers();
-    }
-
-    function toggleSource() {
-        const isRange = document.querySelector('input[name="randomSource"]:checked').value === 'range';
-        document.getElementById('rangeInputs').style.display = isRange ? 'flex' : 'none';
-        document.getElementById('listInput').style.display = isRange ? 'none' : 'block';
-    }
-
-    function generateRandomNumbers() {
-        const count = parseInt(document.getElementById('randomCount').value) || 8;
-        const isRange = document.querySelector('input[name="randomSource"]:checked').value === 'range';
-        const noRepeat = document.getElementById('noRepeat').checked;
-        let pool = [];
-        if (isRange) {
-            const min = parseInt(document.getElementById('rangeMin').value) || 1;
-            const max = parseInt(document.getElementById('rangeMax').value) || 100;
-            for (let i = min; i <= max; i++) pool.push(i);
-        } else {
-            const listStr = document.getElementById('customList').value;
-            pool = listStr.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n));
-        }
-        const excludeEnabled = document.getElementById('excludeEnabled').checked;
-        if (excludeEnabled) {
-            const exc = document.getElementById('excludeList').value.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n));
-            pool = pool.filter(n => !exc.includes(n));
-        }
-        if (pool.length === 0) {
-            document.getElementById('randomNumbersDisplay').textContent = 'Нет доступных чисел';
-            return;
-        }
-        if (noRepeat && count > pool.length) {
-            document.getElementById('randomNumbersDisplay').textContent = `Ошибка: без повторов можно выбрать максимум ${pool.length} чисел`;
-            return;
-        }
-        let result;
-        if (noRepeat) {
-            const shuffled = [...pool].sort(() => Math.random() - 0.5);
-            result = shuffled.slice(0, count);
-        } else {
-            result = Array.from({ length: count }, () => pool[Math.floor(Math.random() * pool.length)]);
-        }
-        document.getElementById('randomNumbersDisplay').textContent = result.join(' ');
-    }
-
-    function saveRandomNumbers() {
-        const text = document.getElementById('randomNumbersDisplay').textContent;
-        navigator.clipboard.writeText(text).then(() => alert('Числа скопированы в буфер обмена')).catch(() => alert('Не удалось скопировать'));
-    }
-
-    // ================== Генератор паролей ==================
-    let passwordInitialized = false;
-    const ambiguousChars = 'I1l0o00sS5';
-    function initPassword() {
-        document.getElementById('generateBtn').addEventListener('click', generatePasswords);
-        generatePasswords();
-    }
-
-    function generatePasswords() {
-        const lenInput = document.getElementById('passLength');
-        const cntInput = document.getElementById('passCount');
-        let length = parseInt(lenInput.value) || 10;
-        let count = parseInt(cntInput.value) || 10;
-        const errDiv = document.getElementById('passwordError');
-        errDiv.textContent = '';
-        if (length > 35) { errDiv.textContent = 'Максимальная длина пароля — 35'; lenInput.value = 35; length = 35; }
-        if (count > 99) { errDiv.textContent = 'Максимальное количество — 99'; cntInput.value = 99; count = 99; }
-        const useUpper = document.getElementById('useUpper').checked;
-        const useLower = document.getElementById('useLower').checked;
-        const useDigits = document.getElementById('useDigits').checked;
-        const useSpace = document.getElementById('useSpace').checked;
-        const useSep = document.getElementById('useSeparators').checked;
-        const useSpec = document.getElementById('useSpecial').checked;
-        const exclAmb = document.getElementById('excludeAmbiguous').checked;
-        let chars = '';
-        if (useUpper) chars += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        if (useLower) chars += 'abcdefghijklmnopqrstuvwxyz';
-        if (useDigits) chars += '0123456789';
-        if (useSpace) chars += ' ';
-        if (useSep) chars += '-_';
-        if (useSpec) chars += '~!@#$%^&*()+';
-        if (chars.length === 0) { alert('Выберите хотя бы один набор символов'); return; }
-        if (exclAmb) chars = chars.split('').filter(c => !ambiguousChars.includes(c)).join('');
-        const pwd = [];
-        for (let i = 0; i < count; i++) {
-            let s = '';
-            for (let j = 0; j < length; j++) s += chars[Math.floor(Math.random() * chars.length)];
-            pwd.push(s);
-        }
-        const now = new Date();
-        const utc3 = new Date(now.getTime() + 3*60*60*1000);
-        document.getElementById('timestamp').textContent = `Сгенерировано ${utc3.toISOString().replace('T',' ').replace(/\.\d+Z$/,' UTC+3')}`;
-        const tbody = document.querySelector('#passwordsTable tbody');
-        tbody.innerHTML = '';
-        for (let i = 0; i < pwd.length; i += 3) {
-            const row = document.createElement('tr');
-            for (let j = 0; j < 3; j++) {
-                const td = document.createElement('td');
-                td.textContent = pwd[i+j] || '';
-                row.appendChild(td);
-            }
-            tbody.appendChild(row);
-        }
-    }
-
-    // ================== Мировое время ==================
-    let timeInitialized = false;
-    let timeInterval = null;
-
-    function initTimeTab() {
-        document.getElementById('showTimeBtn').addEventListener('click', updateTimeDisplay);
-        updateTimeDisplay();
-    }
-
-    function updateTimeDisplay() {
-        const tz = document.getElementById('citySelect').value;
-        try {
-            const now = new Date();
-            const formatter = new Intl.DateTimeFormat('ru-RU', {
-                timeZone: tz,
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-                hour12: false
+        function updateChart(a,b,c,roots) {
+            const ctx = document.getElementById('chart').getContext('2d');
+            const mid = -b/(2*a);
+            const labels=[], data=[];
+            for(let x=mid-5; x<=mid+5; x+=0.2) { labels.push(x.toFixed(1)); data.push(a*x*x+b*x+c); }
+            if(chart) chart.destroy();
+            const isDark = document.body.getAttribute('data-theme') === 'dark';
+            chart = new Chart(ctx, {
+                type:'line', data:{labels, datasets:[{data,borderColor:'#8b5cf6',borderWidth:3,pointRadius:0,tension:0.4}]},
+                options:{responsive:true,maintainAspectRatio:false,
+                    scales:{x:{ticks:{color:isDark?'#64748b':'#94a3b8'},grid:{display:false}},y:{ticks:{color:isDark?'#64748b':'#94a3b8'},grid:{color:'rgba(255,255,255,0.05)'}}},
+                    plugins:{legend:{display:false}}}
             });
-            const dateFormatter = new Intl.DateTimeFormat('ru-RU', {
-                timeZone: tz,
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                weekday: 'long'
-            });
-            document.getElementById('timeDisplay').textContent = formatter.format(now);
-            document.getElementById('dateDisplay').textContent = dateFormatter.format(now);
-        } catch (e) {
-            document.getElementById('timeDisplay').textContent = 'Ошибка';
-            document.getElementById('dateDisplay').textContent = '';
         }
-        if (timeInterval) clearInterval(timeInterval);
-        timeInterval = setInterval(updateTimeDisplay, 1000);
-    }
+        function updateChartAfterTheme() { if(chart && document.getElementById('tab-calc').classList.contains('active')) calculate(); }
+        function saveToHistory(a,b,c,r) {
+            historyData.unshift({q:`${a}x² ${b>=0?'+':''}${b}x ${c>=0?'+':''}${c} = 0`, a:r.length?r.map(n=>n.toFixed(4)).join('; '):'нет корней'});
+            if(historyData.length>20) historyData.pop();
+            localStorage.setItem('eq_history', JSON.stringify(historyData));
+            renderHistory();
+        }
+        function renderHistory() {
+            const list = document.getElementById('h-list');
+            if(!list) return;
+            list.innerHTML = historyData.map(i=>`<div style="padding:15px;border-bottom:1px solid var(--glass-border);"><div style="font-weight:600;">${i.q}</div><div style="color:var(--accent);margin-top:5px;">${i.a}</div></div>`).join('');
+        }
+        window.clearHistory = function() { localStorage.removeItem('eq_history'); historyData=[]; renderHistory(); };
+        window.calculate = calculate;
 
-    // ================== Копирование email ==================
-    document.getElementById('contactEmail').addEventListener('click', () => {
-        const email = document.getElementById('emailText').textContent;
-        navigator.clipboard.writeText(email).then(() => {
-            const el = document.getElementById('contactEmail');
-            el.style.opacity = '1';
-            el.innerHTML = '📋 Email скопирован!';
-            setTimeout(() => { el.innerHTML = '📧 <span id="emailText">tape.power@outlook.com</span>'; }, 1500);
-        }).catch(() => alert('Не удалось скопировать'));
-    });
+        // Подтабы удачи
+        const subtabBtns = document.querySelectorAll('.subtab-btn');
+        const subtabContents = document.querySelectorAll('.subtab-content');
+        subtabBtns.forEach(btn => btn.addEventListener('click', () => {
+            const st = btn.getAttribute('data-subtab');
+            subtabBtns.forEach(b=>b.classList.remove('active')); subtabContents.forEach(c=>c.classList.remove('active'));
+            btn.classList.add('active'); document.getElementById(`subtab-${st}`).classList.add('active');
+            if(st==='random' && !randomInitialized){ initRandomNumbers(); randomInitialized=true; }
+        }));
+
+        // Колесо
+        let wheelInitialized = false;
+        const defaultColors = ['#FF6384','#36A2EB','#FFCE56','#4BC0C0','#9966FF','#FF9F40','#C9CBCF','#7BC8A4','#E74C3C','#3498DB','#2ECC71','#F1C40F','#9B59B6','#1ABC9C','#E67E22','#34495E'];
+        let sectors=[], wheelAngle=0, spinning=false, lastTickAngle=0, audioCtx=null;
+        function getAudioContext() { if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
+        function playTick(){ try{ const ctx=getAudioContext(); const osc=ctx.createOscillator(),gain=ctx.createGain(); osc.type='square';osc.frequency.value=800;gain.gain.value=0.1; osc.connect(gain);gain.connect(ctx.destination); osc.start(); gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.05); osc.stop(ctx.currentTime+0.05); }catch(e){} }
+        function initWheel() { updateSectorsFromArea(); drawWheel(wheelAngle); document.getElementById('spinBtn').addEventListener('click',spinWheel); document.getElementById('updateSectorsBtn').addEventListener('click',updateSectorsFromArea); }
+        function updateSectorsFromArea(){ const text=document.getElementById('sectorArea').value; const lines=text.split('\n').map(s=>s.trim()).filter(s=>s.length>0); sectors=lines.length?lines.map((l,i)=>({label:l,color:defaultColors[i%defaultColors.length]})):[{label:'Сектор',color:'#FF6384'}]; drawWheel(wheelAngle); }
+        function drawWheel(angle){ const canvas=document.getElementById('wheelCanvas'); if(!canvas)return; const ctx=canvas.getContext('2d'); const cw=canvas.width,ch=canvas.height,cx=cw/2,cy=ch/2,r=Math.min(cx,cy)-10; const arc=(2*Math.PI)/sectors.length; ctx.clearRect(0,0,cw,ch); sectors.forEach((s,i)=>{ const start=angle+i*arc,end=start+arc; ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,start,end);ctx.closePath(); ctx.fillStyle=s.color;ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.stroke(); ctx.save();ctx.translate(cx,cy);ctx.rotate(start+arc/2); ctx.textAlign='right';ctx.fillStyle='#fff';ctx.font='bold 14px Inter';ctx.shadowBlur=4; ctx.fillText(s.label,r-15,5);ctx.restore(); }); ctx.beginPath();ctx.arc(cx,cy,20,0,2*Math.PI);ctx.fillStyle='#fff';ctx.fill();ctx.stroke(); ctx.beginPath();ctx.moveTo(cx-10,cy-r+5);ctx.lineTo(cx+10,cy-r+5);ctx.lineTo(cx,cy-r-15);ctx.closePath(); ctx.fillStyle='#FFD700';ctx.fill();ctx.strokeStyle='#000';ctx.stroke(); }
+        function spinWheel(){ if(spinning||sectors.length===0)return; spinning=true; document.getElementById('wheelResult').textContent='...'; const spinVel=Math.random()*10+15,addAngle=Math.random()*2*Math.PI; const target=wheelAngle+spinVel*3+addAngle; const start=wheelAngle,startTime=performance.now(),duration=3000; lastTickAngle=start; function animate(now){ const p=Math.min((now-startTime)/duration,1); const ease=1-Math.pow(1-p,3); wheelAngle=(start+(target-start)*ease)%(2*Math.PI); drawWheel(wheelAngle); const arc=(2*Math.PI)/sectors.length; if(Math.abs(wheelAngle-lastTickAngle)>=arc){playTick(); lastTickAngle=wheelAngle-(Math.abs(wheelAngle-lastTickAngle)%arc);} if(p<1)requestAnimationFrame(animate); else{ const norm=((wheelAngle%(2*Math.PI))+2*Math.PI)%(2*Math.PI); const pointer=(3*Math.PI/2)%(2*Math.PI); const idx=Math.floor(((pointer-norm+2*Math.PI)%(2*Math.PI))/arc)%sectors.length; document.getElementById('wheelResult').textContent=`Выпало: ${sectors[idx].label}`; spinning=false; } } requestAnimationFrame(animate); }
+
+        // Случайные числа
+        let randomInitialized=false;
+        function initRandomNumbers(){ document.getElementById('generateRandomBtn').addEventListener('click',generateRandomNumbers); document.getElementById('saveRandomBtn').addEventListener('click',saveRandomNumbers); document.querySelectorAll('input[name="randomSource"]').forEach(r=>r.addEventListener('change',toggleSource)); toggleSource(); generateRandomNumbers(); }
+        function toggleSource(){ const isRange=document.querySelector('input[name="randomSource"]:checked').value==='range'; document.getElementById('rangeInputs').style.display=isRange?'flex':'none'; document.getElementById('listInput').style.display=isRange?'none':'block'; }
+        function generateRandomNumbers(){ const count=parseInt(document.getElementById('randomCount').value)||8; const isRange=document.querySelector('input[name="randomSource"]:checked').value==='range'; const noRepeat=document.getElementById('noRepeat').checked; let pool=[]; if(isRange){ const min=parseInt(document.getElementById('rangeMin').value)||1; const max=parseInt(document.getElementById('rangeMax').value)||100; for(let i=min;i<=max;i++) pool.push(i); }else{ const listStr=document.getElementById('customList').value; pool=listStr.split(',').map(s=>parseInt(s.trim())).filter(n=>!isNaN(n)); } const excludeEnabled=document.getElementById('excludeEnabled').checked; if(excludeEnabled){ const exc=document.getElementById('excludeList').value.split(',').map(s=>parseInt(s.trim())).filter(n=>!isNaN(n)); pool=pool.filter(n=>!exc.includes(n)); } if(pool.length===0){ document.getElementById('randomNumbersDisplay').textContent='Нет доступных чисел'; return; } if(noRepeat&&count>pool.length){ document.getElementById('randomNumbersDisplay').textContent=`Ошибка: без повторов можно выбрать максимум ${pool.length} чисел`; return; } let result; if(noRepeat){ const shuffled=[...pool].sort(()=>Math.random()-0.5); result=shuffled.slice(0,count); }else{ result=Array.from({length:count},()=>pool[Math.floor(Math.random()*pool.length)]); } document.getElementById('randomNumbersDisplay').textContent=result.join(' '); }
+        function saveRandomNumbers(){ const text=document.getElementById('randomNumbersDisplay').textContent; navigator.clipboard.writeText(text).then(()=>alert('Числа скопированы')).catch(()=>alert('Ошибка')); }
+
+        // Пароли
+        let passwordInitialized=false;
+        const ambiguousChars='I1l0o00sS5';
+        function initPassword(){ document.getElementById('generateBtn').addEventListener('click',generatePasswords); generatePasswords(); }
+        function generatePasswords(){ const lenInput=document.getElementById('passLength'),cntInput=document.getElementById('passCount'); let length=parseInt(lenInput.value)||10,count=parseInt(cntInput.value)||10; const errDiv=document.getElementById('passwordError'); errDiv.textContent=''; if(length>35){errDiv.textContent='Максимальная длина пароля — 35';lenInput.value=35;length=35;} if(count>99){errDiv.textContent='Максимальное количество — 99';cntInput.value=99;count=99;} const useUpper=document.getElementById('useUpper').checked,useLower=document.getElementById('useLower').checked,useDigits=document.getElementById('useDigits').checked,useSpace=document.getElementById('useSpace').checked,useSep=document.getElementById('useSeparators').checked,useSpec=document.getElementById('useSpecial').checked,exclAmb=document.getElementById('excludeAmbiguous').checked; let chars=''; if(useUpper)chars+='ABCDEFGHIJKLMNOPQRSTUVWXYZ'; if(useLower)chars+='abcdefghijklmnopqrstuvwxyz'; if(useDigits)chars+='0123456789'; if(useSpace)chars+=' '; if(useSep)chars+='-_'; if(useSpec)chars+='~!@#$%^&*()+'; if(chars.length===0){alert('Выберите хотя бы один набор символов');return;} if(exclAmb)chars=chars.split('').filter(c=>!ambiguousChars.includes(c)).join(''); const pwd=[]; for(let i=0;i<count;i++){ let s=''; for(let j=0;j<length;j++) s+=chars[Math.floor(Math.random()*chars.length)]; pwd.push(s); } const now=new Date(); const utc3=new Date(now.getTime()+3*60*60*1000); document.getElementById('timestamp').textContent=`Сгенерировано ${utc3.toISOString().replace('T',' ').replace(/\.\d+Z$/,' UTC+3')}`; const tbody=document.querySelector('#passwordsTable tbody'); tbody.innerHTML=''; for(let i=0;i<pwd.length;i+=3){ const row=document.createElement('tr'); for(let j=0;j<3;j++){ const td=document.createElement('td'); td.textContent=pwd[i+j]||''; td.addEventListener('click',(e)=>{ if(e.target.textContent){ navigator.clipboard.writeText(e.target.textContent).then(()=>alert('Пароль скопирован')).catch(()=>alert('Ошибка')); } }); row.appendChild(td); } tbody.appendChild(row); } }
+        document.getElementById('passwordsTable').addEventListener('click', (e) => { if(e.target.tagName === 'TD' && e.target.textContent) navigator.clipboard.writeText(e.target.textContent).then(()=>alert('Пароль скопирован')).catch(()=>alert('Ошибка')); });
+
+        // Время
+        let timeInitialized=false, timeInterval;
+        function initTimeTab(){ document.getElementById('showTimeBtn').addEventListener('click',updateTimeDisplay); updateTimeDisplay(); }
+        function updateTimeDisplay(){ const tz=document.getElementById('citySelect').value; try{ const now=new Date(); const formatter=new Intl.DateTimeFormat('ru-RU',{timeZone:tz,hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}); const dateFormatter=new Intl.DateTimeFormat('ru-RU',{timeZone:tz,year:'numeric',month:'long',day:'numeric',weekday:'long'}); document.getElementById('timeDisplay').textContent=formatter.format(now); document.getElementById('dateDisplay').textContent=dateFormatter.format(now); }catch(e){ document.getElementById('timeDisplay').textContent='Ошибка'; document.getElementById('dateDisplay').textContent=''; } if(timeInterval)clearInterval(timeInterval); timeInterval=setInterval(updateTimeDisplay,1000); }
+
+        // Перевод
+        let translateInitialized=false;
+        function initTranslate(){ document.getElementById('translateBtn').addEventListener('click',translateText); }
+        async function translateText(){ const text=document.getElementById('translateInput').value.trim(); if(!text)return; const url=`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=ru|en`; try{ const response=await fetch(url); const data=await response.json(); document.getElementById('translatedText').textContent=data.responseData.translatedText; }catch(e){ document.getElementById('translatedText').textContent='Ошибка перевода'; } }
+
+        // Викторина
+        let quizInitialized=false;
+        const countries = [
+            {country:'Россия',capital:'Москва',flag:'🇷🇺'},{country:'США',capital:'Вашингтон',flag:'🇺🇸'},{country:'Китай',capital:'Пекин',flag:'🇨🇳'},{country:'Япония',capital:'Токио',flag:'🇯🇵'},{country:'Германия',capital:'Берлин',flag:'🇩🇪'},{country:'Франция',capital:'Париж',flag:'🇫🇷'},{country:'Великобритания',capital:'Лондон',flag:'🇬🇧'},{country:'Италия',capital:'Рим',flag:'🇮🇹'},{country:'Испания',capital:'Мадрид',flag:'🇪🇸'},{country:'Канада',capital:'Оттава',flag:'🇨🇦'},{country:'Бразилия',capital:'Бразилиа',flag:'🇧🇷'},{country:'Индия',capital:'Нью-Дели',flag:'🇮🇳'},{country:'Австралия',capital:'Канберра',flag:'🇦🇺'},{country:'ЮАР',capital:'Претория',flag:'🇿🇦'},{country:'Мексика',capital:'Мехико',flag:'🇲🇽'},{country:'Аргентина',capital:'Буэнос-Айрес',flag:'🇦🇷'},{country:'Египет',capital:'Каир',flag:'🇪🇬'},{country:'Турция',capital:'Анкара',flag:'🇹🇷'},{country:'Южная Корея',capital:'Сеул',flag:'🇰🇷'},{country:'Швеция',capital:'Стокгольм',flag:'🇸🇪'},{country:'Норвегия',capital:'Осло',flag:'🇳🇴'},{country:'Нидерланды',capital:'Амстердам',flag:'🇳🇱'},{country:'Греция',capital:'Афины',flag:'🇬🇷'},{country:'Польша',capital:'Варшава',flag:'🇵🇱'},{country:'Украина',capital:'Киев',flag:'🇺🇦'},{country:'Чехия',capital:'Прага',flag:'🇨🇿'},{country:'Швейцария',capital:'Берн',flag:'🇨🇭'},{country:'Австрия',capital:'Вена',flag:'🇦🇹'},{country:'Ирландия',capital:'Дублин',flag:'🇮🇪'},{country:'Таиланд',capital:'Бангкок',flag:'🇹🇭'}
+        ];
+        let quizScore=[0,0], quizMode='flag-to-country', currentAnswer=null, answered=false;
+        function initQuiz(){ document.getElementById('nextQuizBtn').addEventListener('click',nextQuiz); nextQuiz(); }
+        function shuffleArray(arr){ for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]]; } return arr; }
+        function nextQuiz(){ answered=false; document.getElementById('nextQuizBtn').style.display='none'; const answersDiv=document.getElementById('quizAnswers'); answersDiv.innerHTML=''; const modes=['flag-to-country','country-to-capital','capital-to-country']; quizMode=modes[Math.floor(Math.random()*modes.length)]; const correctIndex=Math.floor(Math.random()*countries.length); const correct=countries[correctIndex]; const variants=[correct]; while(variants.length<4){ const rnd=countries[Math.floor(Math.random()*countries.length)]; if(!variants.includes(rnd)) variants.push(rnd); } shuffleArray(variants); let questionText=''; if(quizMode==='flag-to-country') questionText=`Какой стране принадлежит флаг ${correct.flag}?`; else if(quizMode==='country-to-capital') questionText=`Какая столица у страны ${correct.country}?`; else questionText=`Какой стране принадлежит столица ${correct.capital}?`; document.getElementById('quizQuestion').textContent=questionText; currentAnswer=correct; variants.forEach(v=>{ const btn=document.createElement('div'); btn.className='answer-btn'; if(quizMode==='country-to-capital') btn.textContent=v.capital; else btn.textContent=v.country; btn.addEventListener('click',()=>selectAnswer(v)); answersDiv.appendChild(btn); }); }
+        function selectAnswer(selected){ if(answered) return; answered=true; const buttons=document.querySelectorAll('.answer-btn'); buttons.forEach(b=>b.style.pointerEvents='none'); if(selected===currentAnswer){ quizScore[0]++; document.querySelector(`.answer-btn:nth-child(${Array.from(buttons).findIndex(b=>b.textContent=== (quizMode==='country-to-capital'?selected.capital:selected.country))+1})`).classList.add('correct'); }else{ quizScore[1]++; const correctBtn=Array.from(buttons).find(b=>b.textContent=== (quizMode==='country-to-capital'?currentAnswer.capital:currentAnswer.country)); if(correctBtn) correctBtn.classList.add('correct'); const wrongBtn=Array.from(buttons).find(b=>b.textContent=== (quizMode==='country-to-capital'?selected.capital:selected.country)); if(wrongBtn) wrongBtn.classList.add('wrong'); } document.getElementById('quizScore').textContent=`Правильно: ${quizScore[0]} / ${quizScore[0]+quizScore[1]}`; document.getElementById('nextQuizBtn').style.display='block'; }
+        window.nextQuiz = nextQuiz;
+
+        // Копирование email
+        document.getElementById('contactEmail').addEventListener('click',()=>{ const email=document.getElementById('emailText').textContent; navigator.clipboard.writeText(email).then(()=>{ const el=document.getElementById('contactEmail'); el.style.opacity='1'; el.innerHTML='📋 Email скопирован!'; setTimeout(()=>{el.innerHTML='📧 <span id="emailText">tape.power@outlook.com</span>';},1500); }).catch(()=>alert('Ошибка')); });
+    })();
 </script>
-
 </body>
 </html>
