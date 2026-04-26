@@ -225,6 +225,26 @@
             .piece { width: 28px; height: 28px; }
             .calc-btn { padding: 15px 5px; font-size: 1.1rem; }
         }
+                    /* Модальное окно для мобильных */
+            .mobile-modal-overlay {
+                display: none;
+                position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                background: rgba(0,0,0,0.8); backdrop-filter: blur(8px);
+                z-index: 9999; align-items: center; justify-content: center;}
+            .mobile-modal {
+                background: var(--glass); border: 1px solid var(--glass-border);
+                border-radius: 24px; padding: 30px; max-width: 320px; text-align: center;
+                box-shadow: 0 25px 60px rgba(0,0,0,0.5)
+            }
+            .mobile-modal p { font-size: 1.1rem; margin: 15px 0 25px; }
+            .mobile-modal .btn-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+            .mobile-modal .m-btn {
+                padding: 12px 18px; border-radius: 12px; border: none; font-weight: 600;
+                cursor: pointer; font-size: 0.95rem; transition: 0.2s;
+            }
+            .m-btn.copy-btn { background: var(--grad); color: #fff; }
+            .m-btn.ok-btn { background: rgba(255,255,255,0.15); color: var(--text); }
+            .m-btn.close-btn { background: rgba(255,75,75,0.3); color: #fff; }
     </style>
 </head>
 <body data-theme="light" oncontextmenu="return false;">
@@ -1181,6 +1201,41 @@
         // Копирование email
         document.getElementById('contactEmail').addEventListener('click',()=>{ const email=document.getElementById('emailText').textContent; navigator.clipboard.writeText(email).then(()=>{ const el=document.getElementById('contactEmail'); el.innerHTML='📋 Email скопирован!'; setTimeout(()=>{el.innerHTML='📧 <span id="emailText">tape.power@outlook.com</span>';},1500); }).catch(()=>alert('Ошибка')); });
     })();
+    // Проверка на мобильное устройство
+function isMobileDevice() {
+    return /Mobi|Android|iPhone|iPad|iPod|webOS/i.test(navigator.userAgent) || window.innerWidth <= 768;
+}
+if (isMobileDevice()) {
+    const overlay = document.getElementById('mobileModal');
+    overlay.style.display = 'flex';
+    
+    document.getElementById('okMobileBtn').addEventListener('click', () => {
+        overlay.style.display = 'none';
+    });
+    
+    document.getElementById('copyLinkBtn').addEventListener('click', () => {
+        navigator.clipboard.writeText(window.location.href).then(() => {
+            alert('Ссылка скопирована! Отправьте её себе на компьютер.');
+        });
+    });
+    
+    document.getElementById('closeSiteBtn').addEventListener('click', () => {
+        window.close();
+        // Если окно не закроется (некоторые браузеры запрещают), покажем сообщение
+        setTimeout(() => alert('Закройте вкладку вручную'), 100);
+    });
+}
 </script>
+        <div class="mobile-modal-overlay" id="mobileModal">
+    <div class="mobile-modal">
+        <h3>📱 Совет</h3>
+        <p>Для полного функционала и удобства рекомендуем зайти с ноутбука, компьютера или планшета.</p>
+        <div class="btn-row">
+            <button class="m-btn copy-btn" id="copyLinkBtn">📋 Скопировать ссылку</button>
+            <button class="m-btn ok-btn" id="okMobileBtn">✅ Окей</button>
+            <button class="m-btn close-btn" id="closeSiteBtn">🚪 Закрыть сайт</button>
+        </div>
+        </div>
+        </div>
 </body>
 </html>
