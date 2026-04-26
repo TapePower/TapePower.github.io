@@ -903,6 +903,21 @@
         // Шашки (исправленные правила 8x8, классические русские)
         let checkersBoard = [], selectedCell = null, currentTurn = 'white', forcedCapture = false;
         let highlightMoves = []; // подсветка доступных ходов
+        function removeCapturedPiece(fromRow, fromCol, toRow, toCol) {
+    const dr = Math.sign(toRow - fromRow);
+    const dc = Math.sign(toCol - fromCol);
+    let r = fromRow + dr;
+    let c = fromCol + dc;
+    const opponent = currentTurn === 'white' ? 'black' : 'white';
+    while (r !== toRow || c !== toCol) {
+        if (checkersBoard[r][c] && checkersBoard[r][c].startsWith(opponent)) {
+            checkersBoard[r][c] = null;
+            return;
+        }
+        r += dr;
+        c += dc;
+    }
+}
         function initCheckers() {
             document.getElementById('resetCheckers').addEventListener('click', resetCheckers);
             setupBoard();
@@ -972,61 +987,65 @@
                     return;
                 }
             }
-            // Новый выбор шашки
-            if (checkersBoard[row][col] && checkersBoard[row][col].startsWith(currentTurn)) {
-                const moves = getValidMoves(row, col);
-                if (moves.length > 0) {
-                    selectedCell = { row, col };
-                    highlightMoves = moves.map(m => ({ row: m.toRow, col: m.toCol }));
-                } else {
-                    selectedCell = null;
-                    highlightMoves = [];
-                }
-                drawBoard();
-            }
+// Новый выбор шашки
+if (checkersBoard[row][col] && checkersBoard[row][col].startsWith(currentTurn)) {
+    // Если есть обязательное взятие, разрешаем выбрать только ту фигуру, которая может бить
+    if (forcedCapture && !canCaptureFrom(row, col)) {
+        return;
+    }
+    const moves = getValidMoves(row, col);
+    if (moves.length > 0) {
+        selectedCell = { row, col };
+        // При обязательном взятии подсвечиваем только боевые ходы, иначе все доступные
+        highlightMoves = forcedCapture
+            ? moves.filter(m => m.capture).map(m => ({ row: m.toRow, col: m.toCol }))
+            : moves.map(m => ({ row: m.toRow, col: m.toCol }));
+    } else {
+        selectedCell = null;
+        highlightMoves = [];
+    }
+    drawBoard();
+}
         }
-        function executeMove(toRow, toCol, isCapture) {
-            const piece = checkersBoard[selectedCell.row][selectedCell.col];
-            checkersBoard[toRow][toCol] = piece;
-            checkersBoard[selectedCell.row][selectedCell.col] = null;
-            // Превращение в дамку
-            if (piece === 'white' && toRow === 0) checkersBoard[toRow][toCol] = 'white_king';
-            else if (piece === 'black' && toRow === 7) checkersBoard[toRow][toCol] = 'black_king';
-            if (isCapture) {
-                const midRow = (selectedCell.row + toRow) / 2;
-                const midCol = (selectedCell.col + toCol) / 2;
-                if (selectedCell.row + 2 === toRow || selectedCell.row - 2 === toRow) {
-                    checkersBoard[midRow][midCol] = null;
-                } else {
-                    // Взятие дамкой на дальнее расстояние
-                    const stepR = (toRow - selectedCell.row) > 0 ? 1 : -1;
-                    const stepC = (toCol - selectedCell.col) > 0 ? 1 : -1;
-                    let enemyRow = toRow - stepR, enemyCol = toCol - stepC;
-                    checkersBoard[enemyRow][enemyCol] = null;
-                }
-                selectedCell = null;
-                highlightMoves = [];
-                drawBoard();
-                // Проверка на продолжение взятия
-                const newMoves = getValidMoves(toRow, toCol).filter(m => m.capture);
-                if (newMoves.length > 0) {
-                    selectedCell = { row: toRow, col: toCol };
-                    highlightMoves = newMoves.map(m => ({ row: m.toRow, col: m.toCol }));
-                    drawBoard();
-                    document.getElementById('checkersStatus').textContent = `${currentTurn === 'white' ? 'Белые' : 'Чёрные'} бьют дальше`;
-                    return;
-                }
-            }
-            selectedCell = null;
-            highlightMoves = [];
-            currentTurn = currentTurn === 'white' ? 'black' : 'white';
-            document.getElementById('checkersStatus').textContent = `Ход ${currentTurn === 'white' ? 'белых' : 'чёрных'}`;
-            drawBoard();
-            // Проверка поражения
-            if (!hasAnyMoves(currentTurn)) {
-                document.getElementById('checkersStatus').textContent = `Победа ${currentTurn === 'white' ? 'чёрных' : 'белых'}!`;
-            }
-        }
+      function executeMove(toRow, toCol, isCapture) {
+    const piece = checkersBoard[selectedCell.row][selectedCell.col];
+    checkersBoard[toRow][toCol] = piece;
+    checkersBoard[selectedCell.row][selectedCell.col] = null;
+
+    // Превращение в дамку
+    if (piece === 'white' && toRow === 0) checkersBoard[toRow][toCol] = 'white_king';
+    else if (piece === 'black' && toRow === 7) checkersBoard[toRow][toCol] = 'black_king';
+
+    if (isCapture) {
+        removeCapturedPiece(selectedCell.row, selectedCell.col, toRow, toCol);
+    }
+
+    selectedCell = null;
+    highlightMoves = [];
+    drawBoard();
+
+    // Проверка на продолжение взятия той же шашкой
+    const newMoves = getValidMoves(toRow, toCol).filter(m => m.capture);
+    if (newMoves.length > 0) {
+        selectedCell = { row: toRow, col: toCol };
+        highlightMoves = newMoves.map(m => ({ row: m.toRow, col: m.toCol }));
+        drawBoard();
+        document.getElementById('checkersStatus').textContent = 
+            `${currentTurn === 'white' ? 'Белые' : 'Чёрные'} бьют дальше`;
+        return;
+    }
+
+    currentTurn = currentTurn === 'white' ? 'black' : 'white';
+    checkForcedCapture();
+    document.getElementById('checkersStatus').textContent = 
+        `Ход ${currentTurn === 'white' ? 'белых' : 'чёрных'}` +
+        (forcedCapture ? ' (должны взять!)' : '');
+    drawBoard();
+    if (!hasAnyMoves(currentTurn)) {
+        document.getElementById('checkersStatus').textContent = 
+            `Победа ${currentTurn === 'white' ? 'чёрных' : 'белых'}!`;
+    }
+}
         function getValidMoves(row, col) {
             const piece = checkersBoard[row][col];
             if (!piece) return [];
@@ -1074,6 +1093,19 @@
         }
         function resetCheckers() {
             setupBoard();
+            function checkForcedCapture() {
+    forcedCapture = false;
+    for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+            if (checkersBoard[r][c] && checkersBoard[r][c].startsWith(currentTurn)) {
+                if (canCaptureFrom(r, c)) {
+                    forcedCapture = true;
+                    return;
+                }
+            }
+        }
+    }
+}
             drawBoard();
             document.getElementById('checkersStatus').textContent = 'Ход белых';
         }
