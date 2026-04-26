@@ -1201,41 +1201,41 @@
         // Копирование email
         document.getElementById('contactEmail').addEventListener('click',()=>{ const email=document.getElementById('emailText').textContent; navigator.clipboard.writeText(email).then(()=>{ const el=document.getElementById('contactEmail'); el.innerHTML='📋 Email скопирован!'; setTimeout(()=>{el.innerHTML='📧 <span id="emailText">tape.power@outlook.com</span>';},1500); }).catch(()=>alert('Ошибка')); });
     })();
-    // Проверка на мобильное устройство
-function isMobileDevice() {
-    return /Mobi|Android|iPhone|iPad|iPod|webOS/i.test(navigator.userAgent) || window.innerWidth <= 768;
-}
-if (isMobileDevice()) {
-    const overlay = document.getElementById('mobileModal');
-    overlay.style.display = 'flex';
-    
-    document.getElementById('okMobileBtn').addEventListener('click', () => {
-        overlay.style.display = 'none';
-    });
-    
-    document.getElementById('copyLinkBtn').addEventListener('click', () => {
-        navigator.clipboard.writeText(window.location.href).then(() => {
-            alert('Ссылка скопирована! Отправьте её себе на компьютер.');
-        });
-    });
-    
-    document.getElementById('closeSiteBtn').addEventListener('click', () => {
-        window.close();
-        // Если окно не закроется (некоторые браузеры запрещают), покажем сообщение
-        setTimeout(() => alert('Закройте вкладку вручную'), 100);
-    });
-}
+        })();
 </script>
-        <div class="mobile-modal-overlay" id="mobileModal">
-    <div class="mobile-modal">
-        <h3>📱 Совет</h3>
-        <p>Для полного функционала и удобства рекомендуем зайти с ноутбука, компьютера или планшета.</p>
-        <div class="btn-row">
-            <button class="m-btn copy-btn" id="copyLinkBtn">📋 Скопировать ссылку</button>
-            <button class="m-btn ok-btn" id="okMobileBtn">✅ Окей</button>
-            <button class="m-btn close-btn" id="closeSiteBtn">🚪 Закрыть сайт</button>
+    <!-- Модальное окно (HTML) -->
+    <div class="mobile-modal-overlay" id="mobileModal">
+        <div class="mobile-modal">
+            <h3>📱 Совет</h3>
+            <p>Для полного функционала и удобства рекомендуем зайти с ноутбука, компьютера или планшета.</p>
+            <div class="btn-row">
+                <button class="m-btn copy-btn" id="copyLinkBtn">📋 Скопировать ссылку</button>
+                <button class="m-btn ok-btn" id="okMobileBtn">✅ Окей</button>
+                <button class="m-btn close-btn" id="closeSiteBtn">🚪 Закрыть сайт</button>
+            </div>
         </div>
-        </div>
-        </div>
+<!-- Скрипт проверки (идёт после модального окна) -->
+        <script>
+            function isMobileDevice() {
+                return /Mobi|Android|iPhone|iPad|iPod|webOS/i.test(navigator.userAgent) || window.innerWidth <= 768;
+            }
+            if (isMobileDevice()) {
+                const overlay = document.getElementById('mobileModal');
+                overlay.style.display = 'flex';
+                document.getElementById('okMobileBtn').addEventListener('click', () => {
+                    overlay.style.display = 'none';
+                });
+                document.getElementById('copyLinkBtn').addEventListener('click', () => {\
+                    navigator.clipboard.writeText(window.location.href).then(() => {
+                        alert('Ссылка скопирована! Отправьте её себе на компьютер.');
+                    });
+                });
+                document.getElementById('closeSiteBtn').addEventListener('click', () => {
+                    window.close();
+                    setTimeout(() => alert('Закройте вкладку вручную'), 100);
+                });
+            }
+        </script>
 </body>
 </html>
+    
