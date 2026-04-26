@@ -1201,7 +1201,6 @@
         // Копирование email
         document.getElementById('contactEmail').addEventListener('click',()=>{ const email=document.getElementById('emailText').textContent; navigator.clipboard.writeText(email).then(()=>{ const el=document.getElementById('contactEmail'); el.innerHTML='📋 Email скопирован!'; setTimeout(()=>{el.innerHTML='📧 <span id="emailText">tape.power@outlook.com</span>';},1500); }).catch(()=>alert('Ошибка')); });
     })();
-        })();
 </script>
     <!-- Модальное окно (HTML) -->
     <div class="mobile-modal-overlay" id="mobileModal">
