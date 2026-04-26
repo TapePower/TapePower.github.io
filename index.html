@@ -180,14 +180,33 @@
         .cell.disabled { pointer-events: none; opacity: 0.7; }
         .game-status { text-align: center; font-size: 1.3rem; margin-bottom: 15px; }
 
-        .game-board { display: grid; grid-template-columns: repeat(10, 50px); gap: 0; justify-content: center; margin: 20px auto; }
-        .square { width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; }
+        /* Шашки: обновлённая стилизация */
+        .game-board { display: grid; grid-template-columns: repeat(8, 52px); gap: 0; justify-content: center; margin: 20px auto; }
+        .square { width: 52px; height: 52px; display: flex; align-items: center; justify-content: center; }
         .dark-sq { background: #b58863; } .light-sq { background: #f0d9b5; }
-        .piece { width: 40px; height: 40px; border-radius: 50%; cursor: pointer; }
-        .white-piece { background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.3); }
-        .black-piece { background: #333; box-shadow: 0 2px 6px rgba(0,0,0,0.5); }
-        .king::after { content: '♛'; font-size: 28px; color: gold; display: flex; align-items: center; justify-content: center; }
-        .selected-cell { outline: 3px solid #0ea5e9; }
+        .piece {
+            width: 42px; height: 42px; border-radius: 50%;
+            cursor: pointer; position: relative;
+            transition: transform 0.15s;
+        }
+        .white-piece {
+            background: radial-gradient(circle at 35% 35%, #f8f8f8, #c0c0c0);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.4), inset 0 -3px 5px rgba(0,0,0,0.2);
+            border: 1px solid #aaa;
+        }
+        .black-piece {
+            background: radial-gradient(circle at 35% 35%, #555, #1a1a1a);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.6), inset 0 -3px 5px rgba(0,0,0,0.5);
+            border: 1px solid #333;
+        }
+        .king::after {
+            content: '♛'; font-size: 22px; color: #FFD700;
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            text-shadow: 0 0 8px black;
+        }
+        .square.selected-cell { outline: 3px solid #f1c40f; outline-offset: -2px; z-index: 2; }
+        .square.highlight-move { box-shadow: inset 0 0 0 3px rgba(46, 204, 113, 0.8); }
+        .square.highlight-capture { box-shadow: inset 0 0 0 3px rgba(231, 76, 60, 0.8); }
 
         .quote-text { font-size: 1.5rem; font-style: italic; text-align: center; margin: 20px 0; line-height: 1.4; }
         .quote-author { font-size: 1rem; text-align: center; opacity: 0.8; }
@@ -220,9 +239,9 @@
             .answers { grid-template-columns: 1fr; }
             .board { grid-template-columns: repeat(3, 80px); }
             .cell { width: 80px; height: 80px; font-size: 2rem; }
-            .game-board { grid-template-columns: repeat(10, 32px); }
-            .square { width: 32px; height: 32px; }
-            .piece { width: 28px; height: 28px; }
+            .game-board { grid-template-columns: repeat(8, 38px); }
+            .square { width: 38px; height: 38px; }
+            .piece { width: 32px; height: 32px; }
             .calc-btn { padding: 15px 5px; font-size: 1.1rem; }
         }
         /* Модальное окно для мобильных */
@@ -881,38 +900,43 @@
             renderBoard(); document.getElementById('gameStatus').textContent = `Ход: ${currentPlayer}`;
         }
 
-        // Шашки (исправленные)
+        // Шашки (исправленные правила 8x8, классические русские)
         let checkersBoard = [], selectedCell = null, currentTurn = 'white', forcedCapture = false;
+        let highlightMoves = []; // подсветка доступных ходов
         function initCheckers() {
             document.getElementById('resetCheckers').addEventListener('click', resetCheckers);
             setupBoard();
         }
         function setupBoard() {
             checkersBoard = [];
-            for (let r = 0; r < 10; r++) {
+            for (let r = 0; r < 8; r++) {
                 checkersBoard[r] = [];
-                for (let c = 0; c < 10; c++) {
+                for (let c = 0; c < 8; c++) {
                     if ((r + c) % 2 === 1) {
-                        if (r < 4) checkersBoard[r][c] = 'black';
-                        else if (r > 5) checkersBoard[r][c] = 'white';
+                        if (r < 3) checkersBoard[r][c] = 'black';
+                        else if (r > 4) checkersBoard[r][c] = 'white';
                         else checkersBoard[r][c] = null;
                     } else checkersBoard[r][c] = null;
                 }
             }
             currentTurn = 'white'; selectedCell = null; forcedCapture = false;
+            highlightMoves = [];
             drawBoard();
             document.getElementById('checkersStatus').textContent = 'Ход белых';
         }
         function drawBoard() {
             const container = document.getElementById('checkersBoard');
             container.innerHTML = '';
-            for (let r = 0; r < 10; r++) {
-                for (let c = 0; c < 10; c++) {
+            for (let r = 0; r < 8; r++) {
+                for (let c = 0; c < 8; c++) {
                     const sq = document.createElement('div');
                     sq.className = `square ${(r+c)%2===0 ? 'light-sq' : 'dark-sq'}`;
                     sq.dataset.row = r; sq.dataset.col = c;
                     if (selectedCell && r === selectedCell.row && c === selectedCell.col) {
                         sq.classList.add('selected-cell');
+                    }
+                    if (highlightMoves.some(m => m.row === r && m.col === c)) {
+                        sq.classList.add('highlight-move');
                     }
                     const piece = checkersBoard[r][c];
                     if (piece) {
@@ -931,132 +955,122 @@
         function canCaptureFrom(row, col) {
             const piece = checkersBoard[row][col];
             if (!piece) return false;
-            const isKing = piece.endsWith('_king');
-            const isWhite = piece.startsWith('white');
-            let drList = [];
-            if (isKing) { drList = [-2, 2]; }
-            else { drList = [isWhite ? -2 : 2]; }
-            for (let dr of drList) {
-                for (let dc of [-2, 2]) {
-                    const nr = row + dr, nc = col + dc;
-                    if (nr >= 0 && nr < 10 && nc >= 0 && nc < 10 && canCapture(row, col, nr, nc)) return true;
-                }
-            }
-            return false;
+            const moves = getValidMoves(row, col);
+            return moves.filter(m => m.capture).length > 0;
         }
         function onSquareClick(row, col) {
             if (selectedCell && selectedCell.row === row && selectedCell.col === col) {
-                selectedCell = null; drawBoard(); return;
-            }
-            if (selectedCell) {
-                if (canMove(selectedCell.row, selectedCell.col, row, col)) {
-                    executeMove(row, col);
-                    return;
-                } else {
-                    selectedCell = null;
-                    drawBoard();
-                    if (forcedCapture) return;
-                }
-            }
-            if (forcedCapture) {
-                if (checkersBoard[row][col] && checkersBoard[row][col].startsWith(currentTurn) && canCaptureFrom(row, col)) {
-                    selectedCell = { row, col }; drawBoard();
-                }
+                selectedCell = null;
+                highlightMoves = [];
+                drawBoard();
                 return;
             }
+            if (selectedCell && highlightMoves.some(m => m.row === row && m.col === col)) {
+                const targetMove = highlightMoves.find(m => m.row === row && m.col === col);
+                if (targetMove) {
+                    executeMove(row, col, targetMove.capture);
+                    return;
+                }
+            }
+            // Новый выбор шашки
             if (checkersBoard[row][col] && checkersBoard[row][col].startsWith(currentTurn)) {
-                selectedCell = { row, col }; drawBoard();
+                const moves = getValidMoves(row, col);
+                if (moves.length > 0) {
+                    selectedCell = { row, col };
+                    highlightMoves = moves.map(m => ({ row: m.toRow, col: m.toCol }));
+                } else {
+                    selectedCell = null;
+                    highlightMoves = [];
+                }
+                drawBoard();
             }
         }
-        function executeMove(toRow, toCol) {
+        function executeMove(toRow, toCol, isCapture) {
             const piece = checkersBoard[selectedCell.row][selectedCell.col];
             checkersBoard[toRow][toCol] = piece;
             checkersBoard[selectedCell.row][selectedCell.col] = null;
             // Превращение в дамку
-            if (piece === 'white' && toRow === 0) {
-                checkersBoard[toRow][toCol] = 'white_king';
-            } else if (piece === 'black' && toRow === 9) {
-                checkersBoard[toRow][toCol] = 'black_king';
-            }
-            if (Math.abs(toRow - selectedCell.row) === 2) {
+            if (piece === 'white' && toRow === 0) checkersBoard[toRow][toCol] = 'white_king';
+            else if (piece === 'black' && toRow === 7) checkersBoard[toRow][toCol] = 'black_king';
+            if (isCapture) {
                 const midRow = (selectedCell.row + toRow) / 2;
                 const midCol = (selectedCell.col + toCol) / 2;
-                checkersBoard[midRow][midCol] = null;
+                if (selectedCell.row + 2 === toRow || selectedCell.row - 2 === toRow) {
+                    checkersBoard[midRow][midCol] = null;
+                } else {
+                    // Взятие дамкой на дальнее расстояние
+                    const stepR = (toRow - selectedCell.row) > 0 ? 1 : -1;
+                    const stepC = (toCol - selectedCell.col) > 0 ? 1 : -1;
+                    let enemyRow = toRow - stepR, enemyCol = toCol - stepC;
+                    checkersBoard[enemyRow][enemyCol] = null;
+                }
                 selectedCell = null;
+                highlightMoves = [];
                 drawBoard();
-                checkForcedCapture();
-                if (forcedCapture && canCaptureFrom(toRow, toCol)) {
+                // Проверка на продолжение взятия
+                const newMoves = getValidMoves(toRow, toCol).filter(m => m.capture);
+                if (newMoves.length > 0) {
                     selectedCell = { row: toRow, col: toCol };
+                    highlightMoves = newMoves.map(m => ({ row: m.toRow, col: m.toCol }));
                     drawBoard();
+                    document.getElementById('checkersStatus').textContent = `${currentTurn === 'white' ? 'Белые' : 'Чёрные'} бьют дальше`;
                     return;
                 }
             }
             selectedCell = null;
+            highlightMoves = [];
             currentTurn = currentTurn === 'white' ? 'black' : 'white';
             document.getElementById('checkersStatus').textContent = `Ход ${currentTurn === 'white' ? 'белых' : 'чёрных'}`;
             drawBoard();
-            checkForcedCapture();
-            if (forcedCapture) {
-                document.getElementById('checkersStatus').textContent = `${currentTurn === 'white' ? 'Белые' : 'Чёрные'} должны взять!`;
+            // Проверка поражения
+            if (!hasAnyMoves(currentTurn)) {
+                document.getElementById('checkersStatus').textContent = `Победа ${currentTurn === 'white' ? 'чёрных' : 'белых'}!`;
             }
         }
-        function canMove(fromRow, fromCol, toRow, toCol) {
-            const piece = checkersBoard[fromRow][fromCol];
-            if (!piece) return false;
-            if (checkersBoard[toRow][toCol]) return false;
+        function getValidMoves(row, col) {
+            const piece = checkersBoard[row][col];
+            if (!piece) return [];
             const isKing = piece.endsWith('_king');
             const isWhite = piece.startsWith('white');
-            const direction = isWhite ? -1 : 1;
-            const rowDiff = toRow - fromRow;
-            const colDiff = Math.abs(toCol - fromCol);
-            if (colDiff === 1 && !isKing && rowDiff === direction) return true;
-            if (colDiff === 1 && isKing && Math.abs(rowDiff) === 1) return true;
-            if (colDiff === 2 && Math.abs(rowDiff) === 2) {
-                const midRow = (fromRow + toRow) / 2;
-                const midCol = (fromCol + toCol) / 2;
-                const opponent = isWhite ? 'black' : 'white';
-                const midPiece = checkersBoard[midRow][midCol];
-                if (midPiece && midPiece.startsWith(opponent)) {
-                    // для простых шашек направление взятия должно быть правильным
-                    if (!isKing) {
-                        if ((isWhite && rowDiff !== -2) || (!isWhite && rowDiff !== 2)) return false;
-                    }
-                    return true;
-                }
-            }
-            return false;
-        }
-        function canCapture(fromRow, fromCol, toRow, toCol) {
-            const piece = checkersBoard[fromRow][fromCol];
-            if (!piece) return false;
-            if (checkersBoard[toRow][toCol]) return false;
-            const rowDiff = toRow - fromRow;
-            const colDiff = Math.abs(toCol - fromCol);
-            if (colDiff === 2 && Math.abs(rowDiff) === 2) {
-                const isKing = piece.endsWith('_king');
-                const isWhite = piece.startsWith('white');
-                // проверка направления для простых шашек
-                if (!isKing) {
-                    if ((isWhite && rowDiff !== -2) || (!isWhite && rowDiff !== 2)) return false;
-                }
-                const midRow = (fromRow + toRow) / 2;
-                const midCol = (fromCol + toCol) / 2;
-                const opponent = isWhite ? 'black' : 'white';
-                const midPiece = checkersBoard[midRow][midCol];
-                return midPiece && midPiece.startsWith(opponent);
-            }
-            return false;
-        }
-        function checkForcedCapture() {
-            forcedCapture = false;
-            for (let r = 0; r < 10; r++) {
-                for (let c = 0; c < 10; c++) {
-                    if (checkersBoard[r][c] && checkersBoard[r][c].startsWith(currentTurn) && canCaptureFrom(r, c)) {
-                        forcedCapture = true;
-                        return;
+            const opponent = isWhite ? 'black' : 'white';
+            const moves = [];
+            const captureMoves = [];
+            const directions = [-1, 1];
+            const range = isKing ? 7 : 1;
+            for (let dr of directions) {
+                for (let dc of directions) {
+                    for (let step = 1; step <= range; step++) {
+                        const nr = row + dr * step;
+                        const nc = col + dc * step;
+                        if (nr < 0 || nr > 7 || nc < 0 || nc > 7) break;
+                        const target = checkersBoard[nr]?.[nc];
+                        if (target === null) {
+                            if (!isKing && ((isWhite && dr !== -1) || (!isWhite && dr !== 1))) continue;
+                            moves.push({ toRow: nr, toCol: nc, capture: false });
+                        } else if (target.startsWith(opponent)) {
+                            // Возможно взятие
+                            const jr = nr + dr;
+                            const jc = nc + dc;
+                            if (jr >= 0 && jr <= 7 && jc >= 0 && jc <= 7 && checkersBoard[jr][jc] === null) {
+                                captureMoves.push({ toRow: jr, toCol: jc, capture: true });
+                            }
+                            break;
+                        } else break;
                     }
                 }
             }
+            if (captureMoves.length > 0) return captureMoves;
+            return moves;
+        }
+        function hasAnyMoves(player) {
+            for (let r = 0; r < 8; r++) {
+                for (let c = 0; c < 8; c++) {
+                    if (checkersBoard[r][c] && checkersBoard[r][c].startsWith(player)) {
+                        if (getValidMoves(r, c).length > 0) return true;
+                    }
+                }
+            }
+            return false;
         }
         function resetCheckers() {
             setupBoard();
