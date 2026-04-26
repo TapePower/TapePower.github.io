@@ -1,9 +1,11 @@
+```html
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=5.0">
     <title>Unified Service</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
@@ -65,7 +67,7 @@
             border-radius: 24px; padding: 35px; box-shadow: 0 20px 50px rgba(0,0,0,0.2);
             margin-bottom: 25px; width: 100%;
         }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 15px; }
         h1, h2, h3 {
             margin: 0; font-weight: 800; letter-spacing: -1px;
             background: var(--grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
@@ -107,7 +109,7 @@
         .contact-email { text-align: center; margin-top: 40px; font-size: 1rem; color: var(--text); opacity: 0.8; cursor: pointer; }
         .contact-email a { color: var(--accent); text-decoration: none; border-bottom: 1px dashed var(--accent); }
 
-        .subtab-nav { display: flex; gap: 8px; margin-bottom: 25px; justify-content: center; }
+        .subtab-nav { display: flex; gap: 8px; margin-bottom: 25px; justify-content: center; flex-wrap: wrap; }
         .subtab-btn {
             background: var(--glass); border: 1px solid var(--glass-border);
             color: var(--text); padding: 8px 20px; border-radius: 10px;
@@ -135,16 +137,16 @@
         .flex-row input[type="number"] { width: 80px; }
         .radio-group { display: flex; gap: 20px; align-items: center; }
 
-        .home-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 25px; margin-top: 30px; }
+        .home-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; margin-top: 30px; }
         .home-card {
             background: var(--glass); border: 1px solid var(--glass-border);
-            border-radius: 24px; padding: 30px; text-align: center; cursor: pointer;
+            border-radius: 24px; padding: 25px; text-align: center; cursor: pointer;
             transition: transform 0.3s, box-shadow 0.3s; backdrop-filter: blur(10px);
         }
         .home-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.3); }
         .home-card .icon { font-size: 3rem; margin-bottom: 15px; }
-        .home-card .title { font-weight: 700; font-size: 1.3rem; margin-bottom: 8px; }
-        .home-card .desc { opacity: 0.7; font-size: 0.9rem; }
+        .home-card .title { font-weight: 700; font-size: 1.1rem; margin-bottom: 8px; }
+        .home-card .desc { opacity: 0.7; font-size: 0.85rem; }
 
         .time-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 20px; margin-top: 20px; }
         .time-card {
@@ -186,15 +188,32 @@
         .white-piece { background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.3); }
         .black-piece { background: #333; box-shadow: 0 2px 6px rgba(0,0,0,0.5); }
         .king::after { content: '♛'; font-size: 28px; color: gold; display: flex; align-items: center; justify-content: center; }
-        .selected { outline: 3px solid #0ea5e9; }
+        .selected-cell { outline: 3px solid #0ea5e9; }
 
         .quote-text { font-size: 1.5rem; font-style: italic; text-align: center; margin: 20px 0; line-height: 1.4; }
         .quote-author { font-size: 1rem; text-align: center; opacity: 0.8; }
 
+        .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 20px; }
+        .calc-btn {
+            padding: 20px 10px; font-size: 1.4rem; font-weight: 600;
+            background: var(--glass); border: 1px solid var(--glass-border);
+            border-radius: 16px; color: var(--text); cursor: pointer; transition: 0.15s;
+        }
+        .calc-btn:active { transform: scale(0.96); background: rgba(139,92,246,0.2); }
+        .calc-btn.op { color: var(--accent); }
+        .calc-btn.eq { background: var(--grad); color: white; border: none; }
+
+        .result-card { background: rgba(0,0,0,0.2); border-radius: 16px; padding: 20px; display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
+        .result-card img { width: 80px; height: 80px; border-radius: 12px; object-fit: cover; }
+        .result-info { flex: 1; }
+        .result-info h4 { margin: 0 0 5px; color: var(--text); }
+        .result-info p { margin: 2px 0; font-size: 0.9rem; opacity: 0.8; }
+        .play-btn { background: rgba(139,92,246,0.3); border: none; color: white; border-radius: 50%; width: 48px; height: 48px; cursor: pointer; font-size: 1.4rem; display: flex; align-items: center; justify-content: center; }
+
         @media (max-width: 768px) {
             body { padding: 10px; }
             .tab-nav { gap: 5px; top: 5px; }
-            .tab-btn { padding: 10px 15px; font-size: 0.85rem; border-radius: 10px; }
+            .tab-btn { padding: 8px 12px; font-size: 0.8rem; border-radius: 10px; }
             .glass-card { padding: 20px; }
             .input-group { grid-template-columns: 1fr; }
             .password-settings { flex-direction: column; }
@@ -205,6 +224,7 @@
             .game-board { grid-template-columns: repeat(10, 32px); }
             .square { width: 32px; height: 32px; }
             .piece { width: 28px; height: 28px; }
+            .calc-btn { padding: 15px 5px; font-size: 1.1rem; }
         }
     </style>
 </head>
@@ -221,6 +241,8 @@
         <button class="tab-btn" data-tab="quiz">❓ Викторина</button>
         <button class="tab-btn" data-tab="game">🎮 Игры</button>
         <button class="tab-btn" data-tab="quotes">💬 Цитаты</button>
+        <button class="tab-btn" data-tab="music">🎵 Музыка</button>
+        <button class="tab-btn" data-tab="books">📚 Книги</button>
         <button class="tab-btn" data-tab="support">✉️ Поддержка</button>
         <button class="tab-btn" data-tab="donate">❤️ Донат</button>
     </div>
@@ -231,14 +253,16 @@
             <h1 style="font-size:2.5rem; margin-bottom:10px;">Unified Service</h1>
             <p style="opacity:0.8; font-size:1.1rem;">Все нужные онлайн-инструменты в одном сервисе: быстро, удобно и без рекламы</p>
             <div class="home-grid">
-                <div class="home-card" data-goto="calc"><div class="icon">🧮</div><div class="title">Калькулятор</div><div class="desc">Решение квадратных уравнений</div></div>
-                <div class="home-card" data-goto="luck"><div class="icon">🎲</div><div class="title">Удача</div><div class="desc">Колесо фортуны и случайные числа</div></div>
-                <div class="home-card" data-goto="password"><div class="icon">🔐</div><div class="title">Генератор паролей</div><div class="desc">Надёжные пароли для всего</div></div>
-                <div class="home-card" data-goto="time"><div class="icon">🕒</div><div class="title">Мировое время</div><div class="desc">Точное время в любом городе</div></div>
+                <div class="home-card" data-goto="calc"><div class="icon">🧮</div><div class="title">Калькулятор</div><div class="desc">Уравнения и выражения</div></div>
+                <div class="home-card" data-goto="luck"><div class="icon">🎲</div><div class="title">Удача</div><div class="desc">Колесо фортуны и числа</div></div>
+                <div class="home-card" data-goto="password"><div class="icon">🔐</div><div class="title">Пароли</div><div class="desc">Надёжные пароли</div></div>
+                <div class="home-card" data-goto="time"><div class="icon">🕒</div><div class="title">Мировое время</div><div class="desc">20+ городов</div></div>
                 <div class="home-card" data-goto="translate"><div class="icon">🌐</div><div class="title">Переводчик</div><div class="desc">Русский ↔ Английский и др.</div></div>
                 <div class="home-card" data-goto="quiz"><div class="icon">❓</div><div class="title">Викторина</div><div class="desc">Страны, столицы, флаги</div></div>
                 <div class="home-card" data-goto="game"><div class="icon">🎮</div><div class="title">Игры</div><div class="desc">Крестики-нолики и шашки</div></div>
                 <div class="home-card" data-goto="quotes"><div class="icon">💬</div><div class="title">Цитаты</div><div class="desc">Мотивация на каждый день</div></div>
+                <div class="home-card" data-goto="music"><div class="icon">🎵</div><div class="title">Музыка</div><div class="desc">Поиск и прослушивание</div></div>
+                <div class="home-card" data-goto="books"><div class="icon">📚</div><div class="title">Книги</div><div class="desc">Поиск литературы</div></div>
                 <div class="home-card" data-goto="support"><div class="icon">✉️</div><div class="title">Поддержка</div><div class="desc">Свяжитесь с нами</div></div>
                 <div class="home-card" data-goto="donate"><div class="icon">❤️</div><div class="title">Поддержать</div><div class="desc">Помочь проекту</div></div>
             </div>
@@ -247,26 +271,57 @@
 
     <!-- Калькулятор -->
     <div class="tab-content" id="tab-calc">
-        <div class="container">
-            <div class="left-side">
-                <div class="glass-card">
-                    <div class="header"><h1>Решение квадратных уравнений</h1><button class="theme-btn" onclick="toggleTheme()">🌓 Тема</button></div>
-                    <div class="input-group">
-                        <input type="number" id="a" placeholder="a" step="any">
-                        <input type="number" id="b" placeholder="b" step="any">
-                        <input type="number" id="c" placeholder="c" step="any">
+        <div class="glass-card">
+            <div class="header"><h1>Калькулятор</h1><button class="theme-btn" onclick="toggleTheme()">🌓 Тема</button></div>
+            <div class="subtab-nav">
+                <button class="subtab-btn active" data-subtab="quadratic">📈 Квадратные уравнения</button>
+                <button class="subtab-btn" data-subtab="expression">🔢 Выражения</button>
+            </div>
+            <div class="subtab-content active" id="subtab-quadratic">
+                <div class="container">
+                    <div class="left-side">
+                        <div class="input-group">
+                            <input type="number" id="a" placeholder="a" step="any">
+                            <input type="number" id="b" placeholder="b" step="any">
+                            <input type="number" id="c" placeholder="c" step="any">
+                        </div>
+                        <button class="btn" onclick="calculate()">Вычислить решение</button>
+                        <div id="res-area" style="margin-top:20px;"></div>
+                        <div class="chart-wrap" style="height:300px; margin-top:30px;"><canvas id="chart"></canvas></div>
                     </div>
-                    <button class="btn" onclick="calculate()">Вычислить решение</button>
-                    <div id="res-area" style="margin-top:20px;"></div>
-                    <div class="chart-wrap" style="height:300px; margin-top:30px;"><canvas id="chart"></canvas></div>
+                    <div class="right-side">
+                        <h3 style="margin:0; color:var(--primary);">История</h3>
+                        <div id="h-list" style="max-height:400px; overflow-y:auto; margin-top:20px;"></div>
+                        <button onclick="clearHistory()" style="margin-top:20px; background:none; border:none; color:#ff4757; cursor:pointer;">Очистить</button>
+                    </div>
                 </div>
             </div>
-            <div class="right-side">
-                <div class="glass-card" style="height:100%;">
-                    <h3 style="margin:0; color:var(--primary);">История</h3>
-                    <div id="h-list" style="max-height:500px; overflow-y:auto; margin-top:20px;"></div>
-                    <button onclick="clearHistory()" style="margin-top:20px; background:none; border:none; color:#ff4757; cursor:pointer;">Очистить</button>
+            <div class="subtab-content" id="subtab-expression">
+                <input type="text" id="exprInput" placeholder="Например: (15+3)*2^3" style="font-size:1.5rem; text-align:right; margin-bottom:20px;">
+                <div class="calc-grid">
+                    <button class="calc-btn" data-action="clear">C</button>
+                    <button class="calc-btn" data-action="backspace">⌫</button>
+                    <button class="calc-btn" data-action="insert" data-value="(">(</button>
+                    <button class="calc-btn" data-action="insert" data-value=")">)</button>
+                    <button class="calc-btn" data-action="insert" data-value="7">7</button>
+                    <button class="calc-btn" data-action="insert" data-value="8">8</button>
+                    <button class="calc-btn" data-action="insert" data-value="9">9</button>
+                    <button class="calc-btn op" data-action="insert" data-value="/">÷</button>
+                    <button class="calc-btn" data-action="insert" data-value="4">4</button>
+                    <button class="calc-btn" data-action="insert" data-value="5">5</button>
+                    <button class="calc-btn" data-action="insert" data-value="6">6</button>
+                    <button class="calc-btn op" data-action="insert" data-value="*">×</button>
+                    <button class="calc-btn" data-action="insert" data-value="1">1</button>
+                    <button class="calc-btn" data-action="insert" data-value="2">2</button>
+                    <button class="calc-btn" data-action="insert" data-value="3">3</button>
+                    <button class="calc-btn op" data-action="insert" data-value="-">−</button>
+                    <button class="calc-btn" data-action="insert" data-value="0">0</button>
+                    <button class="calc-btn" data-action="insert" data-value=".">.</button>
+                    <button class="calc-btn" data-action="insert" data-value="^">^</button>
+                    <button class="calc-btn op" data-action="insert" data-value="+">+</button>
+                    <button class="calc-btn eq" data-action="evaluate" style="grid-column:span 4;">=</button>
                 </div>
+                <div id="calcResult" style="margin-top:20px; font-size:1.4rem; font-weight:700; text-align:right; color:var(--accent);"></div>
             </div>
         </div>
     </div>
@@ -353,6 +408,17 @@
                     <option value="Берлин" data-tz="Europe/Berlin"><option value="Париж" data-tz="Europe/Paris">
                     <option value="Токио" data-tz="Asia/Tokyo"><option value="Нью-Йорк" data-tz="America/New_York">
                     <option value="Сидней" data-tz="Australia/Sydney"><option value="Дубай" data-tz="Asia/Dubai">
+                    <option value="Пекин" data-tz="Asia/Shanghai"><option value="Стамбул" data-tz="Europe/Istanbul">
+                    <option value="Лос-Анджелес" data-tz="America/Los_Angeles"><option value="Чикаго" data-tz="America/Chicago">
+                    <option value="Торонто" data-tz="America/Toronto"><option value="Мехико" data-tz="America/Mexico_City">
+                    <option value="Сан-Паулу" data-tz="America/Sao_Paulo"><option value="Буэнос-Айрес" data-tz="America/Argentina/Buenos_Aires">
+                    <option value="Каир" data-tz="Africa/Cairo"><option value="Лагос" data-tz="Africa/Lagos">
+                    <option value="Кейптаун" data-tz="Africa/Johannesburg"><option value="Мадрид" data-tz="Europe/Madrid">
+                    <option value="Рим" data-tz="Europe/Rome"><option value="Амстердам" data-tz="Europe/Amsterdam">
+                    <option value="Стокгольм" data-tz="Europe/Stockholm"><option value="Вена" data-tz="Europe/Vienna">
+                    <option value="Афины" data-tz="Europe/Athens"><option value="Бангкок" data-tz="Asia/Bangkok">
+                    <option value="Гонконг" data-tz="Asia/Hong_Kong"><option value="Сингапур" data-tz="Asia/Singapore">
+                    <option value="Сеул" data-tz="Asia/Seoul"><option value="Мумбаи" data-tz="Asia/Kolkata">
                 </datalist>
                 <button class="btn" id="addCityBtn" style="width:auto; margin-top:0;">Добавить</button>
             </div>
@@ -422,6 +488,27 @@
             <div class="quote-author" id="quoteAuthor"></div>
             <button class="btn" id="newQuoteBtn">Новая цитата</button>
             <button class="btn" id="copyQuoteBtn" style="margin-top:5px;">Копировать</button>
+        </div>
+    </div>
+
+    <!-- Музыка -->
+    <div class="tab-content" id="tab-music">
+        <div class="glass-card">
+            <div class="header"><h2>Поиск музыки</h2><button class="theme-btn" onclick="toggleTheme()">🌓 Тема</button></div>
+            <input type="text" id="musicSearch" placeholder="Название трека или исполнитель...">
+            <button class="btn" id="searchMusicBtn">Искать</button>
+            <div id="musicResults" style="margin-top:20px;"></div>
+            <audio id="musicPlayer" style="display:none;"></audio>
+        </div>
+    </div>
+
+    <!-- Книги -->
+    <div class="tab-content" id="tab-books">
+        <div class="glass-card">
+            <div class="header"><h2>Поиск книг</h2><button class="theme-btn" onclick="toggleTheme()">🌓 Тема</button></div>
+            <input type="text" id="bookSearch" placeholder="Название книги или автор...">
+            <button class="btn" id="searchBooksBtn">Искать</button>
+            <div id="booksResults" style="margin-top:20px;"></div>
         </div>
     </div>
 
@@ -499,14 +586,16 @@
             if (content) content.classList.add('active');
             currentTab = tabName;
             if (tabName === 'calc' && chart) setTimeout(() => chart.resize(), 50);
-            if (tabName === 'luck' && !wheelInitialized) { initWheel(); wheelInitialized = true; }
-            if (tabName === 'password' && !passwordInitialized) { initPassword(); passwordInitialized = true; }
-            if (tabName === 'time' && !timeInitialized) { initTimeTab(); timeInitialized = true; }
-            if (tabName === 'translate' && !translateInitialized) { initTranslate(); translateInitialized = true; }
-            if (tabName === 'quiz' && !quizInitialized) { initQuiz(); quizInitialized = true; }
-            if (tabName === 'game' && !gameInitialized) { initGames(); gameInitialized = true; }
-            if (tabName === 'quotes' && !quotesInitialized) { initQuotes(); quotesInitialized = true; }
-            if (tabName === 'support' && !supportInitialized) { initSupport(); supportInitialized = true; }
+            if (tabName === 'luck' && !window._wheelInit) { initWheel(); window._wheelInit = true; }
+            if (tabName === 'password' && !window._passInit) { initPassword(); window._passInit = true; }
+            if (tabName === 'time' && !window._timeInit) { initTimeTab(); window._timeInit = true; }
+            if (tabName === 'translate' && !window._transInit) { initTranslate(); window._transInit = true; }
+            if (tabName === 'quiz' && !window._quizInit) { initQuiz(); window._quizInit = true; }
+            if (tabName === 'game' && !window._gameInit) { initGames(); window._gameInit = true; }
+            if (tabName === 'quotes' && !window._quotesInit) { initQuotes(); window._quotesInit = true; }
+            if (tabName === 'music' && !window._musicInit) { initMusic(); window._musicInit = true; }
+            if (tabName === 'books' && !window._booksInit) { initBooks(); window._booksInit = true; }
+            if (tabName === 'support' && !window._supportInit) { initSupport(); window._supportInit = true; }
         };
         tabBtns.forEach(btn => btn.addEventListener('click', () => switchTab(btn.getAttribute('data-tab'))));
         document.querySelectorAll('.home-card').forEach(card => card.addEventListener('click', () => switchTab(card.getAttribute('data-goto'))));
@@ -573,19 +662,67 @@
         window.clearHistory = function() { localStorage.removeItem('eq_history'); historyData=[]; renderHistory(); };
         window.calculate = calculate;
 
-        // Подтабы
-        const subtabBtns = document.querySelectorAll('.subtab-btn');
-        const subtabContents = document.querySelectorAll('.subtab-content');
-        subtabBtns.forEach(btn => btn.addEventListener('click', () => {
-            const st = btn.getAttribute('data-subtab');
-            subtabBtns.forEach(b=>b.classList.remove('active')); subtabContents.forEach(c=>c.classList.remove('active'));
-            btn.classList.add('active'); document.getElementById(`subtab-${st}`).classList.add('active');
-            if(st==='random' && !randomInitialized){ initRandomNumbers(); randomInitialized=true; }
-            if(st==='checkers' && !checkersInitialized){ initCheckers(); checkersInitialized=true; }
-        }));
+        // Подтабы калькулятора
+        document.querySelectorAll('#tab-calc .subtab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('#tab-calc .subtab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('#tab-calc .subtab-content').forEach(c => c.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById('subtab-' + btn.dataset.subtab).classList.add('active');
+            });
+        });
+        // Калькулятор выражений
+        const exprInput = document.getElementById('exprInput');
+        const calcResultDiv = document.getElementById('calcResult');
+        document.querySelectorAll('#subtab-expression .calc-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const action = btn.dataset.action;
+                const value = btn.dataset.value;
+                if (action === 'insert') {
+                    exprInput.value += value;
+                    exprInput.focus();
+                } else if (action === 'clear') {
+                    exprInput.value = '';
+                    calcResultDiv.textContent = '';
+                } else if (action === 'backspace') {
+                    exprInput.value = exprInput.value.slice(0, -1);
+                } else if (action === 'evaluate') {
+                    let expr = exprInput.value.trim();
+                    if (!expr) return;
+                    expr = expr.replace(/\^/g, '**');
+                    expr = expr.replace(/,/g, '.');
+                    try {
+                        const result = Function('"use strict"; return (' + expr + ')')();
+                        calcResultDiv.textContent = '= ' + (typeof result === 'number' ? Number(result.toPrecision(12)).toString() : result);
+                    } catch (e) {
+                        calcResultDiv.textContent = 'Ошибка в выражении';
+                    }
+                }
+            });
+        });
+        exprInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                document.querySelector('#subtab-expression .calc-btn[data-action="evaluate"]').click();
+            }
+        });
+
+        // Подтабы общие
+        function setupSubtabs(parentSelector) {
+            document.querySelectorAll(parentSelector + ' .subtab-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll(parentSelector + ' .subtab-btn').forEach(b => b.classList.remove('active'));
+                    document.querySelectorAll(parentSelector + ' .subtab-content').forEach(c => c.classList.remove('active'));
+                    btn.classList.add('active');
+                    const subtabId = 'subtab-' + btn.dataset.subtab;
+                    document.getElementById(subtabId).classList.add('active');
+                    if (btn.dataset.subtab === 'checkers' && !window._checkersInit) { initCheckers(); window._checkersInit = true; }
+                });
+            });
+        }
+        setupSubtabs('#tab-luck');
+        setupSubtabs('#tab-game');
 
         // Колесо
-        let wheelInitialized = false;
         const defaultColors = ['#FF6384','#36A2EB','#FFCE56','#4BC0C0','#9966FF','#FF9F40','#C9CBCF','#7BC8A4','#E74C3C','#3498DB','#2ECC71','#F1C40F','#9B59B6','#1ABC9C','#E67E22','#34495E'];
         let sectors=[], wheelAngle=0, spinning=false, lastTickAngle=0, audioCtx=null;
         function getAudioContext() { if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
@@ -596,29 +733,25 @@
         function spinWheel(){ if(spinning||sectors.length===0)return; spinning=true; document.getElementById('wheelResult').textContent='...'; const spinVel=Math.random()*10+15,addAngle=Math.random()*2*Math.PI; const target=wheelAngle+spinVel*3+addAngle; const start=wheelAngle,startTime=performance.now(),duration=3000; lastTickAngle=start; function animate(now){ const p=Math.min((now-startTime)/duration,1); const ease=1-Math.pow(1-p,3); wheelAngle=(start+(target-start)*ease)%(2*Math.PI); drawWheel(wheelAngle); const arc=(2*Math.PI)/sectors.length; if(Math.abs(wheelAngle-lastTickAngle)>=arc){playTick(); lastTickAngle=wheelAngle-(Math.abs(wheelAngle-lastTickAngle)%arc);} if(p<1)requestAnimationFrame(animate); else{ const norm=((wheelAngle%(2*Math.PI))+2*Math.PI)%(2*Math.PI); const pointer=(3*Math.PI/2)%(2*Math.PI); const idx=Math.floor(((pointer-norm+2*Math.PI)%(2*Math.PI))/arc)%sectors.length; document.getElementById('wheelResult').textContent=`Выпало: ${sectors[idx].label}`; spinning=false; } } requestAnimationFrame(animate); }
 
         // Случайные числа
-        let randomInitialized=false;
         function initRandomNumbers(){ document.getElementById('generateRandomBtn').addEventListener('click',generateRandomNumbers); document.getElementById('saveRandomBtn').addEventListener('click',saveRandomNumbers); document.querySelectorAll('input[name="randomSource"]').forEach(r=>r.addEventListener('change',toggleSource)); toggleSource(); generateRandomNumbers(); }
         function toggleSource(){ const isRange=document.querySelector('input[name="randomSource"]:checked').value==='range'; document.getElementById('rangeInputs').style.display=isRange?'flex':'none'; document.getElementById('listInput').style.display=isRange?'none':'block'; }
         function generateRandomNumbers(){ const count=parseInt(document.getElementById('randomCount').value)||8; const isRange=document.querySelector('input[name="randomSource"]:checked').value==='range'; const noRepeat=document.getElementById('noRepeat').checked; let pool=[]; if(isRange){ const min=parseInt(document.getElementById('rangeMin').value)||1; const max=parseInt(document.getElementById('rangeMax').value)||100; for(let i=min;i<=max;i++) pool.push(i); }else{ const listStr=document.getElementById('customList').value; pool=listStr.split(',').map(s=>parseInt(s.trim())).filter(n=>!isNaN(n)); } const excludeEnabled=document.getElementById('excludeEnabled').checked; if(excludeEnabled){ const exc=document.getElementById('excludeList').value.split(',').map(s=>parseInt(s.trim())).filter(n=>!isNaN(n)); pool=pool.filter(n=>!exc.includes(n)); } if(pool.length===0){ document.getElementById('randomNumbersDisplay').textContent='Нет доступных чисел'; return; } if(noRepeat&&count>pool.length){ document.getElementById('randomNumbersDisplay').textContent=`Ошибка: без повторов можно выбрать максимум ${pool.length} чисел`; return; } let result; if(noRepeat){ const shuffled=[...pool].sort(()=>Math.random()-0.5); result=shuffled.slice(0,count); }else{ result=Array.from({length:count},()=>pool[Math.floor(Math.random()*pool.length)]); } document.getElementById('randomNumbersDisplay').textContent=result.join(' '); }
         function saveRandomNumbers(){ const text=document.getElementById('randomNumbersDisplay').textContent; navigator.clipboard.writeText(text).then(()=>alert('Числа скопированы')).catch(()=>alert('Ошибка')); }
 
         // Пароли
-        let passwordInitialized=false;
         const ambiguousChars='I1l0o00sS5';
         function initPassword(){ document.getElementById('generateBtn').addEventListener('click',generatePasswords); generatePasswords(); }
         function generatePasswords(){ const lenInput=document.getElementById('passLength'),cntInput=document.getElementById('passCount'); let length=parseInt(lenInput.value)||10,count=parseInt(cntInput.value)||10; const errDiv=document.getElementById('passwordError'); errDiv.textContent=''; if(length>35){errDiv.textContent='Максимальная длина пароля — 35';lenInput.value=35;length=35;} if(count>99){errDiv.textContent='Максимальное количество — 99';cntInput.value=99;count=99;} const useUpper=document.getElementById('useUpper').checked,useLower=document.getElementById('useLower').checked,useDigits=document.getElementById('useDigits').checked,useSpace=document.getElementById('useSpace').checked,useSep=document.getElementById('useSeparators').checked,useSpec=document.getElementById('useSpecial').checked,exclAmb=document.getElementById('excludeAmbiguous').checked; let chars=''; if(useUpper)chars+='ABCDEFGHIJKLMNOPQRSTUVWXYZ'; if(useLower)chars+='abcdefghijklmnopqrstuvwxyz'; if(useDigits)chars+='0123456789'; if(useSpace)chars+=' '; if(useSep)chars+='-_'; if(useSpec)chars+='~!@#$%^&*()+'; if(chars.length===0){alert('Выберите хотя бы один набор символов');return;} if(exclAmb)chars=chars.split('').filter(c=>!ambiguousChars.includes(c)).join(''); const pwd=[]; for(let i=0;i<count;i++){ let s=''; for(let j=0;j<length;j++) s+=chars[Math.floor(Math.random()*chars.length)]; pwd.push(s); } const now=new Date(); const utc3=new Date(now.getTime()+3*60*60*1000); document.getElementById('timestamp').textContent=`Сгенерировано ${utc3.toISOString().replace('T',' ').replace(/\.\d+Z$/,' UTC+3')}`; const tbody=document.querySelector('#passwordsTable tbody'); tbody.innerHTML=''; for(let i=0;i<pwd.length;i+=3){ const row=document.createElement('tr'); for(let j=0;j<3;j++){ const td=document.createElement('td'); td.textContent=pwd[i+j]||''; td.addEventListener('click',(e)=>{ if(e.target.textContent){ navigator.clipboard.writeText(e.target.textContent).then(()=>alert('Пароль скопирован')).catch(()=>alert('Ошибка')); } }); row.appendChild(td); } tbody.appendChild(row); } }
 
         // Время
-        let timeInitialized=false;
         const defaultCities = [
-            { city: 'Москва', tz: 'Europe/Moscow' },
-            { city: 'Лондон', tz: 'Europe/London' },
-            { city: 'Нью-Йорк', tz: 'America/New_York' },
-            { city: 'Токио', tz: 'Asia/Tokyo' },
-            { city: 'Берлин', tz: 'Europe/Berlin' },
-            { city: 'Париж', tz: 'Europe/Paris' },
-            { city: 'Сидней', tz: 'Australia/Sydney' },
-            { city: 'Дубай', tz: 'Asia/Dubai' }
+            { city: 'Москва', tz: 'Europe/Moscow' },{ city: 'Лондон', tz: 'Europe/London' },
+            { city: 'Нью-Йорк', tz: 'America/New_York' },{ city: 'Токио', tz: 'Asia/Tokyo' },
+            { city: 'Берлин', tz: 'Europe/Berlin' },{ city: 'Париж', tz: 'Europe/Paris' },
+            { city: 'Сидней', tz: 'Australia/Sydney' },{ city: 'Дубай', tz: 'Asia/Dubai' },
+            { city: 'Пекин', tz: 'Asia/Shanghai' },{ city: 'Стамбул', tz: 'Europe/Istanbul' },
+            { city: 'Лос-Анджелес', tz: 'America/Los_Angeles' },{ city: 'Сан-Паулу', tz: 'America/Sao_Paulo' },
+            { city: 'Сеул', tz: 'Asia/Seoul' },{ city: 'Бангкок', tz: 'Asia/Bangkok' }
         ];
         function initTimeTab() {
             document.getElementById('addCityBtn').addEventListener('click', addCity);
@@ -660,13 +793,11 @@
         }
 
         // Перевод
-        let translateInitialized=false;
         function initTranslate(){ document.getElementById('translateBtn').addEventListener('click',translateText); document.getElementById('copyTranslationBtn').addEventListener('click', copyTranslation); }
         async function translateText(){ const text=document.getElementById('translateInput').value.trim(); if(!text)return; const from = document.getElementById('langFrom').value; const to = document.getElementById('langTo').value; const langpair = `${from}|${to}`; const url=`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${langpair}`; try{ const response=await fetch(url); const data=await response.json(); if(data.responseStatus && data.responseStatus !== 200) { document.getElementById('translatedText').textContent = 'Ошибка перевода: ' + data.responseDetails; } else { document.getElementById('translatedText').textContent = data.responseData.translatedText || 'Перевод не получен'; } }catch(e){ document.getElementById('translatedText').textContent='Ошибка сети'; } }
         function copyTranslation() { const translated = document.getElementById('translatedText').textContent; if (translated && translated !== 'Ошибка перевода' && translated !== 'Ошибка сети') { navigator.clipboard.writeText(translated).then(()=>alert('Перевод скопирован')).catch(()=>alert('Ошибка')); } }
 
         // Викторина
-        let quizInitialized=false;
         const countries = [
             {country:'Россия',capital:'Москва',code:'ru'},{country:'США',capital:'Вашингтон',code:'us'},{country:'Китай',capital:'Пекин',code:'cn'},{country:'Япония',capital:'Токио',code:'jp'},{country:'Германия',capital:'Берлин',code:'de'},{country:'Франция',capital:'Париж',code:'fr'},{country:'Великобритания',capital:'Лондон',code:'gb'},{country:'Италия',capital:'Рим',code:'it'},{country:'Испания',capital:'Мадрид',code:'es'},{country:'Канада',capital:'Оттава',code:'ca'},{country:'Бразилия',capital:'Бразилиа',code:'br'},{country:'Индия',capital:'Нью-Дели',code:'in'},{country:'Австралия',capital:'Канберра',code:'au'},{country:'ЮАР',capital:'Претория',code:'za'},{country:'Мексика',capital:'Мехико',code:'mx'},{country:'Аргентина',capital:'Буэнос-Айрес',code:'ar'},{country:'Египет',capital:'Каир',code:'eg'},{country:'Турция',capital:'Анкара',code:'tr'},{country:'Южная Корея',capital:'Сеул',code:'kr'},{country:'Швеция',capital:'Стокгольм',code:'se'},{country:'Норвегия',capital:'Осло',code:'no'},{country:'Нидерланды',capital:'Амстердам',code:'nl'},{country:'Греция',capital:'Афины',code:'gr'},{country:'Польша',capital:'Варшава',code:'pl'},{country:'Украина',capital:'Киев',code:'ua'},{country:'Чехия',capital:'Прага',code:'cz'},{country:'Швейцария',capital:'Берн',code:'ch'},{country:'Австрия',capital:'Вена',code:'at'},{country:'Ирландия',capital:'Дублин',code:'ie'},{country:'Таиланд',capital:'Бангкок',code:'th'}
         ];
@@ -677,11 +808,10 @@
         function nextQuiz(){ answered=false; document.getElementById('nextQuizBtn').style.display='none'; const answersDiv=document.getElementById('quizAnswers'); answersDiv.innerHTML=''; const mode = quizModes[quizModeIndex % 3]; quizModeIndex++; const correctIndex=Math.floor(Math.random()*countries.length); const correct=countries[correctIndex]; const variants=[correct]; while(variants.length<4){ const rnd=countries[Math.floor(Math.random()*countries.length)]; if(!variants.includes(rnd)) variants.push(rnd); } shuffleArray(variants); let questionHTML=''; if(mode==='flag-to-country'){ questionHTML=`Какой стране принадлежит флаг <img src="https://flagcdn.com/48x36/${correct.code}.png" style="width:48px;height:36px;vertical-align:middle;">?`; } else if(mode==='country-to-capital'){ questionHTML=`Какая столица у страны ${correct.country}?`; } else { questionHTML=`Какой стране принадлежит столица ${correct.capital}?`; } document.getElementById('quizQuestion').innerHTML=questionHTML; currentAnswer=correct; variants.forEach(v=>{ const btn=document.createElement('div'); btn.className='answer-btn'; btn.textContent = (mode==='country-to-capital')? v.capital : v.country; btn.addEventListener('click',()=>selectAnswer(v)); answersDiv.appendChild(btn); }); }
         function selectAnswer(selected){ if(answered) return; answered=true; const buttons=document.querySelectorAll('.answer-btn'); buttons.forEach(b=>b.style.pointerEvents='none'); if(selected===currentAnswer){ quizScore[0]++; const correctBtn = Array.from(buttons).find(b=>b.textContent=== (quizModes[(quizModeIndex-1)%3]==='country-to-capital'?selected.capital:selected.country)); if(correctBtn) correctBtn.classList.add('correct'); }else{ quizScore[1]++; const correctBtn = Array.from(buttons).find(b=>b.textContent=== (quizModes[(quizModeIndex-1)%3]==='country-to-capital'?currentAnswer.capital:currentAnswer.country)); if(correctBtn) correctBtn.classList.add('correct'); const wrongBtn = Array.from(buttons).find(b=>b.textContent=== (quizModes[(quizModeIndex-1)%3]==='country-to-capital'?selected.capital:selected.country)); if(wrongBtn) wrongBtn.classList.add('wrong'); } document.getElementById('quizScore').textContent=`Правильно: ${quizScore[0]} / ${quizScore[0]+quizScore[1]}`; document.getElementById('nextQuizBtn').style.display='block'; }
 
-        // Игры: крестики-нолики + шашки
-        let gameInitialized = false;
+        // Игры
         function initGames() {
             initTicTacToe();
-            if (!checkersInitialized) { initCheckers(); checkersInitialized = true; }
+            if (!window._checkersInit) { initCheckers(); window._checkersInit = true; }
         }
         // Крестики-нолики
         let board, currentPlayer, gameActive;
@@ -728,7 +858,6 @@
         }
 
         // Шашки (исправленные)
-        let checkersInitialized = false;
         let checkersBoard = [], selectedCell = null, currentTurn = 'white', forcedCapture = false;
         function initCheckers() {
             document.getElementById('resetCheckers').addEventListener('click', resetCheckers);
@@ -758,6 +887,9 @@
                     const sq = document.createElement('div');
                     sq.className = `square ${(r+c)%2===0 ? 'light-sq' : 'dark-sq'}`;
                     sq.dataset.row = r; sq.dataset.col = c;
+                    if (selectedCell && r === selectedCell.row && c === selectedCell.col) {
+                        sq.classList.add('selected-cell');
+                    }
                     const piece = checkersBoard[r][c];
                     if (piece) {
                         const pieceEl = document.createElement('div');
@@ -770,25 +902,40 @@
                 }
             }
         }
-        function onSquareClick(row, col) {
-            if (forcedCapture) {
-                if (!selectedCell || !canCapture(selectedCell.row, selectedCell.col, row, col)) {
-                    selectedCell = null; drawBoard(); return;
+        function canCaptureFrom(row, col) {
+            const piece = checkersBoard[row][col];
+            if (!piece) return false;
+            const directions = piece === 'white' ? [-1, -2] : [1, 2];
+            for (let dr of [-2, 2]) {
+                for (let dc of [-2, 2]) {
+                    const nr = row + dr, nc = col + dc;
+                    if (nr >= 0 && nr < 10 && nc >= 0 && nc < 10 && canCapture(row, col, nr, nc)) return true;
                 }
-                executeMove(row, col);
-                return;
             }
+            return false;
+        }
+        function onSquareClick(row, col) {
             if (selectedCell && selectedCell.row === row && selectedCell.col === col) {
                 selectedCell = null; drawBoard(); return;
             }
-            if (checkersBoard[row][col] === currentTurn && !selectedCell) {
-                selectedCell = { row, col }; drawBoard(); return;
-            }
-            if (selectedCell && !checkersBoard[row][col]) {
+            if (selectedCell) {
                 if (canMove(selectedCell.row, selectedCell.col, row, col)) {
                     executeMove(row, col);
+                    return;
+                } else {
+                    selectedCell = null;
+                    drawBoard();
+                    if (forcedCapture) return;
                 }
-                selectedCell = null; drawBoard();
+            }
+            if (forcedCapture) {
+                if (checkersBoard[row][col] === currentTurn && canCaptureFrom(row, col)) {
+                    selectedCell = { row, col }; drawBoard();
+                }
+                return;
+            }
+            if (checkersBoard[row][col] === currentTurn) {
+                selectedCell = { row, col }; drawBoard();
             }
         }
         function executeMove(toRow, toCol) {
@@ -799,21 +946,29 @@
                 const midRow = (selectedCell.row + toRow) / 2;
                 const midCol = (selectedCell.col + toCol) / 2;
                 checkersBoard[midRow][midCol] = null;
+                selectedCell = null;
+                drawBoard();
+                checkForcedCapture();
+                if (forcedCapture && canCaptureFrom(toRow, toCol)) {
+                    selectedCell = { row: toRow, col: toCol };
+                    drawBoard();
+                    return;
+                }
             }
-            if ((piece === 'white' && toRow === 0) || (piece === 'black' && toRow === 9)) {
-                const pieceEl = document.querySelector(`[data-row='${toRow}'][data-col='${toCol}'] .piece`);
-                if (pieceEl) pieceEl.classList.add('king');
-            }
+            selectedCell = null;
             currentTurn = currentTurn === 'white' ? 'black' : 'white';
             document.getElementById('checkersStatus').textContent = `Ход ${currentTurn === 'white' ? 'белых' : 'чёрных'}`;
-            selectedCell = null;
             drawBoard();
             checkForcedCapture();
+            if (forcedCapture) {
+                document.getElementById('checkersStatus').textContent = `${currentTurn === 'white' ? 'Белые' : 'Чёрные'} должны взять!`;
+            }
         }
         function canMove(fromRow, fromCol, toRow, toCol) {
             const piece = checkersBoard[fromRow][fromCol];
             if (!piece) return false;
-            const isKing = (piece === 'white' && fromRow === 0) || (piece === 'black' && fromRow === 9);
+            if (checkersBoard[toRow][toCol]) return false;
+            const isKing = (piece === 'white' && fromRow === 0) || (piece === 'black' && fromRow === 9) || piece.classList?.contains('king');
             const direction = piece === 'white' ? -1 : 1;
             const rowDiff = toRow - fromRow;
             const colDiff = Math.abs(toCol - fromCol);
@@ -830,7 +985,7 @@
         function canCapture(fromRow, fromCol, toRow, toCol) {
             const piece = checkersBoard[fromRow][fromCol];
             if (!piece) return false;
-            const isKing = (piece === 'white' && fromRow === 0) || (piece === 'black' && fromRow === 9);
+            if (checkersBoard[toRow][toCol]) return false;
             const rowDiff = toRow - fromRow;
             const colDiff = Math.abs(toCol - fromCol);
             if (colDiff === 2 && Math.abs(rowDiff) === 2) {
@@ -845,16 +1000,9 @@
             forcedCapture = false;
             for (let r = 0; r < 10; r++) {
                 for (let c = 0; c < 10; c++) {
-                    if (checkersBoard[r][c] === currentTurn) {
-                        const directions = currentTurn === 'white' ? [-1] : [1];
-                        for (const dr of directions) {
-                            for (const dc of [-2, 2]) {
-                                if (canCapture(r, c, r + dr*2, c + dc)) {
-                                    forcedCapture = true;
-                                    return;
-                                }
-                            }
-                        }
+                    if (checkersBoard[r][c] === currentTurn && canCaptureFrom(r, c)) {
+                        forcedCapture = true;
+                        return;
                     }
                 }
             }
@@ -865,8 +1013,7 @@
             document.getElementById('checkersStatus').textContent = 'Ход белых';
         }
 
-        // Цитаты (расширенные)
-        let quotesInitialized = false;
+        // Цитаты
         const quotes = [
             { text: "Будь собой, остальные роли уже заняты.", author: "Оскар Уайльд" },
             { text: "Жизнь — это то, что с тобой происходит, пока ты строишь другие планы.", author: "Джон Леннон" },
@@ -877,14 +1024,132 @@
             { text: "Всегда выбирайте самый сложный путь — на нем вы не встретите конкурентов.", author: "Шарль де Голль" },
             { text: "Неудача — это просто возможность начать снова, но уже более мудро.", author: "Генри Форд" },
             { text: "Лучшее время посадить дерево было 20 лет назад. Второе лучшее время — сегодня.", author: "Китайская пословица" },
-            { text: "Если вы думаете, что на что-то способны, вы правы; если думаете, что нет — вы тоже правы.", author: "Генри Форд" }
+            { text: "Если вы думаете, что на что-то способны, вы правы; если думаете, что нет — вы тоже правы.", author: "Генри Форд" },
+            { text: "Жизнь — это то, что с тобой происходит, пока ты строишь планы.", author: "Джон Леннон" },
+            { text: "Тот, кто не ошибается, не делает ничего нового.", author: "Теодор Рузвельт" },
+            { text: "Успех — это способность идти от неудачи к неудаче, не теряя энтузиазма.", author: "Уинстон Черчилль" },
+            { text: "Чтобы написать хорошую книгу, сначала нужно стать хорошим человеком.", author: "Александр Солженицын" },
+            { text: "Человек есть то, что он думает о себе.", author: "Марк Аврелий" },
+            { text: "Самое важное в общении — услышать то, что не было сказано.", author: "Питер Друкер" },
+            { text: "Если хочешь изменить мир, начни с себя.", author: "Махатма Ганди" },
+            { text: "Великие дела совершаются не силой, а упорством.", author: "Сэмюэл Джонсон" },
+            { text: "Счастье не зависит от внешних условий; оно зависит от внутреннего состояния.", author: "Дейл Карнеги" },
+            { text: "Лучший способ предсказать будущее — создать его.", author: "Питер Друкер" },
+            { text: "Знание — сила.", author: "Фрэнсис Бэкон" },
+            { text: "Сомнение убивает больше мечтаний, чем неудача.", author: "Сьюзи Кассем" },
+            { text: "Либо ты управляешь днем, либо день управляет тобой.", author: "Джим Рон" },
+            { text: "Не бойся медлить, бойся остановиться.", author: "Китайская пословица" },
+            { text: "Мудрый не тот, кто много знает, а тот, кто знает нужное.", author: "Эсхил" },
+            { text: "Пока человек не сдается, он сильнее своей судьбы.", author: "Эрих Мария Ремарк" },
+            { text: "Красота начинается в тот момент, когда ты решаешь быть собой.", author: "Коко Шанель" },
+            { text: "Мы сами создаем себе и счастье, и несчастье.", author: "Софокл" },
+            { text: "Тот, кто хочет — ищет возможности, кто не хочет — ищет причины.", author: "Сократ" },
+            { text: "Неважно, как медленно ты идешь, пока ты не останавливаешься.", author: "Конфуций" },
+            { text: "Чем больше я работаю, тем удачливее становлюсь.", author: "Томас Джефферсон" },
+            { text: "Мужество — это сопротивление страху, а не его отсутствие.", author: "Марк Твен" },
+            { text: "То, что нас не убивает, делает нас сильнее.", author: "Фридрих Ницше" },
+            { text: "Время — лучший учитель, но, к сожалению, оно убивает своих учеников.", author: "Гектор Берлиоз" },
+            { text: "Надо жить так, чтобы не было стыдно за бесцельно прожитые годы.", author: "Николай Островский" },
+            { text: "Невозможно — это просто громкое слово.", author: "Мухаммед Али" },
+            { text: "Мечты не работают, пока не работаешь ты.", author: "Джон С. Максвелл" },
+            { text: "Чем меньше у человека есть, тем меньше ему нужно.", author: "Лев Толстой" },
+            { text: "Ни один ветер не будет попутным тому, кто не знает, куда плывет.", author: "Сенека" }
         ];
         function initQuotes() { document.getElementById('newQuoteBtn').addEventListener('click', showRandomQuote); document.getElementById('copyQuoteBtn').addEventListener('click', copyQuote); showRandomQuote(); }
         function showRandomQuote() { const q = quotes[Math.floor(Math.random() * quotes.length)]; document.getElementById('quoteText').textContent = `«${q.text}»`; document.getElementById('quoteAuthor').textContent = `— ${q.author}`; }
         function copyQuote() { const text = document.getElementById('quoteText').textContent + ' ' + document.getElementById('quoteAuthor').textContent; navigator.clipboard.writeText(text).then(()=>alert('Цитата скопирована')).catch(()=>alert('Ошибка')); }
 
+        // Музыка
+        let currentAudio = null;
+        function initMusic() {
+            document.getElementById('searchMusicBtn').addEventListener('click', searchMusic);
+            document.getElementById('musicSearch').addEventListener('keydown', (e) => { if (e.key === 'Enter') searchMusic(); });
+        }
+        async function searchMusic() {
+            const query = document.getElementById('musicSearch').value.trim();
+            if (!query) return;
+            const resultsDiv = document.getElementById('musicResults');
+            resultsDiv.innerHTML = 'Загрузка...';
+            try {
+                const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&limit=10&media=music`);
+                const data = await res.json();
+                if (!data.results || data.results.length === 0) {
+                    resultsDiv.innerHTML = 'Ничего не найдено.';
+                    return;
+                }
+                let html = '';
+                data.results.forEach(track => {
+                    html += `<div class="result-card">
+                        <img src="${track.artworkUrl100}" alt="${track.trackName}">
+                        <div class="result-info">
+                            <h4>${track.trackName}</h4>
+                            <p>${track.artistName} · ${track.collectionName || 'Сингл'}</p>
+                        </div>
+                        <button class="play-btn" data-preview="${track.previewUrl || ''}">▶️</button>
+                    </div>`;
+                });
+                resultsDiv.innerHTML = html;
+                document.querySelectorAll('.play-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const url = btn.dataset.preview;
+                        if (!url) { alert('Нет превью для этого трека'); return; }
+                        if (currentAudio && currentAudio.src === url) {
+                            if (currentAudio.paused) currentAudio.play();
+                            else currentAudio.pause();
+                            return;
+                        }
+                        if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+                        const audio = new Audio(url);
+                        audio.play();
+                        currentAudio = audio;
+                        btn.textContent = '⏸️';
+                        audio.addEventListener('ended', () => { btn.textContent = '▶️'; currentAudio = null; });
+                        audio.addEventListener('pause', () => { btn.textContent = '▶️'; if (currentAudio === audio) currentAudio = null; });
+                    });
+                });
+            } catch (e) {
+                resultsDiv.innerHTML = 'Ошибка загрузки.';
+            }
+        }
+
+        // Книги
+        function initBooks() {
+            document.getElementById('searchBooksBtn').addEventListener('click', searchBooks);
+            document.getElementById('bookSearch').addEventListener('keydown', (e) => { if (e.key === 'Enter') searchBooks(); });
+        }
+        async function searchBooks() {
+            const query = document.getElementById('bookSearch').value.trim();
+            if (!query) return;
+            const resultsDiv = document.getElementById('booksResults');
+            resultsDiv.innerHTML = 'Загрузка...';
+            try {
+                const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&maxResults=10`);
+                const data = await res.json();
+                if (!data.items || data.items.length === 0) {
+                    resultsDiv.innerHTML = 'Ничего не найдено.';
+                    return;
+                }
+                let html = '';
+                data.items.forEach(item => {
+                    const info = item.volumeInfo;
+                    const thumbnail = info.imageLinks?.thumbnail || '';
+                    html += `<div class="result-card">
+                        ${thumbnail ? `<img src="${thumbnail}" alt="${info.title}">` : '<div style="width:80px;height:80px;background:rgba(255,255,255,0.1);border-radius:12px;"></div>'}
+                        <div class="result-info">
+                            <h4>${info.title}</h4>
+                            <p>${info.authors ? info.authors.join(', ') : 'Автор неизвестен'} · ${info.publishedDate || ''}</p>
+                            <p style="font-size:0.8rem;">${info.description ? info.description.substring(0, 150) + '...' : ''}</p>
+                        </div>
+                        ${info.infoLink ? `<a href="${info.infoLink}" target="_blank" style="color:var(--accent); text-decoration:none;">Подробнее</a>` : ''}
+                    </div>`;
+                });
+                resultsDiv.innerHTML = html;
+            } catch (e) {
+                resultsDiv.innerHTML = 'Ошибка загрузки.';
+            }
+        }
+
         // Поддержка
-        let supportInitialized = false;
         function initSupport() {
             const form = document.getElementById('supportForm');
             form.addEventListener('submit', async (e) => {
@@ -920,3 +1185,4 @@
 </script>
 </body>
 </html>
+```
