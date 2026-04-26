@@ -146,8 +146,14 @@
         .home-card .title { font-weight: 700; font-size: 1.3rem; margin-bottom: 8px; }
         .home-card .desc { opacity: 0.7; font-size: 0.9rem; }
 
-        .time-display { font-size: 2.5rem; font-weight: 700; text-align: center; margin: 20px 0; font-feature-settings: "tnum"; }
-        .date-display { font-size: 1.2rem; opacity: 0.8; text-align: center; }
+        .time-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 20px; margin-top: 20px; }
+        .time-card {
+            background: var(--glass); border: 1px solid var(--glass-border);
+            border-radius: 20px; padding: 20px; text-align: center;
+        }
+        .time-card .city { font-weight: 600; font-size: 1.1rem; }
+        .time-card .time { font-size: 1.6rem; font-weight: 700; margin-top: 8px; }
+        .time-card .date { font-size: 0.85rem; opacity: 0.8; margin-top: 4px; }
 
         .quiz-question { font-size: 2rem; text-align: center; margin: 20px 0; }
         .answers { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0; }
@@ -161,7 +167,6 @@
         .answer-btn.wrong { background: #e74c3c; color: #fff; }
         .quiz-score { font-size: 1.2rem; text-align: center; margin-bottom: 15px; }
 
-        /* Крестики-нолики */
         .board { display: grid; grid-template-columns: repeat(3, 100px); gap: 10px; justify-content: center; margin: 20px 0; }
         .cell {
             width: 100px; height: 100px; background: var(--glass);
@@ -174,12 +179,17 @@
         .cell.disabled { pointer-events: none; opacity: 0.7; }
         .game-status { text-align: center; font-size: 1.3rem; margin-bottom: 15px; }
 
+        .game-board { display: grid; grid-template-columns: repeat(10, 50px); gap: 0; justify-content: center; margin: 20px auto; }
+        .square { width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; }
+        .dark-sq { background: #b58863; } .light-sq { background: #f0d9b5; }
+        .piece { width: 40px; height: 40px; border-radius: 50%; cursor: pointer; }
+        .white-piece { background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.3); }
+        .black-piece { background: #333; box-shadow: 0 2px 6px rgba(0,0,0,0.5); }
+        .king::after { content: '♛'; font-size: 28px; color: gold; display: flex; align-items: center; justify-content: center; }
+        .selected { outline: 3px solid #0ea5e9; }
+
         .quote-text { font-size: 1.5rem; font-style: italic; text-align: center; margin: 20px 0; line-height: 1.4; }
         .quote-author { font-size: 1rem; text-align: center; opacity: 0.8; }
-
-        /* Поддержка */
-        .support-form { display: flex; flex-direction: column; gap: 15px; max-width: 500px; margin: 0 auto; }
-        .support-form input, .support-form textarea { font-size: 1rem; }
 
         @media (max-width: 768px) {
             body { padding: 10px; }
@@ -189,13 +199,12 @@
             .input-group { grid-template-columns: 1fr; }
             .password-settings { flex-direction: column; }
             .home-grid { grid-template-columns: 1fr 1fr; }
-            .time-display { font-size: 2rem; }
-            .author-tag { font-size: 1.1rem; }
-            .online-counter { font-size: 0.8rem; padding: 5px 12px; }
             .answers { grid-template-columns: 1fr; }
             .board { grid-template-columns: repeat(3, 80px); }
             .cell { width: 80px; height: 80px; font-size: 2rem; }
-            .quote-text { font-size: 1.2rem; }
+            .game-board { grid-template-columns: repeat(10, 32px); }
+            .square { width: 32px; height: 32px; }
+            .piece { width: 28px; height: 28px; }
         }
     </style>
 </head>
@@ -228,7 +237,7 @@
                 <div class="home-card" data-goto="time"><div class="icon">🕒</div><div class="title">Мировое время</div><div class="desc">Точное время в любом городе</div></div>
                 <div class="home-card" data-goto="translate"><div class="icon">🌐</div><div class="title">Переводчик</div><div class="desc">Русский ↔ Английский и др.</div></div>
                 <div class="home-card" data-goto="quiz"><div class="icon">❓</div><div class="title">Викторина</div><div class="desc">Страны, столицы, флаги</div></div>
-                <div class="home-card" data-goto="game"><div class="icon">🎮</div><div class="title">Крестики-нолики</div><div class="desc">Игра для двоих</div></div>
+                <div class="home-card" data-goto="game"><div class="icon">🎮</div><div class="title">Игры</div><div class="desc">Крестики-нолики и шашки</div></div>
                 <div class="home-card" data-goto="quotes"><div class="icon">💬</div><div class="title">Цитаты</div><div class="desc">Мотивация на каждый день</div></div>
                 <div class="home-card" data-goto="support"><div class="icon">✉️</div><div class="title">Поддержка</div><div class="desc">Свяжитесь с нами</div></div>
                 <div class="home-card" data-goto="donate"><div class="icon">❤️</div><div class="title">Поддержать</div><div class="desc">Помочь проекту</div></div>
@@ -262,7 +271,7 @@
         </div>
     </div>
 
-    <!-- Удача (колесо и числа) -->
+    <!-- Удача -->
     <div class="tab-content" id="tab-luck">
         <div class="glass-card">
             <div class="header"><h2>Удача</h2><button class="theme-btn" onclick="toggleTheme()">🌓 Тема</button></div>
@@ -333,36 +342,21 @@
         </div>
     </div>
 
-    <!-- Время (поиск) -->
+    <!-- Время -->
     <div class="tab-content" id="tab-time">
         <div class="glass-card">
             <div class="header"><h2>Мировое время</h2><button class="theme-btn" onclick="toggleTheme()">🌓 Тема</button></div>
-            <div style="display:flex; flex-wrap:wrap; gap:15px; align-items:end; margin-bottom:30px;">
-                <div style="flex:1; min-width:200px;">
-                    <label>Введите город</label>
-                    <input list="citiesList" id="cityInput" placeholder="Москва, Лондон..." style="margin-top:5px;">
-                    <datalist id="citiesList">
-                        <option value="Москва" data-tz="Europe/Moscow"><option value="Лондон" data-tz="Europe/London">
-                        <option value="Берлин" data-tz="Europe/Berlin"><option value="Париж" data-tz="Europe/Paris">
-                        <option value="Рим" data-tz="Europe/Rome"><option value="Мадрид" data-tz="Europe/Madrid">
-                        <option value="Афины" data-tz="Europe/Athens"><option value="Варшава" data-tz="Europe/Warsaw">
-                        <option value="Токио" data-tz="Asia/Tokyo"><option value="Шанхай" data-tz="Asia/Shanghai">
-                        <option value="Гонконг" data-tz="Asia/Hong_Kong"><option value="Сингапур" data-tz="Asia/Singapore">
-                        <option value="Дубай" data-tz="Asia/Dubai"><option value="Сеул" data-tz="Asia/Seoul">
-                        <option value="Бангкок" data-tz="Asia/Bangkok"><option value="Нью-Дели" data-tz="Asia/Kolkata">
-                        <option value="Нью-Йорк" data-tz="America/New_York"><option value="Лос-Анджелес" data-tz="America/Los_Angeles">
-                        <option value="Чикаго" data-tz="America/Chicago"><option value="Торонто" data-tz="America/Toronto">
-                        <option value="Сан-Паулу" data-tz="America/Sao_Paulo"><option value="Мехико" data-tz="America/Mexico_City">
-                        <option value="Буэнос-Айрес" data-tz="America/Buenos_Aires"><option value="Каир" data-tz="Africa/Cairo">
-                        <option value="Лагос" data-tz="Africa/Lagos"><option value="Найроби" data-tz="Africa/Nairobi">
-                        <option value="Йоханнесбург" data-tz="Africa/Johannesburg"><option value="Сидней" data-tz="Australia/Sydney">
-                        <option value="Окленд" data-tz="Pacific/Auckland">
-                    </datalist>
-                </div>
-                <button class="btn" id="showTimeBtn" style="width:auto; margin-top:0;">Показать время</button>
+            <div class="add-city" style="display:flex; gap:10px; margin-bottom:25px;">
+                <input type="text" id="citySearch" placeholder="Поиск города..." list="citiesList" style="flex:1;">
+                <datalist id="citiesList">
+                    <option value="Москва" data-tz="Europe/Moscow"><option value="Лондон" data-tz="Europe/London">
+                    <option value="Берлин" data-tz="Europe/Berlin"><option value="Париж" data-tz="Europe/Paris">
+                    <option value="Токио" data-tz="Asia/Tokyo"><option value="Нью-Йорк" data-tz="America/New_York">
+                    <option value="Сидней" data-tz="Australia/Sydney"><option value="Дубай" data-tz="Asia/Dubai">
+                </datalist>
+                <button class="btn" id="addCityBtn" style="width:auto; margin-top:0;">Добавить</button>
             </div>
-            <div class="time-display" id="timeDisplay">--:--:--</div>
-            <div class="date-display" id="dateDisplay">--</div>
+            <div class="time-grid" id="timeGrid"></div>
         </div>
     </div>
 
@@ -371,12 +365,12 @@
         <div class="glass-card">
             <div class="header"><h2>Переводчик</h2><button class="theme-btn" onclick="toggleTheme()">🌓 Тема</button></div>
             <div class="flex-row" style="margin-bottom:15px;">
-                <select id="langFrom" style="width:auto;">
+                <select id="langFrom">
                     <option value="ru">Русский</option><option value="en">Английский</option>
                     <option value="fr">Французский</option><option value="es">Испанский</option>
                 </select>
                 <span>→</span>
-                <select id="langTo" style="width:auto;">
+                <select id="langTo">
                     <option value="en">Английский</option><option value="ru">Русский</option>
                     <option value="fr">Французский</option><option value="es">Испанский</option>
                 </select>
@@ -388,7 +382,7 @@
         </div>
     </div>
 
-    <!-- Викторина (по порядку) -->
+    <!-- Викторина -->
     <div class="tab-content" id="tab-quiz">
         <div class="glass-card">
             <div class="header"><h2>Викторина</h2><button class="theme-btn" onclick="toggleTheme()">🌓 Тема</button></div>
@@ -399,13 +393,24 @@
         </div>
     </div>
 
-    <!-- Игра Крестики-нолики -->
+    <!-- Игры -->
     <div class="tab-content" id="tab-game">
         <div class="glass-card">
-            <div class="header"><h2>Крестики-нолики</h2><button class="theme-btn" onclick="toggleTheme()">🌓 Тема</button></div>
-            <div class="game-status" id="gameStatus">Ход: ❌</div>
-            <div class="board" id="board"></div>
-            <button class="btn" id="resetGame">Новая игра</button>
+            <div class="header"><h2>Игры</h2><button class="theme-btn" onclick="toggleTheme()">🌓 Тема</button></div>
+            <div class="subtab-nav">
+                <button class="subtab-btn active" data-subtab="tictactoe">❌⭕ Крестики-нолики</button>
+                <button class="subtab-btn" data-subtab="checkers">🔴 Шашки</button>
+            </div>
+            <div class="subtab-content active" id="subtab-tictactoe">
+                <div class="game-status" id="gameStatus">Ход: ❌</div>
+                <div class="board" id="board"></div>
+                <button class="btn" id="resetGame">Новая игра</button>
+            </div>
+            <div class="subtab-content" id="subtab-checkers">
+                <div id="checkersBoard" class="game-board"></div>
+                <div id="checkersStatus" style="text-align:center; margin-bottom:10px;">Ход белых</div>
+                <button class="btn" id="resetCheckers">Новая игра</button>
+            </div>
         </div>
     </div>
 
@@ -420,11 +425,11 @@
         </div>
     </div>
 
-    <!-- Поддержка (Formspree) -->
+    <!-- Поддержка -->
     <div class="tab-content" id="tab-support">
         <div class="glass-card">
             <div class="header"><h2>Написать в поддержку</h2><button class="theme-btn" onclick="toggleTheme()">🌓 Тема</button></div>
-            <form id="supportForm" class="support-form" action="https://formspree.io/f/xzdywgae" method="POST">
+            <form id="supportForm" action="https://formspree.io/f/xzdywgae" method="POST">
                 <input type="text" name="name" placeholder="Ваше имя" required>
                 <input type="email" name="email" placeholder="Ваш email" required>
                 <textarea name="message" rows="5" placeholder="Ваше сообщение" required></textarea>
@@ -432,13 +437,12 @@
                 <input type="text" name="_gotcha" style="display:none">
                 <button type="submit" class="btn">Отправить</button>
             </form>
-            <p style="text-align:center; margin-top:15px; opacity:0.7;">Ответ поступит на вашу почту</p>
             <div id="supportSuccess" style="display:none; color: #2ecc71; text-align:center; margin-top:10px;">Сообщение отправлено!</div>
             <div id="supportError" style="display:none; color: #ff4757; text-align:center; margin-top:10px;"></div>
         </div>
     </div>
 
-    <!-- Донат (пробный) -->
+    <!-- Донат -->
     <div class="tab-content" id="tab-donate">
         <div class="glass-card">
             <div class="header"><h2>Поддержать проект</h2><button class="theme-btn" onclick="toggleTheme()">🌓 Тема</button></div>
@@ -460,12 +464,7 @@
 
 <script>
     (function() {
-        // Блокировка
-        document.onkeydown = function(e) {
-            if (e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74 || e.keyCode == 67)) || (e.ctrlKey && e.keyCode == 85)) return false;
-        };
-
-        // Онлайн-счётчик
+        document.onkeydown = function(e) { if (e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74 || e.keyCode == 67)) || (e.ctrlKey && e.keyCode == 85)) return false; };
         const ONLINE_KEY = 'online_clients';
         const clientId = Date.now() + Math.random().toString(36).substr(2, 9);
         function getOnlineList() { try { return JSON.parse(localStorage.getItem(ONLINE_KEY)) || []; } catch(e) { return []; } }
@@ -480,7 +479,6 @@
         window.addEventListener('beforeunload', () => { setOnlineList(getOnlineList().filter(e => e.id !== clientId)); });
         window.addEventListener('storage', (e) => { if (e.key === ONLINE_KEY) document.getElementById('onlineCount').textContent = getOnlineList().filter(e => Date.now() - e.time < 10000).length; });
 
-        // Темы
         window.toggleTheme = function() {
             const b = document.body;
             const t = b.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
@@ -488,7 +486,6 @@
             if (typeof chart !== 'undefined' && chart) updateChartAfterTheme();
         };
 
-        // Табы
         const tabBtns = document.querySelectorAll('.tab-btn');
         const tabContents = document.querySelectorAll('.tab-content');
         let currentTab = 'home';
@@ -507,14 +504,14 @@
             if (tabName === 'time' && !timeInitialized) { initTimeTab(); timeInitialized = true; }
             if (tabName === 'translate' && !translateInitialized) { initTranslate(); translateInitialized = true; }
             if (tabName === 'quiz' && !quizInitialized) { initQuiz(); quizInitialized = true; }
-            if (tabName === 'game' && !gameInitialized) { initGame(); gameInitialized = true; }
+            if (tabName === 'game' && !gameInitialized) { initGames(); gameInitialized = true; }
             if (tabName === 'quotes' && !quotesInitialized) { initQuotes(); quotesInitialized = true; }
             if (tabName === 'support' && !supportInitialized) { initSupport(); supportInitialized = true; }
         };
         tabBtns.forEach(btn => btn.addEventListener('click', () => switchTab(btn.getAttribute('data-tab'))));
         document.querySelectorAll('.home-card').forEach(card => card.addEventListener('click', () => switchTab(card.getAttribute('data-goto'))));
 
-        // Калькулятор (без изменений)
+        // Калькулятор
         let chart = null;
         let historyData = JSON.parse(localStorage.getItem('eq_history')) || [];
         window.addEventListener('load', () => renderHistory());
@@ -576,7 +573,7 @@
         window.clearHistory = function() { localStorage.removeItem('eq_history'); historyData=[]; renderHistory(); };
         window.calculate = calculate;
 
-        // Подтабы удачи
+        // Подтабы
         const subtabBtns = document.querySelectorAll('.subtab-btn');
         const subtabContents = document.querySelectorAll('.subtab-content');
         subtabBtns.forEach(btn => btn.addEventListener('click', () => {
@@ -584,6 +581,7 @@
             subtabBtns.forEach(b=>b.classList.remove('active')); subtabContents.forEach(c=>c.classList.remove('active'));
             btn.classList.add('active'); document.getElementById(`subtab-${st}`).classList.add('active');
             if(st==='random' && !randomInitialized){ initRandomNumbers(); randomInitialized=true; }
+            if(st==='checkers' && !checkersInitialized){ initCheckers(); checkersInitialized=true; }
         }));
 
         // Колесо
@@ -609,19 +607,62 @@
         const ambiguousChars='I1l0o00sS5';
         function initPassword(){ document.getElementById('generateBtn').addEventListener('click',generatePasswords); generatePasswords(); }
         function generatePasswords(){ const lenInput=document.getElementById('passLength'),cntInput=document.getElementById('passCount'); let length=parseInt(lenInput.value)||10,count=parseInt(cntInput.value)||10; const errDiv=document.getElementById('passwordError'); errDiv.textContent=''; if(length>35){errDiv.textContent='Максимальная длина пароля — 35';lenInput.value=35;length=35;} if(count>99){errDiv.textContent='Максимальное количество — 99';cntInput.value=99;count=99;} const useUpper=document.getElementById('useUpper').checked,useLower=document.getElementById('useLower').checked,useDigits=document.getElementById('useDigits').checked,useSpace=document.getElementById('useSpace').checked,useSep=document.getElementById('useSeparators').checked,useSpec=document.getElementById('useSpecial').checked,exclAmb=document.getElementById('excludeAmbiguous').checked; let chars=''; if(useUpper)chars+='ABCDEFGHIJKLMNOPQRSTUVWXYZ'; if(useLower)chars+='abcdefghijklmnopqrstuvwxyz'; if(useDigits)chars+='0123456789'; if(useSpace)chars+=' '; if(useSep)chars+='-_'; if(useSpec)chars+='~!@#$%^&*()+'; if(chars.length===0){alert('Выберите хотя бы один набор символов');return;} if(exclAmb)chars=chars.split('').filter(c=>!ambiguousChars.includes(c)).join(''); const pwd=[]; for(let i=0;i<count;i++){ let s=''; for(let j=0;j<length;j++) s+=chars[Math.floor(Math.random()*chars.length)]; pwd.push(s); } const now=new Date(); const utc3=new Date(now.getTime()+3*60*60*1000); document.getElementById('timestamp').textContent=`Сгенерировано ${utc3.toISOString().replace('T',' ').replace(/\.\d+Z$/,' UTC+3')}`; const tbody=document.querySelector('#passwordsTable tbody'); tbody.innerHTML=''; for(let i=0;i<pwd.length;i+=3){ const row=document.createElement('tr'); for(let j=0;j<3;j++){ const td=document.createElement('td'); td.textContent=pwd[i+j]||''; td.addEventListener('click',(e)=>{ if(e.target.textContent){ navigator.clipboard.writeText(e.target.textContent).then(()=>alert('Пароль скопирован')).catch(()=>alert('Ошибка')); } }); row.appendChild(td); } tbody.appendChild(row); } }
-        document.getElementById('passwordsTable').addEventListener('click', (e) => { if(e.target.tagName === 'TD' && e.target.textContent) navigator.clipboard.writeText(e.target.textContent).then(()=>alert('Пароль скопирован')).catch(()=>alert('Ошибка')); });
 
         // Время
-        let timeInitialized=false, timeInterval;
-        function initTimeTab(){ document.getElementById('showTimeBtn').addEventListener('click', updateTimeDisplay); updateTimeDisplay(); }
-        function getSelectedTimezone() { const input = document.getElementById('cityInput'); const val = input.value.trim(); const options = document.querySelectorAll('#citiesList option'); for (let opt of options) { if (opt.value === val) return opt.getAttribute('data-tz'); } return null; }
-        function updateTimeDisplay(){ const tz = getSelectedTimezone(); if (!tz) { document.getElementById('timeDisplay').textContent = 'Выберите город из списка'; document.getElementById('dateDisplay').textContent = ''; return; } try{ const now=new Date(); const formatter=new Intl.DateTimeFormat('ru-RU',{timeZone:tz,hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}); const dateFormatter=new Intl.DateTimeFormat('ru-RU',{timeZone:tz,year:'numeric',month:'long',day:'numeric',weekday:'long'}); document.getElementById('timeDisplay').textContent=formatter.format(now); document.getElementById('dateDisplay').textContent=dateFormatter.format(now); }catch(e){ document.getElementById('timeDisplay').textContent='Ошибка'; document.getElementById('dateDisplay').textContent=''; } if(timeInterval)clearInterval(timeInterval); timeInterval=setInterval(updateTimeDisplay,1000); }
+        let timeInitialized=false;
+        const defaultCities = [
+            { city: 'Москва', tz: 'Europe/Moscow' },
+            { city: 'Лондон', tz: 'Europe/London' },
+            { city: 'Нью-Йорк', tz: 'America/New_York' },
+            { city: 'Токио', tz: 'Asia/Tokyo' },
+            { city: 'Берлин', tz: 'Europe/Berlin' },
+            { city: 'Париж', tz: 'Europe/Paris' },
+            { city: 'Сидней', tz: 'Australia/Sydney' },
+            { city: 'Дубай', tz: 'Asia/Dubai' }
+        ];
+        function initTimeTab() {
+            document.getElementById('addCityBtn').addEventListener('click', addCity);
+            if (document.getElementById('timeGrid').children.length === 0) {
+                defaultCities.forEach(c => addCityCard(c.city, c.tz));
+            }
+        }
+        function addCity() {
+            const city = document.getElementById('citySearch').value.trim();
+            if (!city) return;
+            const tz = getTimezoneForCity(city);
+            if (tz) addCityCard(city, tz);
+            document.getElementById('citySearch').value = '';
+        }
+        function getTimezoneForCity(city) {
+            const options = document.querySelectorAll('#citiesList option');
+            for (let opt of options) if (opt.value === city) return opt.getAttribute('data-tz');
+            return null;
+        }
+        function addCityCard(city, tz) {
+            const grid = document.getElementById('timeGrid');
+            const card = document.createElement('div');
+            card.className = 'time-card';
+            card.dataset.tz = tz;
+            card.innerHTML = `<div class="city">${city}</div><div class="time">--:--:--</div><div class="date">--</div>`;
+            grid.appendChild(card);
+            updateCityTime(card);
+            setInterval(() => updateCityTime(card), 1000);
+        }
+        function updateCityTime(card) {
+            const tz = card.dataset.tz;
+            try {
+                const now = new Date();
+                const timeStr = new Intl.DateTimeFormat('ru-RU', { timeZone: tz, hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }).format(now);
+                const dateStr = new Intl.DateTimeFormat('ru-RU', { timeZone: tz, year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' }).format(now);
+                card.querySelector('.time').textContent = timeStr;
+                card.querySelector('.date').textContent = dateStr;
+            } catch(e) {}
+        }
 
         // Перевод
         let translateInitialized=false;
         function initTranslate(){ document.getElementById('translateBtn').addEventListener('click',translateText); document.getElementById('copyTranslationBtn').addEventListener('click', copyTranslation); }
-        function getLangPair() { const from = document.getElementById('langFrom').value; const to = document.getElementById('langTo').value; return `${from}|${to}`; }
-        async function translateText(){ const text=document.getElementById('translateInput').value.trim(); if(!text)return; const langpair = getLangPair(); const url=`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${langpair}`; try{ const response=await fetch(url); const data=await response.json(); if(data.responseStatus && data.responseStatus !== 200) { document.getElementById('translatedText').textContent = 'Ошибка перевода: ' + data.responseDetails; } else { document.getElementById('translatedText').textContent = data.responseData.translatedText || 'Перевод не получен'; } }catch(e){ document.getElementById('translatedText').textContent='Ошибка сети'; } }
+        async function translateText(){ const text=document.getElementById('translateInput').value.trim(); if(!text)return; const from = document.getElementById('langFrom').value; const to = document.getElementById('langTo').value; const langpair = `${from}|${to}`; const url=`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${langpair}`; try{ const response=await fetch(url); const data=await response.json(); if(data.responseStatus && data.responseStatus !== 200) { document.getElementById('translatedText').textContent = 'Ошибка перевода: ' + data.responseDetails; } else { document.getElementById('translatedText').textContent = data.responseData.translatedText || 'Перевод не получен'; } }catch(e){ document.getElementById('translatedText').textContent='Ошибка сети'; } }
         function copyTranslation() { const translated = document.getElementById('translatedText').textContent; if (translated && translated !== 'Ошибка перевода' && translated !== 'Ошибка сети') { navigator.clipboard.writeText(translated).then(()=>alert('Перевод скопирован')).catch(()=>alert('Ошибка')); } }
 
         // Викторина
@@ -633,33 +674,216 @@
         const quizModes = ['flag-to-country', 'country-to-capital', 'capital-to-country'];
         function initQuiz(){ document.getElementById('nextQuizBtn').addEventListener('click',nextQuiz); nextQuiz(); }
         function shuffleArray(arr){ for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]]; } return arr; }
-        function nextQuiz(){ answered=false; document.getElementById('nextQuizBtn').style.display='none'; const answersDiv=document.getElementById('quizAnswers'); answersDiv.innerHTML=''; const mode = quizModes[quizModeIndex % 3]; quizModeIndex++; const correctIndex=Math.floor(Math.random()*countries.length); const correct=countries[correctIndex]; const variants=[correct]; while(variants.length<4){ const rnd=countries[Math.floor(Math.random()*countries.length)]; if(!variants.includes(rnd)) variants.push(rnd); } shuffleArray(variants); let questionHTML=''; if(mode==='flag-to-country'){ questionHTML=`Какой стране принадлежит флаг <img src="https://flagcdn.com/48x36/${correct.code}.png" style="width:48px;height:36px;vertical-align:middle;" onerror="this.style.display='none';this.nextElementSibling.style.display='inline';"> <span style="display:none;">[${correct.code}]</span>?`; } else if(mode==='country-to-capital'){ questionHTML=`Какая столица у страны ${correct.country}?`; } else { questionHTML=`Какой стране принадлежит столица ${correct.capital}?`; } document.getElementById('quizQuestion').innerHTML=questionHTML; currentAnswer=correct; variants.forEach(v=>{ const btn=document.createElement('div'); btn.className='answer-btn'; btn.textContent = (mode==='country-to-capital')? v.capital : v.country; btn.addEventListener('click',()=>selectAnswer(v)); answersDiv.appendChild(btn); }); }
+        function nextQuiz(){ answered=false; document.getElementById('nextQuizBtn').style.display='none'; const answersDiv=document.getElementById('quizAnswers'); answersDiv.innerHTML=''; const mode = quizModes[quizModeIndex % 3]; quizModeIndex++; const correctIndex=Math.floor(Math.random()*countries.length); const correct=countries[correctIndex]; const variants=[correct]; while(variants.length<4){ const rnd=countries[Math.floor(Math.random()*countries.length)]; if(!variants.includes(rnd)) variants.push(rnd); } shuffleArray(variants); let questionHTML=''; if(mode==='flag-to-country'){ questionHTML=`Какой стране принадлежит флаг <img src="https://flagcdn.com/48x36/${correct.code}.png" style="width:48px;height:36px;vertical-align:middle;">?`; } else if(mode==='country-to-capital'){ questionHTML=`Какая столица у страны ${correct.country}?`; } else { questionHTML=`Какой стране принадлежит столица ${correct.capital}?`; } document.getElementById('quizQuestion').innerHTML=questionHTML; currentAnswer=correct; variants.forEach(v=>{ const btn=document.createElement('div'); btn.className='answer-btn'; btn.textContent = (mode==='country-to-capital')? v.capital : v.country; btn.addEventListener('click',()=>selectAnswer(v)); answersDiv.appendChild(btn); }); }
         function selectAnswer(selected){ if(answered) return; answered=true; const buttons=document.querySelectorAll('.answer-btn'); buttons.forEach(b=>b.style.pointerEvents='none'); if(selected===currentAnswer){ quizScore[0]++; const correctBtn = Array.from(buttons).find(b=>b.textContent=== (quizModes[(quizModeIndex-1)%3]==='country-to-capital'?selected.capital:selected.country)); if(correctBtn) correctBtn.classList.add('correct'); }else{ quizScore[1]++; const correctBtn = Array.from(buttons).find(b=>b.textContent=== (quizModes[(quizModeIndex-1)%3]==='country-to-capital'?currentAnswer.capital:currentAnswer.country)); if(correctBtn) correctBtn.classList.add('correct'); const wrongBtn = Array.from(buttons).find(b=>b.textContent=== (quizModes[(quizModeIndex-1)%3]==='country-to-capital'?selected.capital:selected.country)); if(wrongBtn) wrongBtn.classList.add('wrong'); } document.getElementById('quizScore').textContent=`Правильно: ${quizScore[0]} / ${quizScore[0]+quizScore[1]}`; document.getElementById('nextQuizBtn').style.display='block'; }
-        window.nextQuiz = nextQuiz;
 
-        // Крестики-нолики
+        // Игры: крестики-нолики + шашки
         let gameInitialized = false;
-        let board, currentPlayer, gameActive, gameStatus, resetBtn;
-        function initGame() { board = ['','','','','','','','','']; currentPlayer = '❌'; gameActive = true; gameStatus = document.getElementById('gameStatus'); resetBtn = document.getElementById('resetGame'); document.getElementById('board').addEventListener('click', handleCellClick); resetBtn.addEventListener('click', resetGame); renderBoard(); gameStatus.textContent = `Ход: ${currentPlayer}`; }
-        function renderBoard() { const boardDiv = document.getElementById('board'); boardDiv.innerHTML = ''; for (let i = 0; i < 9; i++) { const cell = document.createElement('div'); cell.className = 'cell'; if (board[i] || !gameActive) cell.classList.add('disabled'); cell.textContent = board[i]; cell.dataset.index = i; boardDiv.appendChild(cell); } }
-        function handleCellClick(e) { if (!gameActive) return; const index = e.target.dataset.index; if (index === undefined || board[index] !== '') return; board[index] = currentPlayer; renderBoard(); if (checkWin()) { gameStatus.textContent = `Победили ${currentPlayer}!`; gameActive = false; return; } if (board.every(cell => cell !== '')) { gameStatus.textContent = 'Ничья!'; gameActive = false; return; } currentPlayer = currentPlayer === '❌' ? '⭕' : '❌'; gameStatus.textContent = `Ход: ${currentPlayer}`; }
-        function checkWin() { const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]]; return wins.some(w=> board[w[0]] && board[w[0]]===board[w[1]] && board[w[0]]===board[w[2]]); }
-        function resetGame() { board = ['','','','','','','','','']; currentPlayer = '❌'; gameActive = true; renderBoard(); gameStatus.textContent = `Ход: ${currentPlayer}`; }
+        function initGames() {
+            initTicTacToe();
+            if (!checkersInitialized) { initCheckers(); checkersInitialized = true; }
+        }
+        // Крестики-нолики
+        let board, currentPlayer, gameActive;
+        function initTicTacToe() {
+            board = ['','','','','','','','','']; currentPlayer = '❌'; gameActive = true;
+            document.getElementById('gameStatus').textContent = `Ход: ${currentPlayer}`;
+            document.getElementById('resetGame').addEventListener('click', resetTicTacToe);
+            renderBoard();
+            document.getElementById('board').addEventListener('click', handleCellClick);
+        }
+        function renderBoard() {
+            const boardDiv = document.getElementById('board');
+            boardDiv.innerHTML = '';
+            for (let i = 0; i < 9; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                if (board[i] || !gameActive) cell.classList.add('disabled');
+                cell.textContent = board[i]; cell.dataset.index = i;
+                boardDiv.appendChild(cell);
+            }
+        }
+        function handleCellClick(e) {
+            if (!gameActive) return;
+            const index = e.target.dataset.index;
+            if (index === undefined || board[index] !== '') return;
+            board[index] = currentPlayer;
+            renderBoard();
+            if (checkWin()) {
+                document.getElementById('gameStatus').textContent = `Победили ${currentPlayer}!`; gameActive = false; return;
+            }
+            if (board.every(cell => cell !== '')) {
+                document.getElementById('gameStatus').textContent = 'Ничья!'; gameActive = false; return;
+            }
+            currentPlayer = currentPlayer === '❌' ? '⭕' : '❌';
+            document.getElementById('gameStatus').textContent = `Ход: ${currentPlayer}`;
+        }
+        function checkWin() {
+            const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+            return wins.some(w=> board[w[0]] && board[w[0]]===board[w[1]] && board[w[0]]===board[w[2]]);
+        }
+        function resetTicTacToe() {
+            board = ['','','','','','','','','']; currentPlayer = '❌'; gameActive = true;
+            renderBoard(); document.getElementById('gameStatus').textContent = `Ход: ${currentPlayer}`;
+        }
 
-        // Цитаты
+        // Шашки (исправленные)
+        let checkersInitialized = false;
+        let checkersBoard = [], selectedCell = null, currentTurn = 'white', forcedCapture = false;
+        function initCheckers() {
+            document.getElementById('resetCheckers').addEventListener('click', resetCheckers);
+            setupBoard();
+        }
+        function setupBoard() {
+            checkersBoard = [];
+            for (let r = 0; r < 10; r++) {
+                checkersBoard[r] = [];
+                for (let c = 0; c < 10; c++) {
+                    if ((r + c) % 2 === 1) {
+                        if (r < 4) checkersBoard[r][c] = 'black';
+                        else if (r > 5) checkersBoard[r][c] = 'white';
+                        else checkersBoard[r][c] = null;
+                    } else checkersBoard[r][c] = null;
+                }
+            }
+            currentTurn = 'white'; selectedCell = null; forcedCapture = false;
+            drawBoard();
+            document.getElementById('checkersStatus').textContent = 'Ход белых';
+        }
+        function drawBoard() {
+            const container = document.getElementById('checkersBoard');
+            container.innerHTML = '';
+            for (let r = 0; r < 10; r++) {
+                for (let c = 0; c < 10; c++) {
+                    const sq = document.createElement('div');
+                    sq.className = `square ${(r+c)%2===0 ? 'light-sq' : 'dark-sq'}`;
+                    sq.dataset.row = r; sq.dataset.col = c;
+                    const piece = checkersBoard[r][c];
+                    if (piece) {
+                        const pieceEl = document.createElement('div');
+                        pieceEl.className = `piece ${piece}-piece`;
+                        if ((piece === 'white' && r === 0) || (piece === 'black' && r === 9)) pieceEl.classList.add('king');
+                        sq.appendChild(pieceEl);
+                    }
+                    sq.addEventListener('click', () => onSquareClick(r, c));
+                    container.appendChild(sq);
+                }
+            }
+        }
+        function onSquareClick(row, col) {
+            if (forcedCapture) {
+                if (!selectedCell || !canCapture(selectedCell.row, selectedCell.col, row, col)) {
+                    selectedCell = null; drawBoard(); return;
+                }
+                executeMove(row, col);
+                return;
+            }
+            if (selectedCell && selectedCell.row === row && selectedCell.col === col) {
+                selectedCell = null; drawBoard(); return;
+            }
+            if (checkersBoard[row][col] === currentTurn && !selectedCell) {
+                selectedCell = { row, col }; drawBoard(); return;
+            }
+            if (selectedCell && !checkersBoard[row][col]) {
+                if (canMove(selectedCell.row, selectedCell.col, row, col)) {
+                    executeMove(row, col);
+                }
+                selectedCell = null; drawBoard();
+            }
+        }
+        function executeMove(toRow, toCol) {
+            const piece = checkersBoard[selectedCell.row][selectedCell.col];
+            checkersBoard[toRow][toCol] = piece;
+            checkersBoard[selectedCell.row][selectedCell.col] = null;
+            if (Math.abs(toRow - selectedCell.row) === 2) {
+                const midRow = (selectedCell.row + toRow) / 2;
+                const midCol = (selectedCell.col + toCol) / 2;
+                checkersBoard[midRow][midCol] = null;
+            }
+            if ((piece === 'white' && toRow === 0) || (piece === 'black' && toRow === 9)) {
+                const pieceEl = document.querySelector(`[data-row='${toRow}'][data-col='${toCol}'] .piece`);
+                if (pieceEl) pieceEl.classList.add('king');
+            }
+            currentTurn = currentTurn === 'white' ? 'black' : 'white';
+            document.getElementById('checkersStatus').textContent = `Ход ${currentTurn === 'white' ? 'белых' : 'чёрных'}`;
+            selectedCell = null;
+            drawBoard();
+            checkForcedCapture();
+        }
+        function canMove(fromRow, fromCol, toRow, toCol) {
+            const piece = checkersBoard[fromRow][fromCol];
+            if (!piece) return false;
+            const isKing = (piece === 'white' && fromRow === 0) || (piece === 'black' && fromRow === 9);
+            const direction = piece === 'white' ? -1 : 1;
+            const rowDiff = toRow - fromRow;
+            const colDiff = Math.abs(toCol - fromCol);
+            if (colDiff === 1 && !isKing && rowDiff === direction) return true;
+            if (colDiff === 1 && isKing && Math.abs(rowDiff) === 1) return true;
+            if (colDiff === 2 && Math.abs(rowDiff) === 2) {
+                const midRow = (fromRow + toRow) / 2;
+                const midCol = (fromCol + toCol) / 2;
+                const opponent = piece === 'white' ? 'black' : 'white';
+                return checkersBoard[midRow][midCol] === opponent;
+            }
+            return false;
+        }
+        function canCapture(fromRow, fromCol, toRow, toCol) {
+            const piece = checkersBoard[fromRow][fromCol];
+            if (!piece) return false;
+            const isKing = (piece === 'white' && fromRow === 0) || (piece === 'black' && fromRow === 9);
+            const rowDiff = toRow - fromRow;
+            const colDiff = Math.abs(toCol - fromCol);
+            if (colDiff === 2 && Math.abs(rowDiff) === 2) {
+                const midRow = (fromRow + toRow) / 2;
+                const midCol = (fromCol + toCol) / 2;
+                const opponent = piece === 'white' ? 'black' : 'white';
+                return checkersBoard[midRow][midCol] === opponent;
+            }
+            return false;
+        }
+        function checkForcedCapture() {
+            forcedCapture = false;
+            for (let r = 0; r < 10; r++) {
+                for (let c = 0; c < 10; c++) {
+                    if (checkersBoard[r][c] === currentTurn) {
+                        const directions = currentTurn === 'white' ? [-1] : [1];
+                        for (const dr of directions) {
+                            for (const dc of [-2, 2]) {
+                                if (canCapture(r, c, r + dr*2, c + dc)) {
+                                    forcedCapture = true;
+                                    return;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        function resetCheckers() {
+            setupBoard();
+            drawBoard();
+            document.getElementById('checkersStatus').textContent = 'Ход белых';
+        }
+
+        // Цитаты (расширенные)
         let quotesInitialized = false;
         const quotes = [
             { text: "Будь собой, остальные роли уже заняты.", author: "Оскар Уайльд" },
             { text: "Жизнь — это то, что с тобой происходит, пока ты строишь другие планы.", author: "Джон Леннон" },
             { text: "Сложнее всего начать действовать. Все остальное зависит от упорства.", author: "Амелия Эрхарт" },
             { text: "Не считай дни. Пусть каждый день считается.", author: "Мухаммед Али" },
-            { text: "Успех — это способность шагать от поражения к поражению, не теряя энтузиазма.", author: "Уинстон Черчилль" }
+            { text: "Успех — это способность шагать от поражения к поражению, не теряя энтузиазма.", author: "Уинстон Черчилль" },
+            { text: "Стремитесь не к успеху, а к ценностям, которые он дает.", author: "Альберт Эйнштейн" },
+            { text: "Всегда выбирайте самый сложный путь — на нем вы не встретите конкурентов.", author: "Шарль де Голль" },
+            { text: "Неудача — это просто возможность начать снова, но уже более мудро.", author: "Генри Форд" },
+            { text: "Лучшее время посадить дерево было 20 лет назад. Второе лучшее время — сегодня.", author: "Китайская пословица" },
+            { text: "Если вы думаете, что на что-то способны, вы правы; если думаете, что нет — вы тоже правы.", author: "Генри Форд" }
         ];
         function initQuotes() { document.getElementById('newQuoteBtn').addEventListener('click', showRandomQuote); document.getElementById('copyQuoteBtn').addEventListener('click', copyQuote); showRandomQuote(); }
         function showRandomQuote() { const q = quotes[Math.floor(Math.random() * quotes.length)]; document.getElementById('quoteText').textContent = `«${q.text}»`; document.getElementById('quoteAuthor').textContent = `— ${q.author}`; }
         function copyQuote() { const text = document.getElementById('quoteText').textContent + ' ' + document.getElementById('quoteAuthor').textContent; navigator.clipboard.writeText(text).then(()=>alert('Цитата скопирована')).catch(()=>alert('Ошибка')); }
 
-        // Поддержка (Formspree)
+        // Поддержка
         let supportInitialized = false;
         function initSupport() {
             const form = document.getElementById('supportForm');
@@ -667,14 +891,9 @@
                 e.preventDefault();
                 const formData = new FormData(form);
                 const submitBtn = form.querySelector('button[type="submit"]');
-                submitBtn.textContent = 'Отправка...';
-                submitBtn.disabled = true;
+                submitBtn.textContent = 'Отправка...'; submitBtn.disabled = true;
                 try {
-                    const response = await fetch('https://formspree.io/f/xzdywgae', {
-                        method: 'POST',
-                        body: formData,
-                        headers: { 'Accept': 'application/json' }
-                    });
+                    const response = await fetch('https://formspree.io/f/xzdywgae', { method: 'POST', body: formData, headers: { 'Accept': 'application/json' } });
                     if (response.ok) {
                         document.getElementById('supportSuccess').style.display = 'block';
                         document.getElementById('supportError').style.display = 'none';
@@ -688,16 +907,15 @@
                     document.getElementById('supportError').textContent = 'Ошибка сети';
                     document.getElementById('supportError').style.display = 'block';
                 }
-                submitBtn.textContent = 'Отправить';
-                submitBtn.disabled = false;
+                submitBtn.textContent = 'Отправить'; submitBtn.disabled = false;
             });
         }
 
-        // Донат (пробный)
+        // Донат
         window.donate = function(amount) { alert(`Пробный режим: спасибо за поддержку в ${amount} ₽! Деньги не отправляются.`); };
 
         // Копирование email
-        document.getElementById('contactEmail').addEventListener('click',()=>{ const email=document.getElementById('emailText').textContent; navigator.clipboard.writeText(email).then(()=>{ const el=document.getElementById('contactEmail'); el.style.opacity='1'; el.innerHTML='📋 Email скопирован!'; setTimeout(()=>{el.innerHTML='📧 <span id="emailText">tape.power@outlook.com</span>';},1500); }).catch(()=>alert('Ошибка')); });
+        document.getElementById('contactEmail').addEventListener('click',()=>{ const email=document.getElementById('emailText').textContent; navigator.clipboard.writeText(email).then(()=>{ const el=document.getElementById('contactEmail'); el.innerHTML='📋 Email скопирован!'; setTimeout(()=>{el.innerHTML='📧 <span id="emailText">tape.power@outlook.com</span>';},1500); }).catch(()=>alert('Ошибка')); });
     })();
 </script>
 </body>
