@@ -3,460 +3,1028 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=5.0">
-    <title>Unified Service — премиальный инструментарий</title>
+    <title>Unified Service</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
-        /* ========== ПРЕМИАЛЬНЫЙ ДИЗАЙН — новые переменные, стекло, анимации ========== */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-user-select: none;
-            user-select: none;
+        :root {
+            --bg: #080a0e;
+            --bg2: #0d1017;
+            --surface: rgba(255,255,255,0.035);
+            --surface-hover: rgba(255,255,255,0.065);
+            --border: rgba(255,255,255,0.07);
+            --border-glow: rgba(196,164,92,0.25);
+            --text: #e8e4dc;
+            --text-muted: rgba(232,228,220,0.45);
+            --gold: #c4a45c;
+            --gold2: #e8c97a;
+            --gold-dim: rgba(196,164,92,0.12);
+            --grad: linear-gradient(135deg, #c4a45c 0%, #e8c97a 50%, #c4a45c 100%);
+            --grad-subtle: linear-gradient(135deg, rgba(196,164,92,0.15) 0%, rgba(232,201,122,0.08) 100%);
+            --shadow: 0 32px 80px rgba(0,0,0,0.7);
+            --shadow-sm: 0 8px 32px rgba(0,0,0,0.4);
+        }
+        [data-theme="light"] {
+            --bg: #f4f0e8;
+            --bg2: #ede9df;
+            --surface: rgba(0,0,0,0.04);
+            --surface-hover: rgba(0,0,0,0.07);
+            --border: rgba(0,0,0,0.08);
+            --border-glow: rgba(140,100,30,0.2);
+            --text: #1a1610;
+            --text-muted: rgba(26,22,16,0.45);
+            --gold: #8c641e;
+            --gold2: #b8852a;
+            --gold-dim: rgba(140,100,30,0.1);
+            --grad: linear-gradient(135deg, #8c641e 0%, #b8852a 50%, #8c641e 100%);
+            --grad-subtle: linear-gradient(135deg, rgba(140,100,30,0.12) 0%, rgba(184,133,42,0.06) 100%);
+            --shadow: 0 32px 80px rgba(0,0,0,0.12);
+            --shadow-sm: 0 8px 32px rgba(0,0,0,0.08);
         }
 
-        :root {
-            --bg-light: #f6f9fc;
-            --bg-dark: #0a0c12;
-            --glass-light: rgba(255, 255, 255, 0.65);
-            --glass-dark: rgba(20, 25, 40, 0.65);
-            --border-light: rgba(255, 255, 255, 0.25);
-            --border-dark: rgba(255, 255, 255, 0.08);
-            --text-light: #1a2c3e;
-            --text-dark: #f0f3fa;
-            --primary-light: #6366f1;
-            --primary-dark: #818cf8;
-            --accent-light: #0ea5e9;
-            --accent-dark: #38bdf8;
-            --grad-premium: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #0ea5e9 100%);
-            --grad-dark-premium: linear-gradient(135deg, #4f46e5 0%, #9333ea 50%, #0ea5e9 100%);
-            --shadow-sm: 0 8px 20px rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 15px 35px rgba(0, 0, 0, 0.1);
-            --shadow-lg: 0 25px 45px -12px rgba(0, 0, 0, 0.25);
-            --shadow-premium: 0 20px 40px -12px rgba(99, 102, 241, 0.25);
-            --transition-smooth: all 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-        }
+        * { box-sizing: border-box; -webkit-user-select: none; user-select: none; }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-light);
-            background-image: radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.08) 0%, transparent 70%);
-            color: var(--text-light);
+            font-family: 'DM Sans', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
             margin: 0;
-            padding: 24px 20px;
+            padding: 28px 20px;
             min-height: 100vh;
-            transition: background 0.4s ease, color 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: background 0.5s ease, color 0.3s ease;
         }
 
-        [data-theme="dark"] {
-            --bg-light: #0a0c12;
-            --glass-light: rgba(15, 20, 35, 0.7);
-            --border-light: rgba(255, 255, 255, 0.1);
-            --text-light: #eef2ff;
-            --primary-light: #818cf8;
-            --accent-light: #38bdf8;
-            --shadow-sm: 0 8px 20px rgba(0, 0, 0, 0.3);
-            --shadow-md: 0 15px 35px rgba(0, 0, 0, 0.4);
+        /* Atmospheric background */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 80% 60% at 20% 10%, rgba(196,164,92,0.055) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 50% at 80% 90%, rgba(196,164,92,0.04) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
         }
 
-        body[data-theme="dark"] {
-            background: #0a0c12 radial-gradient(circle at 20% 30%, rgba(129, 140, 248, 0.1) 0%, transparent 70%);
-            color: #eef2ff;
-        }
-
-        /* плавный скролл */
-        html {
-            scroll-behavior: smooth;
-        }
-
-        /* кастомный скроллбар */
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: rgba(0,0,0,0.05);
-            border-radius: 10px;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: rgba(99, 102, 241, 0.5);
-            border-radius: 10px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--primary-light);
+        [data-theme="light"] body::before {
+            background:
+                radial-gradient(ellipse 80% 60% at 20% 10%, rgba(140,100,30,0.06) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 50% at 80% 90%, rgba(140,100,30,0.04) 0%, transparent 50%);
         }
 
         .main-wrapper {
-            max-width: 1300px;
+            max-width: 1140px;
             width: 100%;
-            margin: 0 auto;
+            flex: 1;
+            position: relative;
+            z-index: 1;
         }
 
-        /* ========== ПРЕМИУМ ТАБЫ ========== */
+        /* ─── WORDMARK ─── */
+        .site-wordmark {
+            text-align: center;
+            padding: 10px 0 30px;
+            letter-spacing: 0.22em;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: var(--gold);
+            text-transform: uppercase;
+            opacity: 0.7;
+        }
+
+        /* ─── TAB NAV ─── */
         .tab-nav {
             display: flex;
-            gap: 12px;
+            gap: 4px;
             margin-bottom: 32px;
             justify-content: center;
             flex-wrap: wrap;
             position: sticky;
-            top: 16px;
-            z-index: 50;
-            background: rgba(var(--bg-light), 0.75);
-            backdrop-filter: blur(12px);
-            padding: 8px 16px;
-            border-radius: 60px;
-            box-shadow: var(--shadow-sm);
-            border: 1px solid var(--border-light);
+            top: 10px;
+            z-index: 20;
+            padding: 10px 16px;
+            border-radius: 18px;
+            background: rgba(8,10,14,0.88);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--border);
+            box-shadow: 0 16px 48px rgba(0,0,0,0.5), 0 0 0 1px rgba(196,164,92,0.06);
         }
+
+        [data-theme="light"] .tab-nav {
+            background: rgba(244,240,232,0.9);
+        }
+
         .tab-btn {
             background: transparent;
-            backdrop-filter: none;
             border: none;
-            color: var(--text-light);
-            padding: 10px 28px;
-            border-radius: 40px;
-            font-weight: 600;
-            font-size: 0.95rem;
+            color: var(--text-muted);
+            padding: 9px 16px;
+            border-radius: 10px;
+            font-weight: 500;
+            font-size: 0.78rem;
+            font-family: 'DM Sans', sans-serif;
             cursor: pointer;
-            transition: var(--transition-smooth);
-            letter-spacing: 0.3px;
+            transition: all 0.25s ease;
+            letter-spacing: 0.02em;
             white-space: nowrap;
             position: relative;
-            font-weight: 500;
         }
-        .tab-btn::after {
+
+        .tab-btn:hover {
+            color: var(--text);
+            background: var(--surface-hover);
+        }
+
+        .tab-btn.active {
+            background: var(--gold-dim);
+            color: var(--gold2);
+            border: 1px solid rgba(196,164,92,0.2);
+            font-weight: 600;
+        }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeUp 0.4s ease; }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ─── GLASS CARD ─── */
+        .glass-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: var(--shadow);
+            margin-bottom: 24px;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-card::before {
             content: '';
             position: absolute;
-            bottom: 6px;
-            left: 20%;
-            width: 60%;
-            height: 2px;
-            background: var(--grad-premium);
-            border-radius: 4px;
-            opacity: 0;
-            transition: 0.2s;
-        }
-        .tab-btn:hover {
-            background: rgba(99, 102, 241, 0.1);
-            transform: translateY(-2px);
-        }
-        .tab-btn.active {
-            background: var(--grad-premium);
-            color: white;
-            box-shadow: 0 10px 20px -8px rgba(99, 102, 241, 0.5);
-        }
-        .tab-btn.active::after {
-            opacity: 0;
+            top: 0; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(196,164,92,0.35), transparent);
         }
 
-        /* ========== СТЕКЛЯННЫЕ КАРТОЧКИ ========== */
-        .glass-card {
-            background: var(--glass-light);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid var(--border-light);
-            border-radius: 32px;
-            padding: 32px 36px;
-            box-shadow: var(--shadow-md);
-            transition: var(--transition-smooth);
-            margin-bottom: 28px;
-        }
-        .glass-card:hover {
-            transform: translateY(-3px);
-            box-shadow: var(--shadow-lg);
-            border-color: rgba(99, 102, 241, 0.3);
-        }
-
-        /* заголовки с градиентом */
-        h1, h2, .glass-card h2, .glass-card h1 {
+        /* ─── HEADINGS ─── */
+        h1, h2, h3 {
             margin: 0;
-            font-weight: 800;
-            letter-spacing: -0.02em;
-            background: var(--grad-premium);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-size: 1.9rem;
-        }
-        h3 {
-            font-weight: 700;
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 600;
             letter-spacing: -0.01em;
-            color: var(--text-light);
+            background: var(--grad);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
-        /* поля ввода премиум */
+        h1 { font-size: 2.8rem; font-style: italic; }
+        h2 { font-size: 2rem; }
+        h3 { font-size: 1.4rem; }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 36px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        /* ─── DIVIDER ─── */
+        .divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--border-glow), transparent);
+            margin: 28px 0;
+        }
+
+        /* ─── INPUTS ─── */
         input, textarea, select {
-            background: rgba(255, 255, 255, 0.15);
-            border: 1px solid var(--border-light);
+            background: rgba(0,0,0,0.25);
+            border: 1px solid var(--border);
             padding: 14px 18px;
-            border-radius: 20px;
-            color: var(--text-light);
+            border-radius: 12px;
+            color: var(--text);
             font-size: 1rem;
+            font-family: 'DM Sans', sans-serif;
             outline: none;
-            transition: var(--transition-smooth);
+            transition: all 0.25s;
             width: 100%;
-            font-family: 'Inter', monospace;
-            backdrop-filter: blur(4px);
-        }
-        [data-theme="light"] input, [data-theme="light"] textarea, [data-theme="light"] select {
-            background: rgba(255, 255, 255, 0.8);
-        }
-        input:focus, textarea:focus, select:focus {
-            border-color: var(--primary-light);
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
-            transform: scale(1.01);
         }
 
-        /* кнопки — градиент + парящий эффект */
+        [data-theme="light"] input,
+        [data-theme="light"] textarea,
+        [data-theme="light"] select {
+            background: rgba(255,255,255,0.7);
+        }
+
+        input:focus, textarea:focus, select:focus {
+            border-color: rgba(196,164,92,0.5);
+            box-shadow: 0 0 0 3px rgba(196,164,92,0.1);
+        }
+
+        input::placeholder, textarea::placeholder {
+            color: var(--text-muted);
+        }
+
+        /* ─── BUTTONS ─── */
         .btn {
             width: 100%;
-            padding: 16px 24px;
-            border-radius: 40px;
-            border: none;
-            background: var(--grad-premium);
-            color: white;
-            font-weight: 700;
-            font-size: 1rem;
+            padding: 14px 24px;
+            border-radius: 12px;
+            border: 1px solid rgba(196,164,92,0.3);
+            background: var(--grad-subtle);
+            color: var(--gold2);
+            font-weight: 600;
+            font-size: 0.85rem;
+            font-family: 'DM Sans', sans-serif;
             cursor: pointer;
-            transition: var(--transition-smooth);
-            text-transform: none;
-            letter-spacing: 0.3px;
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
-        }
-        .btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 18px 30px -10px rgba(99, 102, 241, 0.5);
-            filter: brightness(1.02);
-        }
-        .btn:active {
-            transform: translateY(1px);
-        }
-        .theme-btn {
-            background: rgba(255,255,255,0.2);
-            border: 1px solid var(--border-light);
-            color: var(--text-light);
-            padding: 10px 20px;
-            border-radius: 50px;
-            cursor: pointer;
-            font-weight: 500;
-            backdrop-filter: blur(10px);
-            transition: 0.2s;
-        }
-        .theme-btn:hover {
-            background: rgba(99, 102, 241, 0.3);
-            transform: scale(0.96);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            transition: all 0.25s ease;
+            margin-top: 16px;
+            position: relative;
+            overflow: hidden;
         }
 
-        /* главная сетка карточек */
+        .btn::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: var(--grad);
+            opacity: 0;
+            transition: opacity 0.25s;
+        }
+
+        .btn:hover {
+            border-color: rgba(196,164,92,0.6);
+            box-shadow: 0 8px 24px rgba(196,164,92,0.15), 0 0 0 1px rgba(196,164,92,0.15);
+            transform: translateY(-1px);
+        }
+
+        .btn:hover::after { opacity: 0.08; }
+        .btn:active { transform: translateY(0); }
+
+        /* Theme button */
+        .theme-btn {
+            background: var(--gold-dim);
+            border: 1px solid rgba(196,164,92,0.2);
+            color: var(--gold);
+            padding: 8px 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.78rem;
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 500;
+            letter-spacing: 0.05em;
+            transition: all 0.2s;
+        }
+        .theme-btn:hover { background: rgba(196,164,92,0.2); }
+
+        /* ─── HOME GRID ─── */
+        .home-hero {
+            text-align: center;
+            padding: 20px 0 16px;
+        }
+
+        .home-hero h1 {
+            font-size: 4rem;
+            line-height: 1.1;
+            margin-bottom: 14px;
+        }
+
+        .home-hero p {
+            font-family: 'DM Sans', sans-serif;
+            color: var(--text-muted);
+            font-size: 1rem;
+            font-weight: 300;
+            letter-spacing: 0.03em;
+            margin: 0 0 48px;
+        }
+
         .home-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
-            gap: 24px;
-            margin-top: 40px;
+            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+            gap: 14px;
+            margin-top: 0;
         }
+
         .home-card {
-            background: rgba(255,255,255,0.2);
-            backdrop-filter: blur(12px);
-            border: 1px solid var(--border-light);
-            border-radius: 28px;
-            padding: 28px 18px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 26px 20px;
             text-align: center;
             cursor: pointer;
-            transition: var(--transition-smooth);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
+
+        .home-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(196,164,92,0.2), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
         .home-card:hover {
-            transform: translateY(-8px) scale(1.02);
-            background: rgba(255,255,255,0.3);
-            box-shadow: var(--shadow-premium);
-            border-color: rgba(99,102,241,0.4);
-        }
-        .home-card .icon {
-            font-size: 3.2rem;
-            margin-bottom: 16px;
-        }
-        .home-card .title {
-            font-weight: 700;
-            font-size: 1.2rem;
-            margin-bottom: 8px;
-            background: var(--grad-premium);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        /* таблица паролей */
-        .passwords-table td {
-            background: rgba(255,255,255,0.05);
-            border-radius: 16px;
-            transition: 0.2s;
-            cursor: pointer;
-            font-weight: 500;
-        }
-        .passwords-table td:hover {
-            background: rgba(99,102,241,0.2);
-            transform: scale(1.02);
-        }
-
-        /* сабтабы */
-        .subtab-btn {
-            background: var(--glass-light);
-            border: 1px solid var(--border-light);
-            border-radius: 40px;
-            padding: 8px 24px;
-            font-weight: 600;
-            transition: 0.2s;
-        }
-        .subtab-btn.active {
-            background: var(--grad-premium);
-            color: white;
-            border: none;
-            box-shadow: 0 6px 14px rgba(99,102,241,0.3);
-        }
-
-        /* игровое поле */
-        .cell, .square {
-            transition: all 0.1s ease;
-        }
-        .cell:hover {
-            background: rgba(99,102,241,0.2);
-            transform: scale(0.98);
-        }
-        .square.selected-cell {
-            outline: 3px solid #ffd966;
-            box-shadow: 0 0 12px gold;
-        }
-
-        /* модальное окно премиум */
-        .mobile-modal {
-            background: var(--glass-light);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 44px;
-            padding: 30px;
-            box-shadow: var(--shadow-lg);
-        }
-
-        /* время на главной */
-        .time-card {
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(8px);
-            border-radius: 28px;
-            transition: 0.2s;
-        }
-        .time-card:hover {
+            border-color: rgba(196,164,92,0.25);
+            background: var(--surface-hover);
             transform: translateY(-4px);
-            background: rgba(99,102,241,0.15);
+            box-shadow: 0 16px 40px rgba(0,0,0,0.4), 0 0 0 1px rgba(196,164,92,0.1);
         }
 
-        /* контроллеры случайных чисел, колесо */
-        #wheelCanvas {
-            filter: drop-shadow(0 12px 18px rgba(0,0,0,0.2));
+        .home-card:hover::before { opacity: 1; }
+
+        .home-card .icon {
+            font-size: 2rem;
+            margin-bottom: 12px;
+            display: block;
+            filter: saturate(0.7);
         }
 
-        /* анимированные кнопки ответов викторины */
-        .answer-btn {
-            border-radius: 40px;
-            backdrop-filter: blur(8px);
-            transition: 0.15s;
-        }
-        .answer-btn:active {
-            transform: scale(0.97);
-        }
-
-        /* авторский тэг */
-        .author-tag {
-            font-weight: 800;
-            background: var(--grad-premium);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-            letter-spacing: 1px;
-            font-size: 1.2rem;
-        }
-
-        /* улучшенный онлайн-счетчик */
-        .online-counter {
-            background: var(--glass-light);
-            backdrop-filter: blur(12px);
-            border-radius: 40px;
-            padding: 8px 20px;
+        .home-card .title {
+            font-family: 'Cormorant Garamond', serif;
             font-weight: 600;
-            border: 1px solid var(--border-light);
+            font-size: 1.05rem;
+            margin-bottom: 6px;
+            color: var(--text);
         }
 
-        /* контактная почта */
-        .contact-email a, .contact-email {
+        .home-card .desc {
+            color: var(--text-muted);
+            font-size: 0.78rem;
+            letter-spacing: 0.02em;
+        }
+
+        /* ─── SUBTABS ─── */
+        .subtab-nav {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+        }
+
+        .subtab-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 7px 16px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-family: 'DM Sans', sans-serif;
             font-weight: 500;
-            text-decoration: none;
-            border-bottom: 1px dashed var(--accent-light);
-            transition: 0.2s;
-        }
-        .contact-email:hover {
-            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: 0.02em;
         }
 
-        /* калькулятор кнопки */
+        .subtab-btn:hover { color: var(--text); border-color: rgba(196,164,92,0.2); }
+
+        .subtab-btn.active {
+            background: var(--gold-dim);
+            border-color: rgba(196,164,92,0.3);
+            color: var(--gold2);
+        }
+
+        .subtab-content { display: none; }
+        .subtab-content.active { display: block; }
+
+        /* ─── CONTAINER ─── */
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 28px;
+        }
+
+        @media (max-width: 768px) { .container { grid-template-columns: 1fr; } }
+
+        /* ─── INPUT GROUP ─── */
+        .input-group {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        /* ─── RESULT CARDS ─── */
+        #res-area > div {
+            background: rgba(196,164,92,0.04) !important;
+            border: 1px solid rgba(196,164,92,0.12) !important;
+            border-radius: 14px !important;
+            padding: 18px 22px !important;
+            margin-top: 12px !important;
+        }
+
+        /* ─── HISTORY ─── */
+        #h-list > div {
+            padding: 14px 4px !important;
+            border-bottom: 1px solid var(--border) !important;
+        }
+
+        /* ─── PASSWORDS TABLE ─── */
+        .passwords-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .passwords-table td {
+            padding: 13px 16px;
+            text-align: center;
+            border: 1px solid var(--border);
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 0.88rem;
+            color: var(--text);
+            cursor: pointer;
+            transition: background 0.2s;
+            letter-spacing: 0.04em;
+        }
+        .passwords-table td:hover { background: var(--gold-dim); color: var(--gold2); }
+        .passwords-table tr:first-child td:first-child { border-radius: 10px 0 0 0; }
+        .passwords-table tr:last-child td:last-child { border-radius: 0 0 10px 0; }
+
+        .timestamp { margin-top: 14px; font-size: 0.8rem; color: var(--text-muted); letter-spacing: 0.03em; }
+        .error { color: #e05c5c; font-size: 0.85rem; margin-top: 8px; }
+
+        /* ─── TIME GRID ─── */
+        .time-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
+            gap: 14px;
+            margin-top: 20px;
+        }
+
+        .time-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 22px 18px;
+            text-align: center;
+            transition: all 0.25s;
+        }
+
+        .time-card:hover {
+            border-color: rgba(196,164,92,0.2);
+            background: var(--surface-hover);
+        }
+
+        .time-card .city {
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+
+        .time-card .time {
+            font-size: 1.5rem;
+            font-weight: 600;
+            font-variant-numeric: tabular-nums;
+            color: var(--gold);
+            letter-spacing: 0.03em;
+        }
+
+        .time-card .date {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            margin-top: 6px;
+            letter-spacing: 0.03em;
+        }
+
+        /* ─── CALCULATOR ─── */
+        .calc-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-top: 16px;
+        }
+
         .calc-btn {
-            border-radius: 28px;
-            transition: 0.1s linear;
+            padding: 18px 8px;
+            font-size: 1.2rem;
+            font-weight: 500;
+            font-family: 'DM Sans', sans-serif;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .calc-btn:hover { background: var(--surface-hover); border-color: rgba(196,164,92,0.2); }
+        .calc-btn:active { transform: scale(0.97); }
+
+        .calc-btn.op { color: var(--gold); }
+
+        .calc-btn.eq {
+            background: var(--gold-dim);
+            border-color: rgba(196,164,92,0.3);
+            color: var(--gold2);
             font-weight: 600;
         }
-        .calc-btn:active {
-            transform: scale(0.94);
-        }
-        .calc-btn.eq {
-            background: var(--grad-premium);
-            box-shadow: 0 6px 14px rgba(99,102,241,0.4);
+
+        .calc-btn.eq:hover {
+            background: rgba(196,164,92,0.2);
+            box-shadow: 0 4px 16px rgba(196,164,92,0.15);
         }
 
-        /* адаптивность */
+        #calcResult {
+            margin-top: 16px;
+            font-size: 1.5rem;
+            font-weight: 600;
+            text-align: right;
+            color: var(--gold);
+            font-family: 'Cormorant Garamond', serif;
+            letter-spacing: -0.02em;
+        }
+
+        /* ─── QUIZ ─── */
+        .quiz-question {
+            font-size: 1.7rem;
+            text-align: center;
+            margin: 20px 0;
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            color: var(--text);
+        }
+
+        .answers {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        .answer-btn {
+            padding: 18px;
+            font-size: 1rem;
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 500;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+            color: var(--text);
+            letter-spacing: 0.01em;
+        }
+
+        .answer-btn:hover { background: var(--gold-dim); border-color: rgba(196,164,92,0.25); color: var(--gold2); }
+        .answer-btn.correct { background: rgba(46,180,100,0.15); border-color: rgba(46,180,100,0.4); color: #4ade80; }
+        .answer-btn.wrong { background: rgba(220,80,80,0.12); border-color: rgba(220,80,80,0.35); color: #f87171; }
+
+        .quiz-score {
+            font-size: 0.9rem;
+            text-align: center;
+            margin-bottom: 20px;
+            color: var(--text-muted);
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            font-weight: 500;
+        }
+
+        /* ─── GAMES ─── */
+        .game-status {
+            text-align: center;
+            font-size: 1.2rem;
+            font-family: 'Cormorant Garamond', serif;
+            margin-bottom: 20px;
+            color: var(--gold);
+        }
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            gap: 8px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .cell {
+            width: 100px;
+            height: 100px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.2rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .cell:hover { background: var(--gold-dim); border-color: rgba(196,164,92,0.25); }
+        .cell.disabled { pointer-events: none; opacity: 0.65; }
+
+        /* ─── CHECKERS ─── */
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(8, 52px);
+            gap: 0;
+            justify-content: center;
+            margin: 20px auto;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 16px 40px rgba(0,0,0,0.4);
+        }
+
+        .square { width: 52px; height: 52px; display: flex; align-items: center; justify-content: center; }
+        .dark-sq { background: #3d2c1a; }
+        .light-sq { background: #c8a882; }
+
+        .piece {
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            position: relative;
+            transition: transform 0.15s;
+        }
+
+        .white-piece {
+            background: radial-gradient(circle at 35% 35%, #f0ece4, #c4bfb4);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.5), inset 0 -2px 4px rgba(0,0,0,0.2);
+            border: 1px solid #a8a09a;
+        }
+
+        .black-piece {
+            background: radial-gradient(circle at 35% 35%, #4a4040, #1a1414);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.7), inset 0 -2px 4px rgba(0,0,0,0.4);
+            border: 1px solid #2a2020;
+        }
+
+        .king::after {
+            content: '♛';
+            font-size: 18px;
+            color: var(--gold);
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            text-shadow: 0 0 6px rgba(0,0,0,0.8);
+        }
+
+        .square.selected-cell { outline: 2px solid var(--gold); outline-offset: -2px; z-index: 2; }
+        .square.highlight-move { box-shadow: inset 0 0 0 3px rgba(100,200,120,0.7); }
+        .square.highlight-capture { box-shadow: inset 0 0 0 3px rgba(220,100,100,0.7); }
+
+        /* ─── QUOTE ─── */
+        .quote-text {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.8rem;
+            font-style: italic;
+            font-weight: 300;
+            text-align: center;
+            margin: 28px 0 16px;
+            line-height: 1.45;
+            color: var(--text);
+        }
+
+        .quote-author {
+            font-size: 0.85rem;
+            text-align: center;
+            color: var(--gold);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            font-weight: 500;
+        }
+
+        /* ─── MUSIC / BOOKS / FILMS ─── */
+        .result-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 18px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 12px;
+            transition: all 0.2s;
+        }
+
+        .result-card:hover { border-color: rgba(196,164,92,0.2); background: var(--surface-hover); }
+
+        .result-card img {
+            width: 72px;
+            height: 72px;
+            border-radius: 10px;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+
+        .result-info { flex: 1; }
+
+        .result-info h4 {
+            margin: 0 0 4px;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text);
+            background: none;
+            -webkit-text-fill-color: var(--text);
+        }
+
+        .result-info p {
+            margin: 3px 0;
+            font-size: 0.82rem;
+            color: var(--text-muted);
+        }
+
+        .play-btn {
+            background: var(--gold-dim);
+            border: 1px solid rgba(196,164,92,0.2);
+            color: var(--gold);
+            border-radius: 50%;
+            width: 44px; height: 44px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.2s;
+        }
+        .play-btn:hover { background: rgba(196,164,92,0.2); box-shadow: 0 4px 16px rgba(196,164,92,0.2); }
+
+        /* ─── PASSWORD SETTINGS ─── */
+        .password-settings {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 28px;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+
+        .setting-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .setting-group label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .setting-group label:hover { color: var(--text); }
+
+        input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: var(--gold);
+            cursor: pointer;
+        }
+
+        input[type="radio"] {
+            accent-color: var(--gold);
+        }
+
+        /* ─── TRANSLATE ─── */
+        #translatedText {
+            margin-top: 14px;
+            padding: 18px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            min-height: 64px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 1rem;
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        /* ─── RANDOM NUMBERS ─── */
+        .random-numbers {
+            font-size: 1.5rem;
+            word-break: break-all;
+            margin: 16px 0;
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            color: var(--gold);
+            letter-spacing: 0.04em;
+        }
+
+        .flex-row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .flex-row input[type="number"] { width: 80px; }
+        .radio-group { display: flex; gap: 20px; align-items: center; }
+
+        /* ─── FOOTER ELEMENTS ─── */
+        .author-tag {
+            position: fixed;
+            bottom: 24px; right: 24px;
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 600;
+            font-size: 0.72rem;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            color: var(--gold);
+            opacity: 0.5;
+            z-index: 10;
+            transition: opacity 0.2s;
+        }
+        .author-tag:hover { opacity: 0.9; }
+
+        .online-counter {
+            position: fixed;
+            bottom: 24px; left: 24px;
+            background: var(--surface);
+            backdrop-filter: blur(12px);
+            border-radius: 100px;
+            padding: 7px 16px;
+            font-size: 0.78rem;
+            font-family: 'DM Sans', sans-serif;
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+            z-index: 10;
+            display: flex; align-items: center; gap: 8px;
+            letter-spacing: 0.03em;
+        }
+
+        .online-dot {
+            width: 6px; height: 6px;
+            background: var(--gold);
+            border-radius: 50%;
+            animation: pulse-dot 2s ease infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.85); }
+        }
+
+        .contact-email {
+            text-align: center;
+            margin-top: 48px;
+            margin-bottom: 80px;
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            letter-spacing: 0.05em;
+            transition: color 0.2s;
+        }
+        .contact-email:hover { color: var(--gold); }
+        .contact-email a { color: var(--gold); text-decoration: none; }
+
+        /* ─── SUPPORT FORM ─── */
+        #supportForm input,
+        #supportForm textarea {
+            margin-bottom: 12px;
+        }
+
+        /* ─── DONATE ─── */
+        #tab-donate .glass-card p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            text-align: center;
+        }
+
+        #tab-donate .flex-row button {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.1rem;
+            font-style: italic;
+        }
+
+        /* ─── MOBILE MODAL ─── */
+        .mobile-modal-overlay {
+            display: none;
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(12px);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mobile-modal {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 36px;
+            max-width: 320px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            position: relative;
+        }
+
+        .mobile-modal::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(196,164,92,0.4), transparent);
+        }
+
+        .mobile-modal h3 {
+            margin-bottom: 12px;
+            font-size: 1.5rem;
+        }
+
+        .mobile-modal p {
+            font-size: 0.92rem;
+            color: var(--text-muted);
+            margin: 12px 0 28px;
+            line-height: 1.6;
+        }
+
+        .mobile-modal .btn-row {
+            display: flex; gap: 8px;
+            justify-content: center; flex-wrap: wrap;
+        }
+
+        .mobile-modal .m-btn {
+            padding: 11px 16px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            font-weight: 500;
+            font-family: 'DM Sans', sans-serif;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+            background: var(--surface);
+            color: var(--text);
+        }
+
+        .m-btn.copy-btn {
+            background: var(--gold-dim);
+            border-color: rgba(196,164,92,0.3);
+            color: var(--gold2);
+        }
+
+        .m-btn.copy-btn:hover { background: rgba(196,164,92,0.2); }
+        .m-btn.ok-btn:hover { background: var(--surface-hover); }
+        .m-btn.close-btn { color: #f87171; border-color: rgba(248,113,113,0.2); }
+        .m-btn.close-btn:hover { background: rgba(248,113,113,0.1); }
+
+        /* ─── RESPONSIVE ─── */
         @media (max-width: 768px) {
-            body {
-                padding: 16px 12px;
-            }
-            .glass-card {
-                padding: 24px 20px;
-            }
-            .tab-nav {
-                gap: 8px;
-                padding: 8px 12px;
-                border-radius: 40px;
-            }
-            .tab-btn {
-                padding: 6px 18px;
-                font-size: 0.8rem;
-            }
-            .home-grid {
-                grid-template-columns: 1fr 1fr;
-                gap: 16px;
-            }
-            .btn {
-                padding: 14px 18px;
-            }
+            body { padding: 10px; }
+
+            .tab-nav { gap: 3px; top: 5px; padding: 8px 10px; }
+            .tab-btn { padding: 7px 10px; font-size: 0.72rem; }
+
+            .glass-card { padding: 22px 18px; border-radius: 16px; }
+
+            .input-group { grid-template-columns: 1fr; }
+            .password-settings { flex-direction: column; }
+
+            .home-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+            .home-hero h1 { font-size: 2.8rem; }
+
+            .answers { grid-template-columns: 1fr; }
+
+            .board { grid-template-columns: repeat(3, 80px); }
+            .cell { width: 80px; height: 80px; font-size: 1.8rem; }
+
+            .game-board { grid-template-columns: repeat(8, 38px); }
+            .square { width: 38px; height: 38px; }
+            .piece { width: 30px; height: 30px; }
+            .king::after { font-size: 14px; }
+
+            .calc-btn { padding: 14px 4px; font-size: 1rem; }
+
+            .quote-text { font-size: 1.4rem; }
         }
 
-        /* эффект появления контента */
-        .tab-content.active {
-            animation: fadeSlideUp 0.35s ease-out;
+        /* ─── SELECT STYLING ─── */
+        select option {
+            background: var(--bg2);
+            color: var(--text);
         }
-        @keyframes fadeSlideUp {
-            from {
-                opacity: 0;
-                transform: translateY(12px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
+
+        /* ─── SCROLLBAR ─── */
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(196,164,92,0.2); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(196,164,92,0.4); }
     </style>
 </head>
-<body data-theme="light" oncontextmenu="return false;">
+<body data-theme="dark" oncontextmenu="return false;">
 
     <div class="main-wrapper">
+        <div class="site-wordmark">Unified Service — All tools in one place</div>
+
         <div class="tab-nav">
             <button class="tab-btn active" data-tab="home">🏠 Главная</button>
             <button class="tab-btn" data-tab="calc">🧮 Калькулятор</button>
@@ -476,23 +1044,26 @@
 
         <!-- Главная -->
         <div class="tab-content active" id="tab-home">
-            <div class="glass-card" style="text-align:center;">
-                <h1 style="font-size:2.6rem; margin-bottom:12px;">Unified Service</h1>
-                <p style="opacity:0.85; font-size:1.15rem;">Все нужные онлайн-инструменты в одном сервисе: быстро, удобно и без рекламы</p>
+            <div class="glass-card">
+                <div class="home-hero">
+                    <h1>Unified Service</h1>
+                    <p>Все нужные онлайн-инструменты в одном сервисе — быстро, удобно и без рекламы</p>
+                </div>
+                <div class="divider"></div>
                 <div class="home-grid">
-                    <div class="home-card" data-goto="calc"><div class="icon">🧮</div><div class="title">Калькулятор</div><div class="desc">Уравнения и графики</div></div>
-                    <div class="home-card" data-goto="luck"><div class="icon">🎲</div><div class="title">Удача</div><div class="desc">Колесо фортуны и числа</div></div>
-                    <div class="home-card" data-goto="password"><div class="icon">🔐</div><div class="title">Пароли</div><div class="desc">Надёжные пароли</div></div>
-                    <div class="home-card" data-goto="time"><div class="icon">🕒</div><div class="title">Мировое время</div><div class="desc">20+ городов</div></div>
-                    <div class="home-card" data-goto="translate"><div class="icon">🌐</div><div class="title">Переводчик</div><div class="desc">Русский ↔ Английский и др.</div></div>
-                    <div class="home-card" data-goto="quiz"><div class="icon">❓</div><div class="title">Викторина</div><div class="desc">Страны, столицы, флаги</div></div>
-                    <div class="home-card" data-goto="game"><div class="icon">🎮</div><div class="title">Игры</div><div class="desc">Крестики-нолики и шашки</div></div>
-                    <div class="home-card" data-goto="quotes"><div class="icon">💬</div><div class="title">Цитаты</div><div class="desc">Мотивация на каждый день</div></div>
-                    <div class="home-card" data-goto="music"><div class="icon">🎵</div><div class="title">Музыка</div><div class="desc">Поиск и прослушивание</div></div>
-                    <div class="home-card" data-goto="books"><div class="icon">📚</div><div class="title">Книги</div><div class="desc">Поиск литературы</div></div>
-                    <div class="home-card" data-goto="films"><div class="icon">🎬</div><div class="title">Фильмы</div><div class="desc">Поиск фильмов и сериалов</div></div>
-                    <div class="home-card" data-goto="support"><div class="icon">✉️</div><div class="title">Поддержка</div><div class="desc">Свяжитесь с нами</div></div>
-                    <div class="home-card" data-goto="donate"><div class="icon">❤️</div><div class="title">Поддержать</div><div class="desc">Помочь проекту</div></div>
+                    <div class="home-card" data-goto="calc"><span class="icon">🧮</span><div class="title">Калькулятор</div><div class="desc">Уравнения и графики</div></div>
+                    <div class="home-card" data-goto="luck"><span class="icon">🎲</span><div class="title">Удача</div><div class="desc">Колесо фортуны и числа</div></div>
+                    <div class="home-card" data-goto="password"><span class="icon">🔐</span><div class="title">Пароли</div><div class="desc">Надёжные пароли</div></div>
+                    <div class="home-card" data-goto="time"><span class="icon">🕒</span><div class="title">Мировое время</div><div class="desc">20+ городов</div></div>
+                    <div class="home-card" data-goto="translate"><span class="icon">🌐</span><div class="title">Переводчик</div><div class="desc">Русский ↔ Английский и др.</div></div>
+                    <div class="home-card" data-goto="quiz"><span class="icon">❓</span><div class="title">Викторина</div><div class="desc">Страны, столицы, флаги</div></div>
+                    <div class="home-card" data-goto="game"><span class="icon">🎮</span><div class="title">Игры</div><div class="desc">Крестики-нолики и шашки</div></div>
+                    <div class="home-card" data-goto="quotes"><span class="icon">💬</span><div class="title">Цитаты</div><div class="desc">Мотивация на каждый день</div></div>
+                    <div class="home-card" data-goto="music"><span class="icon">🎵</span><div class="title">Музыка</div><div class="desc">Поиск и прослушивание</div></div>
+                    <div class="home-card" data-goto="books"><span class="icon">📚</span><div class="title">Книги</div><div class="desc">Поиск литературы</div></div>
+                    <div class="home-card" data-goto="films"><span class="icon">🎬</span><div class="title">Фильмы</div><div class="desc">Поиск фильмов и сериалов</div></div>
+                    <div class="home-card" data-goto="support"><span class="icon">✉️</span><div class="title">Поддержка</div><div class="desc">Свяжитесь с нами</div></div>
+                    <div class="home-card" data-goto="donate"><span class="icon">❤️</span><div class="title">Поддержать</div><div class="desc">Помочь проекту</div></div>
                 </div>
             </div>
         </div>
@@ -519,14 +1090,14 @@
                             <div class="chart-wrap" style="height:300px; margin-top:30px;"><canvas id="chart"></canvas></div>
                         </div>
                         <div class="right-side">
-                            <h3 style="margin:0; color:var(--primary-light);">История</h3>
+                            <h3 style="margin:0;">История</h3>
                             <div id="h-list" style="max-height:400px; overflow-y:auto; margin-top:20px;"></div>
-                            <button onclick="clearHistory()" style="margin-top:20px; background:none; border:none; color:#ff4757; cursor:pointer;">Очистить</button>
+                            <button onclick="clearHistory()" style="margin-top:20px; background:none; border:none; color:#e05c5c; cursor:pointer; font-family:'DM Sans',sans-serif; font-size:0.85rem; letter-spacing:0.05em;">Очистить историю</button>
                         </div>
                     </div>
                 </div>
                 <div class="subtab-content" id="subtab-expression">
-                    <input type="text" id="exprInput" placeholder="Например: (15+3)*2^3" style="font-size:1.5rem; text-align:right; margin-bottom:20px;">
+                    <input type="text" id="exprInput" placeholder="Например: (15+3)*2^3" style="font-size:1.3rem; text-align:right; margin-bottom:16px;">
                     <div class="calc-grid">
                         <button class="calc-btn" data-action="clear">C</button>
                         <button class="calc-btn" data-action="backspace">⌫</button>
@@ -550,12 +1121,12 @@
                         <button class="calc-btn op" data-action="insert" data-value="+">+</button>
                         <button class="calc-btn eq" data-action="evaluate" style="grid-column:span 4;">=</button>
                     </div>
-                    <div id="calcResult" style="margin-top:20px; font-size:1.4rem; font-weight:700; text-align:right; color:var(--accent-light);"></div>
+                    <div id="calcResult"></div>
                 </div>
                 <div class="subtab-content" id="subtab-graph">
-                    <input type="text" id="graphInput" placeholder="Введите уравнение: например, sin(x) или x^2 - 4*x + 3" style="font-size:1.2rem; margin-bottom:20px;">
+                    <input type="text" id="graphInput" placeholder="Введите уравнение: например, sin(x) или x^2 - 4*x + 3" style="font-size:1rem; margin-bottom:16px;">
                     <button class="btn" id="drawGraphBtn">Построить график</button>
-                    <div class="chart-wrap" style="height:400px; margin-top:30px;"><canvas id="graphCanvas"></canvas></div>
+                    <div class="chart-wrap" style="height:400px; margin-top:28px;"><canvas id="graphCanvas"></canvas></div>
                 </div>
             </div>
         </div>
@@ -571,30 +1142,35 @@
                 <div class="subtab-content active" id="subtab-wheel">
                     <div style="display:flex; flex-direction:column; align-items:center; gap:20px;">
                         <canvas id="wheelCanvas" width="400" height="400" style="max-width:100%; height:auto;"></canvas>
-                        <div id="wheelResult" style="font-size:1.2rem; font-weight:600; color:var(--accent-light);"></div>
+                        <div id="wheelResult" style="font-size:1.1rem; font-weight:500; color:var(--gold); letter-spacing:0.04em;"></div>
                         <button class="btn" id="spinBtn">Испытать удачу</button>
-                        <div style="width:100%;"><label>Сектора (каждый с новой строки):</label><textarea id="sectorArea" rows="8">Подарок
+                        <div style="width:100%;">
+                            <label style="font-size:0.85rem; color:var(--text-muted); display:block; margin-bottom:8px;">Сектора (каждый с новой строки):</label>
+                            <textarea id="sectorArea" rows="8">Подарок
 Джекпот
 Удача
 Сюрприз
 100 монет
 Ещё раз
 Бонус
-Мегаприз</textarea><button class="btn" id="updateSectorsBtn" style="margin-top:10px;">Обновить сектора</button></div>
+Мегаприз</textarea>
+                            <button class="btn" id="updateSectorsBtn" style="margin-top:10px;">Обновить сектора</button>
+                        </div>
                     </div>
                 </div>
                 <div class="subtab-content" id="subtab-random">
                     <div style="display:flex; flex-direction:column; gap:20px;">
                         <div class="random-numbers" id="randomNumbersDisplay">57 96 23 48 31 86 64 46</div>
                         <div class="flex-row"><button class="btn" id="saveRandomBtn" style="width:auto;">Сохранить эти числа</button></div>
-                        <div style="border-top:1px solid var(--border-light); padding-top:20px;">
-                            <label>Сгенерировать новую последовательность из</label>
-                            <div class="flex-row" style="margin:10px 0;"><input type="number" id="randomCount" value="8" min="1" max="100" step="1"><span>случайных чисел</span></div>
+                        <div class="divider"></div>
+                        <div>
+                            <label style="font-size:0.85rem; color:var(--text-muted);">Сгенерировать новую последовательность из</label>
+                            <div class="flex-row" style="margin:10px 0;"><input type="number" id="randomCount" value="8" min="1" max="100" step="1"><span style="color:var(--text-muted); font-size:0.9rem;">случайных чисел</span></div>
                             <div class="radio-group"><label><input type="radio" name="randomSource" value="range" checked> из диапазона</label><label><input type="radio" name="randomSource" value="list"> из списка</label></div>
-                            <div class="flex-row" id="rangeInputs"><span>от</span><input type="number" id="rangeMin" value="1" step="1"><span>до</span><input type="number" id="rangeMax" value="100" step="1"></div>
+                            <div class="flex-row" id="rangeInputs" style="margin-top:10px;"><span style="color:var(--text-muted); font-size:0.9rem;">от</span><input type="number" id="rangeMin" value="1" step="1"><span style="color:var(--text-muted); font-size:0.9rem;">до</span><input type="number" id="rangeMax" value="100" step="1"></div>
                             <div id="listInput" style="display:none; margin-top:10px;"><input type="text" id="customList" placeholder="числа через запятую, например: 5,10,15,20"></div>
-                            <div style="margin-top:15px;"><label><input type="checkbox" id="excludeEnabled"> исключить числа</label><input type="text" id="excludeList" placeholder="список целых чисел через запятую" style="width:100%; margin-top:5px;"></div>
-                            <div style="margin-top:15px;"><label><input type="checkbox" id="noRepeat"> исключить повторы</label></div>
+                            <div style="margin-top:15px;"><label><input type="checkbox" id="excludeEnabled"> <span style="color:var(--text-muted); font-size:0.9rem;">исключить числа</span></label><input type="text" id="excludeList" placeholder="список целых чисел через запятую" style="width:100%; margin-top:8px;"></div>
+                            <div style="margin-top:12px;"><label><input type="checkbox" id="noRepeat"> <span style="color:var(--text-muted); font-size:0.9rem;">исключить повторы</span></label></div>
                             <button class="btn" id="generateRandomBtn">Сгенерировать</button>
                         </div>
                     </div>
@@ -606,11 +1182,12 @@
         <div class="tab-content" id="tab-password">
             <div class="glass-card">
                 <div class="header"><h2>Генератор паролей</h2><button class="theme-btn" onclick="toggleTheme()">🌓 Тема</button></div>
-                <p style="opacity:0.8;">для социальных сетей, сайтов и приложений</p>
+                <p style="color:var(--text-muted); font-size:0.9rem; margin-top:-20px; margin-bottom:28px;">для социальных сетей, сайтов и приложений</p>
                 <div class="password-settings">
-                    <div class="setting-group"><label>Длина пароля (макс. 35)</label><input type="number" id="passLength" value="10" min="4" max="35" step="1"></div>
-                    <div class="setting-group"><label>Количество (макс. 99)</label><input type="number" id="passCount" value="10" min="1" max="99" step="1"></div>
+                    <div class="setting-group"><label style="color:var(--text-muted); font-size:0.85rem; margin-bottom:4px; display:block;">Длина пароля (макс. 35)</label><input type="number" id="passLength" value="10" min="4" max="35" step="1" style="width:120px;"></div>
+                    <div class="setting-group"><label style="color:var(--text-muted); font-size:0.85rem; margin-bottom:4px; display:block;">Количество (макс. 99)</label><input type="number" id="passCount" value="10" min="1" max="99" step="1" style="width:120px;"></div>
                 </div>
+                <div class="divider"></div>
                 <div class="password-settings" style="justify-content:space-between;">
                     <div class="setting-group">
                         <label><input type="checkbox" id="useUpper"> Прописные (A-Z)</label>
@@ -635,9 +1212,9 @@
         <div class="tab-content" id="tab-time">
             <div class="glass-card">
                 <div class="header"><h2>Мировое время</h2><button class="theme-btn" onclick="toggleTheme()">🌓 Тема</button></div>
-                <div class="flex-row" style="margin-bottom:25px; gap:10px;">
+                <div class="flex-row" style="margin-bottom:24px; gap:10px;">
                     <input type="text" id="cityFilter" placeholder="🔍 Поиск города..." style="flex:1;">
-                    <button class="btn" id="resetFilterBtn" style="width:auto; margin-top:0;">Показать все</button>
+                    <button class="btn" id="resetFilterBtn" style="width:auto; margin-top:0; padding:14px 20px;">Все города</button>
                 </div>
                 <div class="time-grid" id="timeGrid"></div>
             </div>
@@ -647,12 +1224,12 @@
         <div class="tab-content" id="tab-translate">
             <div class="glass-card">
                 <div class="header"><h2>Переводчик</h2><button class="theme-btn" onclick="toggleTheme()">🌓 Тема</button></div>
-                <div class="flex-row" style="margin-bottom:15px;">
+                <div class="flex-row" style="margin-bottom:16px;">
                     <select id="langFrom">
                         <option value="ru">Русский</option><option value="en">Английский</option>
                         <option value="fr">Французский</option><option value="es">Испанский</option>
                     </select>
-                    <span>→</span>
+                    <span style="color:var(--gold); font-size:1.2rem; flex-shrink:0;">→</span>
                     <select id="langTo">
                         <option value="en">Английский</option><option value="ru">Русский</option>
                         <option value="fr">Французский</option><option value="es">Испанский</option>
@@ -660,8 +1237,8 @@
                 </div>
                 <textarea id="translateInput" rows="4" placeholder="Введите текст..."></textarea>
                 <button class="btn" id="translateBtn">Перевести</button>
-                <div style="margin-top:15px; padding:15px; background:rgba(0,0,0,0.1); border-radius:20px; min-height:60px;" id="translatedText"></div>
-                <button class="btn" id="copyTranslationBtn" style="margin-top:5px;">Копировать перевод</button>
+                <div id="translatedText"></div>
+                <button class="btn" id="copyTranslationBtn" style="margin-top:8px;">Копировать перевод</button>
             </div>
         </div>
 
@@ -690,9 +1267,9 @@
                     <button class="btn" id="resetGame">Новая игра</button>
                 </div>
                 <div class="subtab-content" id="subtab-checkers">
+                    <div id="checkersStatus" style="text-align:center; margin-bottom:14px; color:var(--gold); font-family:'Cormorant Garamond',serif; font-size:1.2rem;">Ход белых</div>
                     <div id="checkersBoard" class="game-board"></div>
-                    <div id="checkersStatus" style="text-align:center; margin-bottom:10px;">Ход белых</div>
-                    <button class="btn" id="resetCheckers">Новая игра</button>
+                    <button class="btn" id="resetCheckers" style="margin-top:16px;">Новая игра</button>
                 </div>
             </div>
         </div>
@@ -701,10 +1278,12 @@
         <div class="tab-content" id="tab-quotes">
             <div class="glass-card">
                 <div class="header"><h2>Мотивационные цитаты</h2><button class="theme-btn" onclick="toggleTheme()">🌓 Тема</button></div>
+                <div class="divider"></div>
                 <div class="quote-text" id="quoteText"></div>
                 <div class="quote-author" id="quoteAuthor"></div>
+                <div class="divider"></div>
                 <button class="btn" id="newQuoteBtn">Новая цитата</button>
-                <button class="btn" id="copyQuoteBtn" style="margin-top:5px;">Копировать</button>
+                <button class="btn" id="copyQuoteBtn" style="margin-top:8px;">Копировать</button>
             </div>
         </div>
 
@@ -745,14 +1324,14 @@
                 <div class="header"><h2>Написать в поддержку</h2><button class="theme-btn" onclick="toggleTheme()">🌓 Тема</button></div>
                 <form id="supportForm" action="https://formspree.io/f/xzdywgae" method="POST">
                     <input type="text" name="name" placeholder="Ваше имя" required>
-                    <input type="email" name="email" placeholder="Ваш email" required>
-                    <textarea name="message" rows="5" placeholder="Ваше сообщение" required></textarea>
+                    <input type="email" name="email" placeholder="Ваш email" required style="margin-top:12px;">
+                    <textarea name="message" rows="5" placeholder="Ваше сообщение" required style="margin-top:12px;"></textarea>
                     <input type="hidden" name="_subject" value="Сообщение с Unified Service">
                     <input type="text" name="_gotcha" style="display:none">
-                    <button type="submit" class="btn">Отправить</button>
+                    <button type="submit" class="btn">Отправить сообщение</button>
                 </form>
-                <div id="supportSuccess" style="display:none; color: #2ecc71; text-align:center; margin-top:10px;">Сообщение отправлено!</div>
-                <div id="supportError" style="display:none; color: #ff4757; text-align:center; margin-top:10px;"></div>
+                <div id="supportSuccess" style="display:none; color:#4ade80; text-align:center; margin-top:12px; font-size:0.9rem; letter-spacing:0.05em;">Сообщение отправлено!</div>
+                <div id="supportError" style="display:none; color:#f87171; text-align:center; margin-top:12px;"></div>
             </div>
         </div>
 
@@ -760,20 +1339,23 @@
         <div class="tab-content" id="tab-donate">
             <div class="glass-card">
                 <div class="header"><h2>Поддержать проект</h2><button class="theme-btn" onclick="toggleTheme()">🌓 Тема</button></div>
-                <p style="text-align:center;">Выберите сумму поддержки (пробный режим, деньги не отправляются)</p>
-                <div class="flex-row" style="justify-content:center; margin:20px 0;">
-                    <button class="btn" style="width:auto; margin:0 10px;" onclick="donate(100)">100 ₽</button>
-                    <button class="btn" style="width:auto; margin:0 10px;" onclick="donate(500)">500 ₽</button>
-                    <button class="btn" style="width:auto; margin:0 10px;" onclick="donate(1000)">1000 ₽</button>
+                <p>Выберите сумму поддержки (пробный режим, деньги не отправляются)</p>
+                <div class="flex-row" style="justify-content:center; margin:24px 0;">
+                    <button class="btn" style="width:auto; margin:0;" onclick="donate(100)">100 ₽</button>
+                    <button class="btn" style="width:auto; margin:0;" onclick="donate(500)">500 ₽</button>
+                    <button class="btn" style="width:auto; margin:0;" onclick="donate(1000)">1000 ₽</button>
                 </div>
-                <p style="text-align:center; opacity:0.7;">Это имитация. Спасибо за вашу поддержку!</p>
+                <p style="font-size:0.82rem; opacity:0.5; letter-spacing:0.04em;">Это имитация. Спасибо за вашу поддержку!</p>
             </div>
         </div>
 
         <div class="contact-email" id="contactEmail" title="Нажмите, чтобы скопировать">📧 <span id="emailText">tape.power@outlook.com</span></div>
     </div>
 
-    <div class="online-counter" id="onlineCounter">👥 <span id="onlineCount">1</span> онлайн</div>
+    <div class="online-counter" id="onlineCounter">
+        <span class="online-dot"></span>
+        <span id="onlineCount">1</span> онлайн
+    </div>
     <div class="author-tag">by TapePower</div>
 
     <script>
@@ -877,16 +1459,16 @@
                     const x = -b / (2 * a);
                     area.innerHTML += drawRoot("x", `-${b}`, 2 * a, x);
                     roots = [x];
-                } else area.innerHTML += `<div style="color:#ff4757;">Корней нет</div>`;
+                } else area.innerHTML += `<div style="color:#e05c5c; padding:16px 0;">Корней нет</div>`;
                 updateChart(a, b, c, roots);
                 saveToHistory(a, b, c, roots);
             }
 
             function drawRoot(name, n, d, v) {
-                return `<div style="display:flex;align-items:center;gap:20px;background:rgba(255,255,255,0.02);padding:20px;border-radius:16px;border:1px solid var(--border-light);margin-top:15px;">
-                <span style="color:var(--primary-light);font-weight:800;">${name}</span>
-                <div style="text-align:center;"><div style="border-bottom:1px solid var(--text-light);">${n}</div><div>${d}</div></div>
-                <span>≈</span><span style="font-family:monospace;color:var(--accent-light);">${v.toFixed(10)}</span></div>`;
+                return `<div style="display:flex;align-items:center;gap:20px;background:rgba(196,164,92,0.04);padding:18px 22px;border-radius:14px;border:1px solid rgba(196,164,92,0.12);margin-top:12px;">
+                <span style="color:var(--gold);font-weight:700;font-family:'Cormorant Garamond',serif;font-size:1.2rem;">${name}</span>
+                <div style="text-align:center;"><div style="border-bottom:1px solid var(--border);padding-bottom:4px;">${n}</div><div style="padding-top:4px;">${d}</div></div>
+                <span style="color:var(--text-muted);">≈</span><span style="font-family:monospace;color:var(--gold2);">${v.toFixed(10)}</span></div>`;
             }
 
             function updateChart(a, b, c, roots) {
@@ -897,19 +1479,18 @@
                 for (let x = mid - 5; x <= mid + 5; x += 0.2) { labels.push(x.toFixed(1));
                     data.push(a * x * x + b * x + c); }
                 if (chart) chart.destroy();
-                const isDark = document.body.getAttribute('data-theme') === 'dark';
                 chart = new Chart(ctx, {
                     type: 'line',
-                    data: { labels, datasets: [{ data, borderColor: '#8b5cf6', borderWidth: 3,
+                    data: { labels, datasets: [{ data, borderColor: '#c4a45c', borderWidth: 2,
                             pointRadius: 0, tension: 0.4 }] },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
                         scales: {
-                            x: { ticks: { color: isDark ? '#64748b' : '#94a3b8' },
-                            grid: { display: false } },
-                            y: { ticks: { color: isDark ? '#64748b' : '#94a3b8' },
-                                grid: { color: 'rgba(255,255,255,0.05)' } }
+                            x: { ticks: { color: 'rgba(232,228,220,0.3)', font: { size: 11 } },
+                            grid: { color: 'rgba(255,255,255,0.04)' } },
+                            y: { ticks: { color: 'rgba(232,228,220,0.3)', font: { size: 11 } },
+                                grid: { color: 'rgba(255,255,255,0.04)' } }
                         },
                         plugins: { legend: { display: false } }
                     }
@@ -921,9 +1502,8 @@
 
             function updateGraphTheme() {
                 if (graphChart) {
-                    const isDark = document.body.getAttribute('data-theme') === 'dark';
-                    graphChart.options.scales.x.ticks.color = isDark ? '#64748b' : '#94a3b8';
-                    graphChart.options.scales.y.ticks.color = isDark ? '#64748b' : '#94a3b8';
+                    graphChart.options.scales.x.ticks.color = 'rgba(232,228,220,0.3)';
+                    graphChart.options.scales.y.ticks.color = 'rgba(232,228,220,0.3)';
                     graphChart.update();
                 }
             }
@@ -940,7 +1520,7 @@
                 const list = document.getElementById('h-list');
                 if (!list) return;
                 list.innerHTML = historyData.map(i =>
-                    `<div style="padding:15px;border-bottom:1px solid var(--border-light);"><div style="font-weight:600;">${i.q}</div><div style="color:var(--accent-light);margin-top:5px;">${i.a}</div></div>`
+                    `<div style="padding:12px 0;border-bottom:1px solid var(--border);"><div style="font-weight:500;font-size:0.95rem;">${i.q}</div><div style="color:var(--gold);margin-top:4px;font-size:0.9rem;font-family:monospace;">${i.a}</div></div>`
                     ).join('');
             }
             window.clearHistory = function() { localStorage.removeItem('eq_history');
@@ -1038,19 +1618,18 @@
                     return;
                 }
                 if (graphChart) graphChart.destroy();
-                const isDark = document.body.getAttribute('data-theme') === 'dark';
                 graphChart = new Chart(ctx, {
                     type: 'line',
-                    data: { labels, datasets: [{ data, borderColor: '#8b5cf6', borderWidth: 3,
+                    data: { labels, datasets: [{ data, borderColor: '#c4a45c', borderWidth: 2,
                             pointRadius: 0, tension: 0.4, fill: false }] },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
                         scales: {
-                            x: { ticks: { color: isDark ? '#64748b' : '#94a3b8' },
-                            grid: { display: false } },
-                            y: { ticks: { color: isDark ? '#64748b' : '#94a3b8' },
-                                grid: { color: 'rgba(255,255,255,0.05)' } }
+                            x: { ticks: { color: 'rgba(232,228,220,0.3)', font: { size: 11 } },
+                            grid: { color: 'rgba(255,255,255,0.04)' } },
+                            y: { ticks: { color: 'rgba(232,228,220,0.3)', font: { size: 11 } },
+                                grid: { color: 'rgba(255,255,255,0.04)' } }
                         },
                         plugins: { legend: { display: false } }
                     }
@@ -1079,9 +1658,8 @@
             setupSubtabs('#tab-game');
 
             // Колесо
-            const defaultColors = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40', '#C9CBCF',
-                '#7BC8A4', '#E74C3C', '#3498DB', '#2ECC71', '#F1C40F', '#9B59B6', '#1ABC9C', '#E67E22', '#34495E'
-            ];
+            const defaultColors = ['#c4a45c','#8b6914','#e8c97a','#a07830','#d4b46c','#705010','#b89448','#604008',
+                '#dac07a','#907020','#c8a45c','#80600a','#e0c070','#a08020','#b89040','#988030'];
             let sectors = [],
                 wheelAngle = 0,
                 spinning = false,
@@ -1111,7 +1689,7 @@
             function updateSectorsFromArea() { const text = document.getElementById('sectorArea').value; const lines =
                     text.split('\n').map(s => s.trim()).filter(s => s.length > 0);
                 sectors = lines.length ? lines.map((l, i) => ({ label: l, color: defaultColors[i % defaultColors
-                        .length] })) : [{ label: 'Сектор', color: '#FF6384' }];
+                        .length] })) : [{ label: 'Сектор', color: '#c4a45c' }];
                 drawWheel(wheelAngle); }
 
             function drawWheel(angle) { const canvas = document.getElementById('wheelCanvas'); if (!canvas) return;
@@ -1129,32 +1707,33 @@
                     ctx.closePath();
                     ctx.fillStyle = s.color;
                     ctx.fill();
-                    ctx.strokeStyle = '#fff';
-                    ctx.lineWidth = 2;
+                    ctx.strokeStyle = 'rgba(8,10,14,0.6)';
+                    ctx.lineWidth = 1.5;
                     ctx.stroke();
                     ctx.save();
                     ctx.translate(cx, cy);
                     ctx.rotate(start + arc / 2);
                     ctx.textAlign = 'right';
-                    ctx.fillStyle = '#fff';
-                    ctx.font = 'bold 14px Inter';
-                    ctx.shadowBlur = 4;
-                    ctx.fillText(s.label, r - 15, 5);
+                    ctx.fillStyle = '#f4f0e8';
+                    ctx.font = 'bold 13px DM Sans';
+                    ctx.shadowBlur = 6;
+                    ctx.shadowColor = 'rgba(0,0,0,0.8)';
+                    ctx.fillText(s.label, r - 14, 5);
                     ctx.restore(); });
                 ctx.beginPath();
-                ctx.arc(cx, cy, 20, 0, 2 * Math.PI);
-                ctx.fillStyle = '#fff';
+                ctx.arc(cx, cy, 22, 0, 2 * Math.PI);
+                ctx.fillStyle = '#0d1017';
                 ctx.fill();
+                ctx.strokeStyle = 'rgba(196,164,92,0.5)';
+                ctx.lineWidth = 1.5;
                 ctx.stroke();
                 ctx.beginPath();
-                ctx.moveTo(cx - 10, cy - r + 5);
-                ctx.lineTo(cx + 10, cy - r + 5);
-                ctx.lineTo(cx, cy - r - 15);
+                ctx.moveTo(cx - 8, cy - r + 6);
+                ctx.lineTo(cx + 8, cy - r + 6);
+                ctx.lineTo(cx, cy - r - 14);
                 ctx.closePath();
-                ctx.fillStyle = '#FFD700';
-                ctx.fill();
-                ctx.strokeStyle = '#000';
-                ctx.stroke(); }
+                ctx.fillStyle = '#c4a45c';
+                ctx.fill(); }
 
             function spinWheel() { if (spinning || sectors.length === 0) return;
                 spinning = true;
@@ -1622,14 +2201,9 @@
 
             function checkWin() {
                 const wins = [
-                    [0, 1, 2],
-                    [3, 4, 5],
-                    [6, 7, 8],
-                    [0, 3, 6],
-                    [1, 4, 7],
-                    [2, 5, 8],
-                    [0, 4, 8],
-                    [2, 4, 6]
+                    [0, 1, 2],[3, 4, 5],[6, 7, 8],
+                    [0, 3, 6],[1, 4, 7],[2, 5, 8],
+                    [0, 4, 8],[2, 4, 6]
                 ];
                 return wins.some(w => board[w[0]] && board[w[0]] === board[w[1]] && board[w[0]] === board[w[2]]);
             }
@@ -1873,83 +2447,30 @@
                 { text: "Неудача — это просто возможность начать снова, но уже более мудро.", author: "Генри Форд" },
                 { text: "Лучшее время посадить дерево было 20 лет назад. Второе лучшее время — сегодня.", author: "Китайская пословица" },
                 { text: "Если вы думаете, что на что-то способны, вы правы; если думаете, что нет — вы тоже правы.", author: "Генри Форд" },
-                { text: "Жизнь — это то, что с тобой происходит, пока ты строишь планы.", author: "Джон Леннон" },
                 { text: "Тот, кто не ошибается, не делает ничего нового.", author: "Теодор Рузвельт" },
-                { text: "Успех — это способность идти от неудачи к неудаче, не теряя энтузиазма.", author: "Уинстон Черчилль" },
-                { text: "Чтобы написать хорошую книгу, сначала нужно стать хорошим человеком.", author: "Александр Солженицын" },
                 { text: "Человек есть то, что он думает о себе.", author: "Марк Аврелий" },
                 { text: "Самое важное в общении — услышать то, что не было сказано.", author: "Питер Друкер" },
                 { text: "Если хочешь изменить мир, начни с себя.", author: "Махатма Ганди" },
                 { text: "Великие дела совершаются не силой, а упорством.", author: "Сэмюэл Джонсон" },
-                { text: "Счастье не зависит от внешних условий; оно зависит от внутреннего состояния.", author: "Дейл Карнеги" },
                 { text: "Лучший способ предсказать будущее — создать его.", author: "Питер Друкер" },
                 { text: "Единственный способ сделать великую работу — любить то, что ты делаешь.", author: "Стив Джобс" },
                 { text: "Будущее принадлежит тем, кто верит в красоту своих мечт.", author: "Элеонора Рузвельт" },
-                { text: "Ты никогда не слишком стар, чтобы поставить новую цель или мечту.", author: "К.С. Льюис" },
-                { text: "Препятствия — это то, что видишь, когда смотришь на цель не так.", author: "Деннис Уэйтли" },
                 { text: "Успех — это 1% вдохновения и 99% пота.", author: "Томас Эдисон" },
                 { text: "Не жди. Время никогда не будет идеальным.", author: "Наполеон Хилл" },
-                { text: "Человек, который говорит, что это невозможно, должен отойти в сторону, чтобы не мешать тому, кто это делает.", author: "Конфуций" },
                 { text: "Победа — это не случайность, а результат упорного труда.", author: "Винс Ломбарди" },
-                { text: "Каждый мастер был когда-то неуклюжим учеником.", author: "Роберт Хайнлайн" },
                 { text: "Секрет успеха — начать.", author: "Марк Твен" },
-                { text: "Тот, кто не рискует, не побеждает.", author: "Нильс Бор" },
-                { text: "Жизнь слишком коротка, чтобы тратить её на ненависть.", author: "Джек Керуак" },
                 { text: "Дисциплина — это мост между целями и достижениями.", author: "Джим Рон" },
-                { text: "Лучший реванш — это огромное успех.", author: "Фрэнк Синатра" },
                 { text: "Верь в себя, и весь мир поверит в тебя.", author: "Синтия Маклауд" },
-                { text: "Неудачи — это топливо для успеха.", author: "Рэнди Паущ" },
-                { text: "Ты сильнее, чем думаешь.", author: "Бетси Бартон" },
-                { text: "Действуй, как будто это возможно.", author: "Гораций" },
                 { text: "Мотивация — это то, что заставляет тебя начать. Привычка — то, что заставляет тебя продолжать.", author: "Джим Рон" },
-                { text: "Никогда не сдавайся, ибо ты на полпути.", author: "Уолт Дисней" },
-                { text: "Успех — это путь, который ты выбираешь.", author: "Опра Уинфри" },
-                { text: "Изменения — это закон жизни. Те, кто смотрит только в прошлое или настоящее, упускают будущее.", author: "Джон Ф. Кеннеди" },
-                { text: "Будь собой; все остальные роли уже заняты.", author: "Оскар Уайльд" },
-                { text: "Цель жизни — расти.", author: "Лао-цзы" },
-                { text: "Трудности часто укрепляют дух.", author: "Эпиктет" },
-                { text: "Счастье — это когда то, что думаешь, говоришь и делаешь, в гармонии.", author: "Махатма Ганди" },
-                { text: "Каждый день — шанс стать лучше.", author: "Дуайт Д. Эйзенхауэр" },
-                { text: "Мечтай большой, работай упорно.", author: "Абрахам Линкольн" },
-                { text: "Терпение — горькое растение, но его плоды очень сладки.", author: "Аристотель" },
-                { text: "Успех приходит к тем, кто не ждет.", author: "Генри Дэвид Торо" },
-                { text: "Жизнь — это искусство использовать то, что у тебя есть.", author: "Джанис Джоплин" },
-                { text: "Не бойся быть отличным от других.", author: "Брене Браун" },
-                { text: "Время лечит, что медицина не лечит.", author: "Гиппократ" },
-                { text: "Сила не в теле, а в воле.", author: "Винсент Ван Гог" },
-{ text: "Делай сегодня то, о чём завтра будешь благодарен.", author: "Грегори Лед" },
-{ text: "Мудрость — дочь опыта.", author: "Леонардо да Винчи" },
-{ text: "Никто не может заставить тебя чувствовать себя неполноценным без твоего согласия.", author: "Элеонора Рузвельт" },
-{ text: "Путь к успеху — через неудачи.", author: "Роберт Кийосаки" },
-{ text: "Живи так, будто завтра не наступит.", author: "Генри Форд" },
-{ text: "Смелость — это быть самим собой.", author: "Морис Фримен" },
-{ text: "Знание без действия — бесполезно.", author: "Авиценна" },
-{ text: "Упорство побеждает талант.", author: "Винс Ломбарди" },
-{ text: "Будущее зависит от того, что ты делаешь сегодня.", author: "Махатма Ганди" },
-{ text: "Счастье — в путешествии, а не в пункте назначения.", author: "Ральф Уолдо Эмерсон" },
-{ text: "Ты можешь, если веришь, что можешь.", author: "Тедди Рузвельт" },
-{ text: "Работа спасает нас от трех зол: скуки, порока и нужды.", author: "Вольтер" },
-{ text: "Не жди перемен. Будь ими.", author: "Махатма Ганди" },
-{ text: "Величие рождается в страданиях.", author: "Сенека" },
-{ text: "Жизнь — это то, что ты из неё делаешь.", author: "Монтгомери Бартлетт" },
+                { text: "Изменения — это закон жизни.", author: "Джон Ф. Кеннеди" },
                 { text: "Знание — сила.", author: "Фрэнсис Бэкон" },
-                { text: "Сомнение убивает больше мечтаний, чем неудача.", author: "Сьюзи Кассем" },
-                { text: "Либо ты управляешь днем, либо день управляет тобой.", author: "Джим Рон" },
-                { text: "Не бойся медлить, бойся остановиться.", author: "Китайская пословица" },
-                { text: "Мудрый не тот, кто много знает, а тот, кто знает нужное.", author: "Эсхил" },
                 { text: "Пока человек не сдается, он сильнее своей судьбы.", author: "Эрих Мария Ремарк" },
                 { text: "Красота начинается в тот момент, когда ты решаешь быть собой.", author: "Коко Шанель" },
-                { text: "Мы сами создаем себе и счастье, и несчастье.", author: "Софокл" },
                 { text: "Тот, кто хочет — ищет возможности, кто не хочет — ищет причины.", author: "Сократ" },
                 { text: "Неважно, как медленно ты идешь, пока ты не останавливаешься.", author: "Конфуций" },
-                { text: "Чем больше я работаю, тем удачливее становлюсь.", author: "Томас Джефферсон" },
                 { text: "Мужество — это сопротивление страху, а не его отсутствие.", author: "Марк Твен" },
                 { text: "То, что нас не убивает, делает нас сильнее.", author: "Фридрих Ницше" },
-                { text: "Время — лучший учитель, но, к сожалению, оно убивает своих учеников.", author: "Гектор Берлиоз" },
-                { text: "Надо жить так, чтобы не было стыдно за бесцельно прожитые годы.", author: "Николай Островский" },
-                { text: "Невозможно — это просто громкое слово.", author: "Мухаммед Али" },
                 { text: "Мечты не работают, пока не работаешь ты.", author: "Джон С. Максвелл" },
-                { text: "Чем меньше у человека есть, тем меньше ему нужно.", author: "Лев Толстой" },
                 { text: "Ни один ветер не будет попутным тому, кто не знает, куда плывет.", author: "Сенека" }
             ];
 
@@ -1978,13 +2499,13 @@
                 const query = document.getElementById('musicSearch').value.trim();
                 if (!query) return;
                 const resultsDiv = document.getElementById('musicResults');
-                resultsDiv.innerHTML = 'Загрузка...';
+                resultsDiv.innerHTML = '<div style="color:var(--text-muted);font-size:0.9rem;">Загрузка...</div>';
                 try {
                     const res = await fetch(
                         `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&limit=10&media=music`);
                     const data = await res.json();
                     if (!data.results || data.results.length === 0) {
-                        resultsDiv.innerHTML = 'Ничего не найдено.';
+                        resultsDiv.innerHTML = '<div style="color:var(--text-muted);">Ничего не найдено.</div>';
                         return;
                     }
                     let html = '';
@@ -1995,7 +2516,7 @@
                             <h4>${track.trackName}</h4>
                             <p>${track.artistName} · ${track.collectionName || 'Сингл'}</p>
                         </div>
-                        <button class="play-btn" data-preview="${track.previewUrl || ''}">▶️</button>
+                        <button class="play-btn" data-preview="${track.previewUrl || ''}">▶</button>
                     </div>`;
                     });
                     resultsDiv.innerHTML = html;
@@ -2013,15 +2534,15 @@
                             const audio = new Audio(url);
                             audio.play();
                             currentAudio = audio;
-                            btn.textContent = '⏸️';
-                            audio.addEventListener('ended', () => { btn.textContent = '▶️';
+                            btn.textContent = '⏸';
+                            audio.addEventListener('ended', () => { btn.textContent = '▶';
                                 currentAudio = null; });
-                            audio.addEventListener('pause', () => { btn.textContent = '▶️'; if (
+                            audio.addEventListener('pause', () => { btn.textContent = '▶'; if (
                                 currentAudio === audio) currentAudio = null; });
                         });
                     });
                 } catch (e) {
-                    resultsDiv.innerHTML = 'Ошибка загрузки.';
+                    resultsDiv.innerHTML = '<div style="color:var(--text-muted);">Ошибка загрузки.</div>';
                 }
             }
 
@@ -2035,13 +2556,13 @@
                 const query = document.getElementById('bookSearch').value.trim();
                 if (!query) return;
                 const resultsDiv = document.getElementById('booksResults');
-                resultsDiv.innerHTML = 'Загрузка...';
+                resultsDiv.innerHTML = '<div style="color:var(--text-muted);font-size:0.9rem;">Загрузка...</div>';
                 try {
                     const res = await fetch(
                         `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&maxResults=10`);
                     const data = await res.json();
                     if (!data.items || data.items.length === 0) {
-                        resultsDiv.innerHTML = 'Ничего не найдено.';
+                        resultsDiv.innerHTML = '<div style="color:var(--text-muted);">Ничего не найдено.</div>';
                         return;
                     }
                     let html = '';
@@ -2049,18 +2570,18 @@
                         const info = item.volumeInfo;
                         const thumbnail = info.imageLinks?.thumbnail || '';
                         html += `<div class="result-card">
-                        ${thumbnail ? `<img src="${thumbnail}" alt="${info.title}">` : '<div style="width:80px;height:80px;background:rgba(255,255,255,0.1);border-radius:12px;"></div>'}
+                        ${thumbnail ? `<img src="${thumbnail}" alt="${info.title}">` : '<div style="width:72px;height:72px;background:var(--surface);border-radius:10px;flex-shrink:0;"></div>'}
                         <div class="result-info">
                             <h4>${info.title}</h4>
                             <p>${info.authors ? info.authors.join(', ') : 'Автор неизвестен'} · ${info.publishedDate || ''}</p>
-                            <p style="font-size:0.8rem;">${info.description ? info.description.substring(0, 150) + '...' : ''}</p>
+                            <p style="font-size:0.78rem;">${info.description ? info.description.substring(0, 150) + '...' : ''}</p>
                         </div>
-                        ${info.infoLink ? `<a href="${info.infoLink}" target="_blank" style="color:var(--accent-light); text-decoration:none;">Подробнее</a>` : ''}
+                        ${info.infoLink ? `<a href="${info.infoLink}" target="_blank" style="color:var(--gold); text-decoration:none; font-size:0.8rem; letter-spacing:0.05em; flex-shrink:0;">→</a>` : ''}
                     </div>`;
                     });
                     resultsDiv.innerHTML = html;
                 } catch (e) {
-                    resultsDiv.innerHTML = 'Ошибка загрузки.';
+                    resultsDiv.innerHTML = '<div style="color:var(--text-muted);">Ошибка загрузки.</div>';
                 }
             }
 
@@ -2074,7 +2595,7 @@
                 const query = document.getElementById('filmSearch').value.trim();
                 if (!query) return;
                 const resultsDiv = document.getElementById('filmsResults');
-                resultsDiv.innerHTML = 'Загрузка...';
+                resultsDiv.innerHTML = '<div style="color:var(--text-muted);font-size:0.9rem;">Загрузка...</div>';
                 const apiKey = '2dca580c2a14b55200e784d157207b4d';
                 const url =
                     `https://api.themoviedb.org/3/search/movie?api_key=${apiKey}&language=ru-RU&query=${encodeURIComponent(query)}`;
@@ -2082,7 +2603,7 @@
                     const response = await fetch(url);
                     const data = await response.json();
                     if (!data.results || data.results.length === 0) {
-                        resultsDiv.innerHTML = 'Ничего не найдено.';
+                        resultsDiv.innerHTML = '<div style="color:var(--text-muted);">Ничего не найдено.</div>';
                         return;
                     }
                     let html = '';
@@ -2092,17 +2613,17 @@
                             '';
                         const year = movie.release_date ? movie.release_date.split('-')[0] : '—';
                         html += `<div class="result-card">
-                        ${poster ? `<img src="${poster}" alt="${movie.title}">` : '<div style="width:80px;height:80px;background:rgba(255,255,255,0.1);border-radius:12px;display:flex;align-items:center;justify-content:center;">🎬</div>'}
+                        ${poster ? `<img src="${poster}" alt="${movie.title}">` : '<div style="width:72px;height:72px;background:var(--surface);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--text-muted);">🎬</div>'}
                         <div class="result-info">
                             <h4>${movie.title}</h4>
-                            <p>Год: ${year} · Рейтинг: ${movie.vote_average || '—'}</p>
-                            <p style="font-size:0.8rem;">${movie.overview ? movie.overview.substring(0, 200) + '...' : 'Описание отсутствует'}</p>
+                            <p>${year} · ★ ${movie.vote_average || '—'}</p>
+                            <p style="font-size:0.78rem;">${movie.overview ? movie.overview.substring(0, 200) + '...' : 'Описание отсутствует'}</p>
                         </div>
                     </div>`;
                     });
                     resultsDiv.innerHTML = html;
                 } catch (e) {
-                    resultsDiv.innerHTML = 'Ошибка загрузки. Проверьте соединение.';
+                    resultsDiv.innerHTML = '<div style="color:var(--text-muted);">Ошибка загрузки.</div>';
                 }
             }
 
@@ -2131,7 +2652,7 @@
                         document.getElementById('supportError').textContent = 'Ошибка сети';
                         document.getElementById('supportError').style.display = 'block';
                     }
-                    submitBtn.textContent = 'Отправить';
+                    submitBtn.textContent = 'Отправить сообщение';
                     submitBtn.disabled = false;
                 });
             }
@@ -2148,21 +2669,38 @@
                     setTimeout(() => { el.innerHTML =
                             '📧 <span id="emailText">tape.power@outlook.com</span>'; }, 1500); }).catch(() => alert(
                     'Ошибка')); });
+
+            // Init random numbers on luck tab
+            window.addEventListener('load', () => {
+                // Attach random number init to luck tab
+                const luckBtn = document.querySelector('.tab-btn[data-tab="luck"]');
+                if (luckBtn) {
+                    const origSwitch = window.switchTab;
+                    window.switchTab = function(tabName) {
+                        origSwitch(tabName);
+                        if (tabName === 'luck' && !window._randInit) {
+                            initRandomNumbers();
+                            window._randInit = true;
+                        }
+                    };
+                }
+            });
         })();
     </script>
-    <!-- Модальное окно (HTML) -->
+
+    <!-- Модальное окно -->
     <div class="mobile-modal-overlay" id="mobileModal">
         <div class="mobile-modal">
-            <h3>📱 Совет</h3>
+            <h3>Совет</h3>
             <p>Для полного функционала и удобства рекомендуем зайти с ноутбука, компьютера или планшета.</p>
             <div class="btn-row">
-                <button class="m-btn copy-btn" id="copyLinkBtn">📋 Скопировать ссылку</button>
-                <button class="m-btn ok-btn" id="okMobileBtn">✅ Окей</button>
-                <button class="m-btn close-btn" id="closeSiteBtn">🚪 Закрыть сайт</button>
+                <button class="m-btn copy-btn" id="copyLinkBtn">Скопировать ссылку</button>
+                <button class="m-btn ok-btn" id="okMobileBtn">Окей</button>
+                <button class="m-btn close-btn" id="closeSiteBtn">Закрыть</button>
             </div>
         </div>
     </div>
-    <!-- Скрипт проверки (идёт после модального окна) -->
+
     <script>
         function isMobileDevice() {
             return /Mobi|Android|iPhone|iPad|iPod|webOS/i.test(navigator.userAgent) || window.innerWidth <= 768;
