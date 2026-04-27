@@ -2542,7 +2542,7 @@
                         });
                     });
                 } catch (e) {
-                    resultsDiv.innerHTML = '<div style="color:var(--text-muted);">Ошибка загрузки.</div>';
+                    resultsDiv.innerHTML = '<div style="color:var(--text-muted);">Ошибка загрузки. Если страница открыта локально (file://), попробуйте разместить её на хостинге.</div>';
                 }
             }
 
@@ -2580,9 +2580,9 @@
                     </div>`;
                     });
                     resultsDiv.innerHTML = html;
-                } catch (e) {
-                    resultsDiv.innerHTML = '<div style="color:var(--text-muted);">Ошибка загрузки.</div>';
-                }
+        } catch (e) {
+            resultsDiv.innerHTML = '<div style="color:var(--text-muted);">Ошибка загрузки. Если страница открыта локально (file://), попробуйте разместить её на хостинге.</div>';
+        }
             }
 
             // Фильмы
@@ -2622,9 +2622,9 @@
                     </div>`;
                     });
                     resultsDiv.innerHTML = html;
-                } catch (e) {
-                    resultsDiv.innerHTML = '<div style="color:var(--text-muted);">Ошибка загрузки.</div>';
-                }
+        } catch (e) {
+            resultsDiv.innerHTML = '<div style="color:var(--text-muted);">Ошибка загрузки. Если страница открыта локально (file://), попробуйте разместить её на хостинге.</div>';
+        }
             }
 
             // Поддержка
