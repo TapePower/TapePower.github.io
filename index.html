@@ -835,30 +835,30 @@
         async function translateText(){ const text=document.getElementById('translateInput').value.trim(); if(!text)return; const from = document.getElementById('langFrom').value; const to = document.getElementById('langTo').value; const langpair = `${from}|${to}`; const url=`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${langpair}`; try{ const response=await fetch(url); const data=await response.json(); if(data.responseStatus && data.responseStatus !== 200) { document.getElementById('translatedText').textContent = 'Ошибка перевода: ' + data.responseDetails; } else { document.getElementById('translatedText').textContent = data.responseData.translatedText || 'Перевод не получен'; } }catch(e){ document.getElementById('translatedText').textContent='Ошибка сети'; } }
         function copyTranslation() { const translated = document.getElementById('translatedText').textContent; if (translated && translated !== 'Ошибка перевода' && translated !== 'Ошибка сети') { navigator.clipboard.writeText(translated).then(()=>alert('Перевод скопирован')).catch(()=>alert('Ошибка')); } }
 
-            // Викторина (исправленный блок)
-                const countries = [
-            {country:'Куба',capital:'Гавана',code:'cu'},{country:'Уругвай',capital:'Монтевидео',code:'uy'},{country:'Парагвай',capital:'Асунсьон',code:'py'},{country:'Эквадор',capital:'Кито',code:'ec'},{country:'Панама',capital:'Панама',code:'pa'},{country:'Коста-Рика',capital:'Сан-Хосе',code:'cr'},{country:'Нигерия',capital:'Абуджа',code:'ng'},{country:'Россия',capital:'Москва',code:'ru'},{country:'США',capital:'Вашингтон',code:'us'},{country:'Китай',capital:'Пекин',code:'cn'},{country:'Япония',capital:'Токио',code:'jp'},{country:'Германия',capital:'Берлин',code:'de'},{country:'Франция',capital:'Париж',code:'fr'},{country:'Великобритания',capital:'Лондон',code:'gb'},{country:'Италия',capital:'Рим',code:'it'},{country:'Испания',capital:'Мадрид',code:'es'},{country:'Канада',capital:'Оттава',code:'ca'},{country:'Бразилия',capital:'Бразилиа',code:'br'},{country:'Индия',capital:'Нью-Дели',code:'in'},{country:'Австралия',capital:'Канберра',code:'au'},{country:'ЮАР',capital:'Претория',code:'za'},{country:'Мексика',capital:'Мехико',code:'mx'},{country:'Аргентина',capital:'Буэнос-Айрес',code:'ar'},{country:'Египет',capital:'Каир',code:'eg'},{country:'Турция',capital:'Анкара',code:'tr'},{country:'Южная Корея',capital:'Сеул',code:'kr'},{country:'Швеция',capital:'Стокгольм',code:'se'},{country:'Норвегия',capital:'Осло',code:'no'},{country:'Нидерланды',capital:'Амстердам',code:'nl'},{country:'Греция',capital:'Афины',code:'gr'},{country:'Польша',capital:'Варшава',code:'pl'},{country:'Украина',capital:'Киев',code:'ua'},{country:'Чехия',capital:'Прага',code:'cz'},{country:'Швейцария',capital:'Берн',code:'ch'},{country:'Австрия',capital:'Вена',code:'at'},{country:'Ирландия',capital:'Дублин',code:'ie'},{country:'Таиланд',capital:'Бангкок',code:'th'},{country:'Бельгия',capital:'Брюссель',code:'be'},{country:'Португалия',capital:'Лиссабон',code:'pt'},{country:'Финляндия',capital:'Хельсинки',code:'fi'},{country:'Дания',capital:'Копенгаген',code:'dk'},{country:'Венгрия',capital:'Будапешт',code:'hu'},{country:'Румыния',capital:'Бухарест',code:'ro'},{country:'Болгария',capital:'София',code:'bg'},{country:'Сербия',capital:'Белград',code:'rs'},{country:'Хорватия',capital:'Загреб',code:'hr'},{country:'Словакия',capital:'Братислава',code:'sk'},{country:'Беларусь',capital:'Минск',code:'by'},{country:'Литва',capital:'Вильнюс',code:'lt'},{country:'Латвия',capital:'Рига',code:'lv'},{country:'Эстония',capital:'Таллин',code:'ee'},{country:'Исландия',capital:'Рейкьявик',code:'is'},{country:'Люксембург',capital:'Люксембург',code:'lu'},{country:'Израиль',capital:'Иерусалим',code:'il'},{country:'Саудовская Аравия',capital:'Эр-Рияд',code:'sa'},{country:'ОАЭ',capital:'Абу-Даби',code:'ae'},{country:'Вьетнам',capital:'Ханой',code:'vn'},{country:'Индонезия',capital:'Джакарта',code:'id'},{country:'Малайзия',capital:'Куала-Лумпур',code:'my'},{country:'Филиппины',capital:'Манила',code:'ph'},{country:'Сингапур',capital:'Сингапур',code:'sg'},{country:'Пакистан',capital:'Исламабад',code:'pk'},{country:'Иран',capital:'Тегеран',code:'ir'},{country:'Ирак',capital:'Багдад',code:'iq'},{country:'Казахстан',capital:'Астана',code:'kz'},{country:'Узбекистан',capital:'Ташкент',code:'uz'},{country:'Азербайджан',capital:'Баку',code:'az'},{country:'Грузия',capital:'Тбилиси',code:'ge'},{country:'Армения',capital:'Ереван',code:'am'},{country:'Колумбия',capital:'Богота',code:'co'},{country:'Чили',capital:'Сантьяго',code:'cl'},{country:'Перу',capital:'Лима',code:'pe'},{country:'Венесуэла',capital:'Каракас',code:'ve'},{country:'Марокко',capital:'Рабат',code:'ma'},{country:'Алжир',capital:'Алжир',code:'dz'},{country:'Тунис',capital:'Тунис',code:'tn'},{country:'Кения',capital:'Найроби',code:'ke'},{country:'Эфиопия',capital:'Аддис-Абеба',code:'et'},{country:'Танзания',capital:'Додома',code:'tz'},{country:'Ангола',capital:'Луанда',code:'ao'},{country:'Гана',capital:'Аккра',code:'gh'},{country:'Новая Зеландия',capital:'Веллингтон',code:'nz'},{country:'Фиджи',capital:'Сува',code:'fj'},{country:'Папуа — Новая Гвинея',capital:'Порт-Морсби',code:'pg'},{country:'Албания',capital:'Тирана',code:'al'},{country:'Андорра',capital:'Андорра-ла-Велья',code:'ad'},{country:'Афганистан',capital:'Кабул',code:'af'},{country:'Багамы',capital:'Нассау',code:'bs'},{country:'Бангладеш',capital:'Дакка',code:'bd'},{country:'Барбадос',capital:'Бриджтаун',code:'bb'},{country:'Бахрейн',capital:'Манама',code:'bh'},{country:'Белиз',capital:'Бельмопан',code:'bz'},{country:'Бенин',capital:'Порто-Ново',code:'bj'},{country:'Боливия',capital:'Сукре',code:'bo'},{country:'Босния и Герцеговина',capital:'Сараево',code:'ba'},{country:'Ботсвана',capital:'Габороне',code:'bw'},{country:'Бруней',capital:'Бандар-Сери-Бегаван',code:'bn'},{country:'Буркина-Фасо',capital:'Уагадугу',code:'bf'},{country:'Бурунди',capital:'Гитега',code:'bi'},{country:'Бутан',capital:'Тхимпху',code:'bt'},{country:'Вануату',capital:'Порт-Вила',code:'vu'},{country:'Ватикан',capital:'Ватикан',code:'va'},{country:'Габон',capital:'Либревиль',code:'ga'},{country:'Гаити',capital:'Порт-о-Пренс',code:'ht'},{country:'Гайана',capital:'Джорджтаун',code:'gy'},{country:'Гамбия',capital:'Банжул',code:'gm'},{country:'Гватемала',capital:'Гватемала',code:'gt'},{country:'Гвинея',capital:'Конакри',code:'gn'},{country:'Гвинея-Бисау',capital:'Бисау',code:'gw'},{country:'Гондурас',capital:'Тегусигальпа',code:'hn'},{country:'Гренада',capital:'Сент-Джорджес',code:'gd'},{country:'Джибути',capital:'Джибути',code:'dj'},{country:'Доминика',capital:'Розо',code:'dm'},{country:'Доминиканская Республика',capital:'Санто-Доминго',code:'do'},{country:'Замбия',capital:'Лусака',code:'zm'},{country:'Зимбабве',capital:'Хараре',code:'zw'},{country:'Иордания',capital:'Амман',code:'jo'},{country:'Йемен',capital:'Сана',code:'ye'},{country:'Кабо-Верде',capital:'Прая',code:'cv'},{country:'Камбоджа',capital:'Пномпень',code:'kh'},{country:'Камерун',capital:'Яунде',code:'cm'},{country:'Катар',capital:'Доха',code:'qa'},{country:'Кипр',capital:'Никосия',code:'cy'},{country:'Киргизия',capital:'Бишкек',code:'kg'},{country:'Кирибати',capital:'Южная Тарава',code:'ki'},{country:'Конго (ДРК)',capital:'Киншаса',code:'cd'},{country:'Конго (РК)',capital:'Браззавиль',code:'cg'},{country:'Кувейт',capital:'Эль-Кувейт',code:'kw'},{country:'Лаос',capital:'Вьентьян',code:'la'},{country:'Лесото',capital:'Масеру',code:'ls'},{country:'Либерия',capital:'Монровия',code:'lr'},{country:'Ливан',capital:'Бейрут',code:'lb'},{country:'Ливия',capital:'Триполи',code:'ly'},{country:'Лихтенштейн',capital:'Вадуц',code:'li'},{country:'Маврикий',capital:'Порт-Луи',code:'mu'},{country:'Мавритания',capital:'Нуакшот',code:'mr'},{country:'Мадагаскар',capital:'Антананариву',code:'mg'},{country:'Малави',capital:'Лилонгве',code:'mw'},{country:'Мали',capital:'Бамако',code:'ml'},{country:'Мальдивы',capital:'Мале',code:'mv'},{country:'Мальта',capital:'Валлетта',code:'mt'},{country:'Маршалловы Острова',capital:'Маджуро',code:'mh'},{country:'Молдова',capital:'Кишинев',code:'md'},{country:'Монако',capital:'Монако',code:'mc'},{country:'Монголия',capital:'Улан-Батор',code:'mn'},{country:'Мьянма',capital:'Нейпьидо',code:'mm'},{country:'Намибия',capital:'Виндхук',code:'na'},{country:'Науру',capital:'Ярен',code:'nr'},{country:'Непал',capital:'Катманду',code:'np'},{country:'Нигер',capital:'Ниамей',code:'ne'},{country:'Никарагуа',capital:'Манагуа',code:'ni'},{country:'Оман',capital:'Маскат',code:'om'},{country:'Палау',capital:'Нгерулмуд',code:'pw'},{country:'Руанда',capital:'Кигали',code:'rw'},{country:'Сальвадор',capital:'Сан-Сальвадор',code:'sv'},{country:'Самоа',capital:'Апиа',code:'ws'},{country:'Сан-Марино',capital:'Сан-Марино',code:'sm'},{country:'Сан-Томе и Принсипи',capital:'Сан-Томе',code:'st'},{country:'Сейшелы',capital:'Виктория',code:'sc'},{country:'Сенегал',capital:'Дакар',code:'sn'},{country:'Сент-Китс и Невис',capital:'Бастер',code:'kn'},{country:'Сент-Люсия',capital:'Кастри',code:'lc'},{country:'Сент-Винсент и Гренадины',capital:'Кингстаун',code:'vc'},{country:'Сирия',capital:'Дамаск',code:'sy'},{country:'Словения',capital:'Любляна',code:'si'},{country:'Соломоновы Острова',capital:'Хониара',code:'sb'},{country:'Сомали',capital:'Могадишо',code:'so'},{country:'Судан',capital:'Хартум',code:'sd'},{country:'Суринам',capital:'Парамарибо',code:'sr'},{country:'Сьерра-Леоне',capital:'Фритаун',code:'sl'},{country:'Таджикистан',capital:'Душанбе',code:'tj'},{country:'Того',capital:'Ломе',code:'tg'},{country:'Тонга',capital:'Нукуалофа',code:'to'},{country:'Тринидад и Тобаго',capital:'Порт-оф-Спейн',code:'tt'},{country:'Тувалу',capital:'Фунафути',code:'tv'},{country:'Туркменистан',capital:'Ашхабад',code:'tm'},{country:'Уганда',capital:'Кампала',code:'ug'},{country:'Черногория',capital:'Подгорица',code:'me'},{country:'Шри-Ланка',capital:'Шри-Джаяварденепура-Котте',code:'lk'},{country:'Эритрея',capital:'Асмэра',code:'er'},{country:'Эсватини',capital:'Мбабане',code:'sz'},{country:'Ямайка',capital:'Кингстон',code:'jm'}
-        ];
-        let quizScore = [0, 0];
-        let quizModeIndex = 0;
-        let currentAnswer = null;
-        let answered = false;
-        const quizModes = ['flag-to-country', 'country-to-capital', 'capital-to-country'];
+               // Викторина
+const countries = [
+    {country:'Куба',capital:'Гавана',code:'cu'},{country:'Уругвай',capital:'Монтевидео',code:'uy'},{country:'Парагвай',capital:'Асунсьон',code:'py'},{country:'Эквадор',capital:'Кито',code:'ec'},{country:'Панама',capital:'Панама',code:'pa'},{country:'Коста-Рика',capital:'Сан-Хосе',code:'cr'},{country:'Нигерия',capital:'Абуджа',code:'ng'},{country:'Россия',capital:'Москва',code:'ru'},{country:'США',capital:'Вашингтон',code:'us'},{country:'Китай',capital:'Пекин',code:'cn'},{country:'Япония',capital:'Токио',code:'jp'},{country:'Германия',capital:'Берлин',code:'de'},{country:'Франция',capital:'Париж',code:'fr'},{country:'Великобритания',capital:'Лондон',code:'gb'},{country:'Италия',capital:'Рим',code:'it'},{country:'Испания',capital:'Мадрид',code:'es'},{country:'Канада',capital:'Оттава',code:'ca'},{country:'Бразилия',capital:'Бразилиа',code:'br'},{country:'Индия',capital:'Нью-Дели',code:'in'},{country:'Австралия',capital:'Канберра',code:'au'},{country:'ЮАР',capital:'Претория',code:'za'},{country:'Мексика',capital:'Мехико',code:'mx'},{country:'Аргентина',capital:'Буэнос-Айрес',code:'ar'},{country:'Египет',capital:'Каир',code:'eg'},{country:'Турция',capital:'Анкара',code:'tr'},{country:'Южная Корея',capital:'Сеул',code:'kr'},{country:'Швеция',capital:'Стокгольм',code:'se'},{country:'Норвегия',capital:'Осло',code:'no'},{country:'Нидерланды',capital:'Амстердам',code:'nl'},{country:'Греция',capital:'Афины',code:'gr'},{country:'Польша',capital:'Варшава',code:'pl'},{country:'Украина',capital:'Киев',code:'ua'},{country:'Чехия',capital:'Прага',code:'cz'},{country:'Швейцария',capital:'Берн',code:'ch'},{country:'Австрия',capital:'Вена',code:'at'},{country:'Ирландия',capital:'Дублин',code:'ie'},{country:'Таиланд',capital:'Бангкок',code:'th'},{country:'Бельгия',capital:'Брюссель',code:'be'},{country:'Португалия',capital:'Лиссабон',code:'pt'},{country:'Финляндия',capital:'Хельсинки',code:'fi'},{country:'Дания',capital:'Копенгаген',code:'dk'},{country:'Венгрия',capital:'Будапешт',code:'hu'},{country:'Румыния',capital:'Бухарест',code:'ro'},{country:'Болгария',capital:'София',code:'bg'},{country:'Сербия',capital:'Белград',code:'rs'},{country:'Хорватия',capital:'Загреб',code:'hr'},{country:'Словакия',capital:'Братислава',code:'sk'},{country:'Беларусь',capital:'Минск',code:'by'},{country:'Литва',capital:'Вильнюс',code:'lt'},{country:'Латвия',capital:'Рига',code:'lv'},{country:'Эстония',capital:'Таллин',code:'ee'},{country:'Исландия',capital:'Рейкьявик',code:'is'},{country:'Люксембург',capital:'Люксембург',code:'lu'},{country:'Израиль',capital:'Иерусалим',code:'il'},{country:'Саудовская Аравия',capital:'Эр-Рияд',code:'sa'},{country:'ОАЭ',capital:'Абу-Даби',code:'ae'},{country:'Вьетнам',capital:'Ханой',code:'vn'},{country:'Индонезия',capital:'Джакарта',code:'id'},{country:'Малайзия',capital:'Куала-Лумпур',code:'my'},{country:'Филиппины',capital:'Манила',code:'ph'},{country:'Сингапур',capital:'Сингапур',code:'sg'},{country:'Пакистан',capital:'Исламабад',code:'pk'},{country:'Иран',capital:'Тегеран',code:'ir'},{country:'Ирак',capital:'Багдад',code:'iq'},{country:'Казахстан',capital:'Астана',code:'kz'},{country:'Узбекистан',capital:'Ташкент',code:'uz'},{country:'Азербайджан',capital:'Баку',code:'az'},{country:'Грузия',capital:'Тбилиси',code:'ge'},{country:'Армения',capital:'Ереван',code:'am'},{country:'Колумбия',capital:'Богота',code:'co'},{country:'Чили',capital:'Сантьяго',code:'cl'},{country:'Перу',capital:'Лима',code:'pe'},{country:'Венесуэла',capital:'Каракас',code:'ve'},{country:'Марокко',capital:'Рабат',code:'ma'},{country:'Алжир',capital:'Алжир',code:'dz'},{country:'Тунис',capital:'Тунис',code:'tn'},{country:'Кения',capital:'Найроби',code:'ke'},{country:'Эфиопия',capital:'Аддис-Абеба',code:'et'},{country:'Танзания',capital:'Додома',code:'tz'},{country:'Ангола',capital:'Луанда',code:'ao'},{country:'Гана',capital:'Аккра',code:'gh'},{country:'Новая Зеландия',capital:'Веллингтон',code:'nz'},{country:'Фиджи',capital:'Сува',code:'fj'},{country:'Папуа — Новая Гвинея',capital:'Порт-Морсби',code:'pg'},{country:'Албания',capital:'Тирана',code:'al'},{country:'Андорра',capital:'Андорра-ла-Велья',code:'ad'},{country:'Афганистан',capital:'Кабул',code:'af'},{country:'Багамы',capital:'Нассау',code:'bs'},{country:'Бангладеш',capital:'Дакка',code:'bd'},{country:'Барбадос',capital:'Бриджтаун',code:'bb'},{country:'Бахрейн',capital:'Манама',code:'bh'},{country:'Белиз',capital:'Бельмопан',code:'bz'},{country:'Бенин',capital:'Порто-Ново',code:'bj'},{country:'Боливия',capital:'Сукре',code:'bo'},{country:'Босния и Герцеговина',capital:'Сараево',code:'ba'},{country:'Ботсвана',capital:'Габороне',code:'bw'},{country:'Бруней',capital:'Бандар-Сери-Бегаван',code:'bn'},{country:'Буркина-Фасо',capital:'Уагадугу',code:'bf'},{country:'Бурунди',capital:'Гитега',code:'bi'},{country:'Бутан',capital:'Тхимпху',code:'bt'},{country:'Вануату',capital:'Порт-Вила',code:'vu'},{country:'Ватикан',capital:'Ватикан',code:'va'},{country:'Габон',capital:'Либревиль',code:'ga'},{country:'Гаити',capital:'Порт-о-Пренс',code:'ht'},{country:'Гайана',capital:'Джорджтаун',code:'gy'},{country:'Гамбия',capital:'Банжул',code:'gm'},{country:'Гватемала',capital:'Гватемала',code:'gt'},{country:'Гвинея',capital:'Конакри',code:'gn'},{country:'Гвинея-Бисау',capital:'Бисау',code:'gw'},{country:'Гондурас',capital:'Тегусигальпа',code:'hn'},{country:'Гренада',capital:'Сент-Джорджес',code:'gd'},{country:'Джибути',capital:'Джибути',code:'dj'},{country:'Доминика',capital:'Розо',code:'dm'},{country:'Доминиканская Республика',capital:'Санто-Доминго',code:'do'},{country:'Замбия',capital:'Лусака',code:'zm'},{country:'Зимбабве',capital:'Хараре',code:'zw'},{country:'Иордания',capital:'Амман',code:'jo'},{country:'Йемен',capital:'Сана',code:'ye'},{country:'Кабо-Верде',capital:'Прая',code:'cv'},{country:'Камбоджа',capital:'Пномпень',code:'kh'},{country:'Камерун',capital:'Яунде',code:'cm'},{country:'Катар',capital:'Доха',code:'qa'},{country:'Кипр',capital:'Никосия',code:'cy'},{country:'Киргизия',capital:'Бишкек',code:'kg'},{country:'Кирибати',capital:'Южная Тарава',code:'ki'},{country:'Конго (ДРК)',capital:'Киншаса',code:'cd'},{country:'Конго (РК)',capital:'Браззавиль',code:'cg'},{country:'Кувейт',capital:'Эль-Кувейт',code:'kw'},{country:'Лаос',capital:'Вьентьян',code:'la'},{country:'Лесото',capital:'Масеру',code:'ls'},{country:'Либерия',capital:'Монровия',code:'lr'},{country:'Ливан',capital:'Бейрут',code:'lb'},{country:'Ливия',capital:'Триполи',code:'ly'},{country:'Лихтенштейн',capital:'Вадуц',code:'li'},{country:'Маврикий',capital:'Порт-Луи',code:'mu'},{country:'Мавритания',capital:'Нуакшот',code:'mr'},{country:'Мадагаскар',capital:'Антананариву',code:'mg'},{country:'Малави',capital:'Лилонгве',code:'mw'},{country:'Мали',capital:'Бамако',code:'ml'},{country:'Мальдивы',capital:'Мале',code:'mv'},{country:'Мальта',capital:'Валлетта',code:'mt'},{country:'Маршалловы Острова',capital:'Маджуро',code:'mh'},{country:'Молдова',capital:'Кишинев',code:'md'},{country:'Монако',capital:'Монако',code:'mc'},{country:'Монголия',capital:'Улан-Батор',code:'mn'},{country:'Мьянма',capital:'Нейпьидо',code:'mm'},{country:'Намибия',capital:'Виндхук',code:'na'},{country:'Науру',capital:'Ярен',code:'nr'},{country:'Непал',capital:'Катманду',code:'np'},{country:'Нигер',capital:'Ниамей',code:'ne'},{country:'Никарагуа',capital:'Манагуа',code:'ni'},{country:'Оман',capital:'Маскат',code:'om'},{country:'Палау',capital:'Нгерулмуд',code:'pw'},{country:'Руанда',capital:'Кигали',code:'rw'},{country:'Сальвадор',capital:'Сан-Сальвадор',code:'sv'},{country:'Самоа',capital:'Апиа',code:'ws'},{country:'Сан-Марино',capital:'Сан-Марино',code:'sm'},{country:'Сан-Томе и Принсипи',capital:'Сан-Томе',code:'st'},{country:'Сейшелы',capital:'Виктория',code:'sc'},{country:'Сенегал',capital:'Дакар',code:'sn'},{country:'Сент-Китс и Невис',capital:'Бастер',code:'kn'},{country:'Сент-Люсия',capital:'Кастри',code:'lc'},{country:'Сент-Винсент и Гренадины',capital:'Кингстаун',code:'vc'},{country:'Сирия',capital:'Дамаск',code:'sy'},{country:'Словения',capital:'Любляна',code:'si'},{country:'Соломоновы Острова',capital:'Хониара',code:'sb'},{country:'Сомали',capital:'Могадишо',code:'so'},{country:'Судан',capital:'Хартум',code:'sd'},{country:'Суринам',capital:'Парамарибо',code:'sr'},{country:'Сьерра-Леоне',capital:'Фритаун',code:'sl'},{country:'Таджикистан',capital:'Душанбе',code:'tj'},{country:'Того',capital:'Ломе',code:'tg'},{country:'Тонга',capital:'Нукуалофа',code:'to'},{country:'Тринидад и Тобаго',capital:'Порт-оф-Спейн',code:'tt'},{country:'Тувалу',capital:'Фунафути',code:'tv'},{country:'Туркменистан',capital:'Ашхабад',code:'tm'},{country:'Уганда',capital:'Кампала',code:'ug'},{country:'Черногория',capital:'Подгорица',code:'me'},{country:'Шри-Ланка',capital:'Шри-Джаяварденепура-Котте',code:'lk'},{country:'Эритрея',capital:'Асмэра',code:'er'},{country:'Эсватини',capital:'Мбабане',code:'sz'},{country:'Ямайка',capital:'Кингстон',code:'jm'}
+];
+let quizScore = [0, 0];
+let quizModeIndex = 0;
+let currentAnswer = null;
+let answered = false;
+const quizModes = ['flag-to-country', 'country-to-capital', 'capital-to-country'];
 
-        function initQuiz() {
-            document.getElementById('nextQuizBtn').addEventListener('click', nextQuiz);
-            nextQuiz();
-        }
+function initQuiz() {
+    document.getElementById('nextQuizBtn').addEventListener('click', nextQuiz);
+    nextQuiz();
+}
 
-        function shuffleArray(arr) {
-            for (let i = arr.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [arr[i], arr[j]] = [arr[j], arr[i]];
-            }
-            return arr;
-        }
+function shuffleArray(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+}
 
-        function nextQuiz() {
+function nextQuiz() {
     answered = false;
     document.getElementById('nextQuizBtn').style.display = 'none';
     const answersDiv = document.getElementById('quizAnswers');
@@ -940,7 +940,7 @@
         currentAnswer = correct;
     }
 
-    // Кнопки ответов (без изменений)
+    // Кнопки ответов
     variants.forEach(v => {
         const btn = document.createElement('div');
         btn.className = 'answer-btn';
@@ -949,76 +949,38 @@
         answersDiv.appendChild(btn);
     });
 }
-            shuffleArray(variants);
 
-            // Формируем вопрос
-            const questionDiv = document.getElementById('quizQuestion');
-            questionDiv.innerHTML = '';
+function selectAnswer(selected, clickedBtn) {
+    if (answered) return;
+    answered = true;
 
-            if (mode === 'flag-to-country') {
-                const span = document.createElement('span');
-                span.textContent = 'Какой стране принадлежит флаг? ';
-                const img = document.createElement('img');
-                img.src = `https://flagcdn.com/w80/${correct.code.toLowerCase()}.png`;
-                img.style.height = '48px';
-                img.style.width = 'auto';
-                img.style.verticalAlign = 'middle';
-                img.alt = correct.code;
-                img.onerror = function() {
-                    this.outerHTML = '<b style="font-size:1.4em;">🏳️</b>';
-                };
-                questionDiv.appendChild(span);
-                questionDiv.appendChild(img);
-                currentAnswer = correct;
-            } else if (mode === 'country-to-capital') {
-                questionDiv.textContent = `Какая столица у страны ${correct.country}?`;
-                currentAnswer = correct;
-            } else {
-                questionDiv.textContent = `Какой стране принадлежит столица ${correct.capital}?`;
-                currentAnswer = correct;
-            }
+    const allButtons = document.querySelectorAll('.answer-btn');
+    allButtons.forEach(b => (b.style.pointerEvents = 'none'));
 
-            // Кнопки ответов
-            variants.forEach(v => {
-                const btn = document.createElement('div');
-                btn.className = 'answer-btn';
-                btn.textContent = (mode === 'country-to-capital') ? v.capital : v.country;
-                btn.addEventListener('click', () => selectAnswer(v, btn));
-                answersDiv.appendChild(btn);
-            });
+    const mode = quizModes[(quizModeIndex - 1) % 3];
+    const isCorrect = selected.code === currentAnswer.code;
+
+    // Подсветка правильного/неправильного
+    allButtons.forEach(btn => {
+        const countryObj = [...countries].find(
+            c => (mode === 'country-to-capital' ? c.capital : c.country) === btn.textContent
+        );
+        if (countryObj && countryObj.code === currentAnswer.code) {
+            btn.classList.add('correct');
         }
+    });
 
-        function selectAnswer(selected, clickedBtn) {
-            if (answered) return;
-            answered = true;
+    if (!isCorrect) {
+        clickedBtn.classList.add('wrong');
+        quizScore[1]++;
+    } else {
+        quizScore[0]++;
+    }
 
-            const allButtons = document.querySelectorAll('.answer-btn');
-            allButtons.forEach(b => (b.style.pointerEvents = 'none'));
-
-            const mode = quizModes[(quizModeIndex - 1) % 3];
-            const isCorrect = selected.code === currentAnswer.code;
-
-            // Подсветка правильного/неправильного
-            allButtons.forEach(btn => {
-                const countryObj = [...countries].find(
-                    c => (mode === 'country-to-capital' ? c.capital : c.country) === btn.textContent
-                );
-                if (countryObj && countryObj.code === currentAnswer.code) {
-                    btn.classList.add('correct');
-                }
-            });
-
-            if (!isCorrect) {
-                clickedBtn.classList.add('wrong');
-                quizScore[1]++;
-            } else {
-                quizScore[0]++;
-            }
-
-            document.getElementById('quizScore').textContent =
-                `Правильно: ${quizScore[0]} / ${quizScore[0] + quizScore[1]}`;
-            document.getElementById('nextQuizBtn').style.display = 'block';
-        }
+    document.getElementById('quizScore').textContent =
+        `Правильно: ${quizScore[0]} / ${quizScore[0] + quizScore[1]}`;
+    document.getElementById('nextQuizBtn').style.display = 'block';
+}
         // Игры
         function initGames() {
             initTicTacToe();
