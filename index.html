@@ -859,27 +859,96 @@
         }
 
         function nextQuiz() {
-            answered = false;
-            document.getElementById('nextQuizBtn').style.display = 'none';
-            const answersDiv = document.getElementById('quizAnswers');
-            answersDiv.innerHTML = '';
+    answered = false;
+    document.getElementById('nextQuizBtn').style.display = 'none';
+    const answersDiv = document.getElementById('quizAnswers');
+    answersDiv.innerHTML = '';
 
-            const mode = quizModes[quizModeIndex % 3];
-            quizModeIndex++;
+    const mode = quizModes[quizModeIndex % 3];
+    quizModeIndex++;
 
-            const correctIndex = Math.floor(Math.random() * countries.length);
-            const correct = countries[correctIndex];
+    const correctIndex = Math.floor(Math.random() * countries.length);
+    const correct = countries[correctIndex];
 
-            // Собираем 3 уникальных неправильных варианта (по коду страны)
-            const usedCodes = new Set([correct.code]);
-            const variants = [correct];
-            while (variants.length < 4) {
-                const rnd = countries[Math.floor(Math.random() * countries.length)];
-                if (!usedCodes.has(rnd.code)) {
-                    usedCodes.add(rnd.code);
-                    variants.push(rnd);
-                }
+    // Уникальные варианты (без повторов по коду)
+    const usedCodes = new Set([correct.code]);
+    const variants = [correct];
+    while (variants.length < 4) {
+        const rnd = countries[Math.floor(Math.random() * countries.length)];
+        if (!usedCodes.has(rnd.code)) {
+            usedCodes.add(rnd.code);
+            variants.push(rnd);
+        }
+    }
+    shuffleArray(variants);
+
+    const questionDiv = document.getElementById('quizQuestion');
+    questionDiv.innerHTML = '';
+
+    if (mode === 'flag-to-country') {
+        const span = document.createElement('span');
+        span.textContent = 'Какой стране принадлежит флаг? ';
+        questionDiv.appendChild(span);
+
+        // Сразу вставляем эмодзи, пока флаг грузится
+        const placeholder = document.createElement('span');
+        placeholder.innerHTML = '🏳️';
+        placeholder.style.fontSize = '1.4em';
+        placeholder.id = 'flagPlaceholder';
+        questionDiv.appendChild(placeholder);
+
+        // Асинхронная загрузка с таймаутом
+        const flagUrl = `https://flagcdn.com/w80/${correct.code.toLowerCase()}.png`;
+        const img = new Image();
+        let loaded = false;
+
+        const timeout = setTimeout(() => {
+            if (!loaded) {
+                // Таймаут – оставляем эмодзи
+                placeholder.innerHTML = '🏳️';
             }
+        }, 3000); // 3 секунды
+
+        img.onload = () => {
+            loaded = true;
+            clearTimeout(timeout);
+            // Заменяем эмодзи на картинку
+            placeholder.innerHTML = ''; // очищаем span
+            const realImg = document.createElement('img');
+            realImg.src = flagUrl;
+            realImg.style.height = '48px';
+            realImg.style.width = 'auto';
+            realImg.style.verticalAlign = 'middle';
+            realImg.alt = correct.code;
+            placeholder.replaceWith(realImg); // заменяем span на img
+        };
+
+        img.onerror = () => {
+            loaded = true;
+            clearTimeout(timeout);
+            placeholder.innerHTML = '🏳️'; // ошибка – эмодзи
+        };
+
+        img.src = flagUrl; // запускаем загрузку
+        currentAnswer = correct;
+
+    } else if (mode === 'country-to-capital') {
+        questionDiv.textContent = `Какая столица у страны ${correct.country}?`;
+        currentAnswer = correct;
+    } else {
+        questionDiv.textContent = `Какой стране принадлежит столица ${correct.capital}?`;
+        currentAnswer = correct;
+    }
+
+    // Кнопки ответов (без изменений)
+    variants.forEach(v => {
+        const btn = document.createElement('div');
+        btn.className = 'answer-btn';
+        btn.textContent = (mode === 'country-to-capital') ? v.capital : v.country;
+        btn.addEventListener('click', () => selectAnswer(v, btn));
+        answersDiv.appendChild(btn);
+    });
+}
             shuffleArray(variants);
 
             // Формируем вопрос
