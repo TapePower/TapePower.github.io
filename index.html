@@ -2338,8 +2338,8 @@
                     if (moves.length > 0) {
                         selectedCell = { row, col };
                         highlightMoves = forcedCapture ?
-                            moves.filter(m => m.capture).map(m => ({ row: m.toRow, col: m.toCol })) :
-                            moves.map(m => ({ row: m.toRow, col: m.toCol }));
+                            moves.filter(m => m.capture).map(m => ({ row: m.toRow, col: m.toCol, capture: true })) :
+                            moves.map(m => ({ row: m.toRow, col: m.toCol, capture: m.capture }));
                     } else {
                         selectedCell = null;
                         highlightMoves = [];
@@ -2363,7 +2363,7 @@
                 const newMoves = getValidMoves(toRow, toCol).filter(m => m.capture);
                 if (newMoves.length > 0) {
                     selectedCell = { row: toRow, col: toCol };
-                    highlightMoves = newMoves.map(m => ({ row: m.toRow, col: m.toCol }));
+                    highlightMoves = newMoves.map(m => ({ row: m.toRow, col: m.toCol, capture: true }));
                     drawBoard();
                     document.getElementById('checkersStatus').textContent =
                         `${currentTurn === 'white' ? 'Белые' : 'Чёрные'} бьют дальше`;
