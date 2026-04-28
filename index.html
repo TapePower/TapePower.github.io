@@ -6,6 +6,8 @@
     <title>Unified Service</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Tesseract.js v5 для распознавания текста -->
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -906,6 +908,247 @@
             font-style: italic;
         }
 
+        /* ─── OCR TAB ─── */
+        .ocr-upload-zone {
+            border: 2px dashed var(--border);
+            border-radius: 20px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: var(--surface);
+            position: relative;
+            overflow: hidden;
+        }
+        .ocr-upload-zone:hover,
+        .ocr-upload-zone.drag-over {
+            border-color: var(--gold);
+            background: var(--gold-dim);
+        }
+        .ocr-upload-zone.drag-over {
+            border-style: solid;
+        }
+        .ocr-upload-zone.has-image {
+            border-style: solid;
+            border-color: var(--gold);
+            background: var(--surface-hover);
+            padding: 16px;
+        }
+        .ocr-upload-zone .upload-icon {
+            font-size: 42px;
+            margin-bottom: 10px;
+            display: block;
+            transition: opacity 0.3s;
+        }
+        .ocr-upload-zone.has-image .upload-icon { opacity: 0; height: 0; margin: 0; }
+        .ocr-upload-zone .upload-text {
+            font-weight: 600;
+            font-size: 1rem;
+            color: var(--text);
+        }
+        .ocr-upload-zone .upload-hint {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+        .ocr-upload-zone input[type="file"] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+        .ocr-preview-container {
+            display: none;
+            position: relative;
+            width: 100%;
+            max-height: 280px;
+            border-radius: 16px;
+            overflow: hidden;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            margin-top: 16px;
+        }
+        .ocr-preview-container.visible { display: block; }
+        .ocr-preview-container img {
+            width: 100%;
+            height: auto;
+            max-height: 280px;
+            object-fit: contain;
+            display: block;
+        }
+        .ocr-preview-container .remove-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(0,0,0,0.6);
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            backdrop-filter: blur(4px);
+        }
+        .ocr-preview-container .remove-btn:hover {
+            background: rgba(239,68,68,0.85);
+            transform: scale(1.08);
+        }
+        .ocr-recognize-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 14px 20px;
+            background: var(--gold-dim);
+            border: 1px solid rgba(196,164,92,0.4);
+            color: var(--gold2);
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            letter-spacing: 0.02em;
+            margin-top: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+        .ocr-recognize-btn:hover:not(:disabled) {
+            border-color: rgba(196,164,92,0.6);
+            box-shadow: 0 8px 24px rgba(196,164,92,0.15);
+            transform: translateY(-1px);
+        }
+        .ocr-recognize-btn:active:not(:disabled) { transform: scale(0.98); }
+        .ocr-recognize-btn:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .ocr-recognize-btn .spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2.5px solid rgba(232,201,122,0.3);
+            border-top-color: var(--gold2);
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .ocr-recognize-btn.loading .spinner { display: inline-block; }
+        .ocr-recognize-btn.loading .btn-text { display: none; }
+        .ocr-progress-container {
+            display: none;
+            margin-top: 12px;
+        }
+        .ocr-progress-container.visible { display: block; }
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 99px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: var(--grad);
+            border-radius: 99px;
+            transition: width 0.3s ease;
+        }
+        .progress-text {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            margin-top: 6px;
+            text-align: center;
+        }
+        .ocr-result-container {
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 24px;
+        }
+        .ocr-result-container.visible { display: flex; }
+        .ocr-result-label {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .ocr-result-label span {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--text);
+        }
+        .ocr-copy-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 7px 14px;
+            border-radius: 8px;
+            font-size: 0.82rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+        .ocr-copy-btn:hover {
+            background: var(--surface-hover);
+            border-color: rgba(196,164,92,0.3);
+            color: var(--gold);
+        }
+        .ocr-copy-btn.copied {
+            background: rgba(46,180,100,0.1);
+            border-color: rgba(46,180,100,0.3);
+            color: #4ade80;
+        }
+        .ocr-result-textarea {
+            width: 100%;
+            min-height: 140px;
+            max-height: 360px;
+            padding: 14px 16px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 0.9rem;
+            line-height: 1.55;
+            resize: vertical;
+            background: var(--surface);
+            color: var(--text);
+            transition: all 0.2s;
+        }
+        .ocr-result-textarea:focus {
+            outline: none;
+            border-color: var(--gold);
+            box-shadow: 0 0 0 3px rgba(196,164,92,0.08);
+        }
+        .ocr-message {
+            display: none;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 0.88rem;
+            font-weight: 500;
+            margin-top: 12px;
+        }
+        .ocr-message.error {
+            display: block;
+            background: rgba(220,80,80,0.08);
+            color: #f87171;
+            border: 1px solid rgba(220,80,80,0.2);
+        }
+        .ocr-message.info {
+            display: block;
+            background: rgba(196,164,92,0.08);
+            color: var(--gold);
+            border: 1px solid rgba(196,164,92,0.2);
+        }
+
         /* ─── MOBILE MODAL ─── */
         .mobile-modal-overlay {
             display: none;
@@ -1032,6 +1275,7 @@
             <button class="tab-btn" data-tab="password">🔐 Пароли</button>
             <button class="tab-btn" data-tab="time">🕒 Время</button>
             <button class="tab-btn" data-tab="translate">🌐 Перевод</button>
+            <button class="tab-btn" data-tab="ocr">📷 Распознавание</button>
             <button class="tab-btn" data-tab="quiz">❓ Викторина</button>
             <button class="tab-btn" data-tab="game">🎮 Игры</button>
             <button class="tab-btn" data-tab="quotes">💬 Цитаты</button>
@@ -1056,6 +1300,7 @@
                     <div class="home-card" data-goto="password"><span class="icon">🔐</span><div class="title">Пароли</div><div class="desc">Надёжные пароли</div></div>
                     <div class="home-card" data-goto="time"><span class="icon">🕒</span><div class="title">Мировое время</div><div class="desc">20+ городов</div></div>
                     <div class="home-card" data-goto="translate"><span class="icon">🌐</span><div class="title">Переводчик</div><div class="desc">Русский ↔ Английский и др.</div></div>
+                    <div class="home-card" data-goto="ocr"><span class="icon">📷</span><div class="title">Распознавание</div><div class="desc">Текст с фото</div></div>
                     <div class="home-card" data-goto="quiz"><span class="icon">❓</span><div class="title">Викторина</div><div class="desc">Страны, столицы, флаги</div></div>
                     <div class="home-card" data-goto="game"><span class="icon">🎮</span><div class="title">Игры</div><div class="desc">Крестики-нолики и шашки</div></div>
                     <div class="home-card" data-goto="quotes"><span class="icon">💬</span><div class="title">Цитаты</div><div class="desc">Мотивация на каждый день</div></div>
@@ -1242,6 +1487,46 @@
             </div>
         </div>
 
+        <!-- Распознавание текста -->
+        <div class="tab-content" id="tab-ocr">
+            <div class="glass-card">
+                <div class="header"><h2>Распознавание текста</h2><button class="theme-btn" onclick="toggleTheme()">🌓 Тема</button></div>
+                <p style="color:var(--text-muted); font-size:0.9rem; margin-top:-20px; margin-bottom:28px;">загрузите, перетащите или вставьте (Ctrl+V) картинку</p>
+
+                <div class="ocr-upload-zone" id="uploadZone">
+                    <span class="upload-icon">🖼️</span>
+                    <span class="upload-text">Выберите или перетащите изображение</span>
+                    <span class="upload-hint">PNG, JPG, WEBP, GIF · до 20 МБ · или Ctrl+V</span>
+                    <input type="file" id="fileInput" accept="image/*">
+                </div>
+
+                <div class="ocr-preview-container" id="previewContainer">
+                    <img id="previewImage" src="" alt="Предпросмотр">
+                    <button class="remove-btn" id="removeImageBtn" title="Удалить изображение">✕</button>
+                </div>
+
+                <button class="ocr-recognize-btn" id="recognizeBtn" disabled>
+                    <span class="spinner"></span>
+                    <span class="btn-text">🔍 Распознать текст</span>
+                </button>
+
+                <div class="ocr-progress-container" id="progressContainer">
+                    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+                    <p class="progress-text" id="progressText">Подготовка...</p>
+                </div>
+
+                <div class="ocr-message" id="messageBox"></div>
+
+                <div class="ocr-result-container" id="resultContainer">
+                    <div class="ocr-result-label">
+                        <span>📝 Распознанный текст</span>
+                        <button class="ocr-copy-btn" id="copyBtn">📋 <span id="copyBtnText">Копировать</span></button>
+                    </div>
+                    <textarea class="ocr-result-textarea" id="resultTextarea" placeholder="Текст появится здесь..." readonly></textarea>
+                </div>
+            </div>
+        </div>
+
         <!-- Викторина -->
         <div class="tab-content" id="tab-quiz">
             <div class="glass-card">
@@ -1358,6 +1643,19 @@
     </div>
     <div class="author-tag">by TapePower</div>
 
+    <!-- Модальное окно -->
+    <div class="mobile-modal-overlay" id="mobileModal">
+        <div class="mobile-modal">
+            <h3>Совет</h3>
+            <p>Для полного функционала и удобства рекомендуем зайти с ноутбука, компьютера или планшета.</p>
+            <div class="btn-row">
+                <button class="m-btn copy-btn" id="copyLinkBtn">Скопировать ссылку</button>
+                <button class="m-btn ok-btn" id="okMobileBtn">Окей</button>
+                <button class="m-btn close-btn" id="closeSiteBtn">Закрыть</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         (function() {
             document.onkeydown = function(e) {
@@ -1414,6 +1712,8 @@
                     window._timeInit = true; }
                 if (tabName === 'translate' && !window._transInit) { initTranslate();
                     window._transInit = true; }
+                if (tabName === 'ocr' && !window._ocrInit) { initOCR();
+                    window._ocrInit = true; }
                 if (tabName === 'quiz' && !window._quizInit) { initQuiz();
                     window._quizInit = true; }
                 if (tabName === 'game' && !window._gameInit) { initGames();
@@ -1920,6 +2220,270 @@
                     translated && translated !== 'Ошибка перевода' && translated !== 'Ошибка сети') { navigator.clipboard
                     .writeText(translated).then(() => alert('Перевод скопирован')).catch(() => alert('Ошибка')); } }
 
+            // OCR – распознавание текста
+            function initOCR() {
+                const uploadZone = document.getElementById('uploadZone');
+                const fileInput = document.getElementById('fileInput');
+                const previewContainer = document.getElementById('previewContainer');
+                const previewImage = document.getElementById('previewImage');
+                const removeImageBtn = document.getElementById('removeImageBtn');
+                const recognizeBtn = document.getElementById('recognizeBtn');
+                const progressContainer = document.getElementById('progressContainer');
+                const progressFill = document.getElementById('progressFill');
+                const progressText = document.getElementById('progressText');
+                const messageBox = document.getElementById('messageBox');
+                const resultContainer = document.getElementById('resultContainer');
+                const resultTextarea = document.getElementById('resultTextarea');
+                const copyBtn = document.getElementById('copyBtn');
+                const copyBtnText = document.getElementById('copyBtnText');
+
+                let selectedFile = null;
+                let currentWorker = null;
+
+                function resetAll() {
+                    if (currentWorker) {
+                        try { currentWorker.terminate(); } catch(e) {}
+                        currentWorker = null;
+                    }
+                    selectedFile = null;
+                    fileInput.value = '';
+                    previewImage.src = '';
+                    previewContainer.classList.remove('visible');
+                    uploadZone.classList.remove('has-image');
+                    recognizeBtn.disabled = true;
+                    recognizeBtn.classList.remove('loading');
+                    progressContainer.classList.remove('visible');
+                    progressFill.style.width = '0%';
+                    progressText.textContent = 'Подготовка...';
+                    messageBox.className = 'ocr-message';
+                    messageBox.textContent = '';
+                    resultContainer.classList.remove('visible');
+                    resultTextarea.value = '';
+                    copyBtn.classList.remove('copied');
+                    copyBtnText.textContent = 'Копировать';
+                }
+
+                function showMessage(text, type = 'error') {
+                    messageBox.className = 'ocr-message ' + type;
+                    messageBox.textContent = text;
+                    if (type === 'info') {
+                        setTimeout(() => {
+                            if (messageBox.textContent === text) {
+                                messageBox.className = 'ocr-message';
+                                messageBox.textContent = '';
+                            }
+                        }, 6000);
+                    }
+                }
+
+                function hideMessage() {
+                    messageBox.className = 'ocr-message';
+                    messageBox.textContent = '';
+                }
+
+                function handleFile(file) {
+                    hideMessage();
+                    if (!file) return;
+                    const validTypes = ['image/png','image/jpeg','image/jpg','image/webp','image/gif','image/bmp','image/tiff'];
+                    if (!validTypes.includes(file.type)) {
+                        showMessage('⚠️ Пожалуйста, выберите изображение (PNG, JPG, WEBP и др.)', 'error');
+                        return;
+                    }
+                    if (file.size > 20 * 1024 * 1024) {
+                        showMessage('⚠️ Размер файла не должен превышать 20 МБ', 'error');
+                        return;
+                    }
+                    if (currentWorker) {
+                        try { currentWorker.terminate(); } catch(e) {}
+                        currentWorker = null;
+                    }
+                    recognizeBtn.classList.remove('loading');
+                    progressContainer.classList.remove('visible');
+                    resultContainer.classList.remove('visible');
+                    resultTextarea.value = '';
+
+                    selectedFile = file;
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        previewImage.src = e.target.result;
+                        previewContainer.classList.add('visible');
+                        uploadZone.classList.add('has-image');
+                        recognizeBtn.disabled = false;
+                    };
+                    reader.onerror = () => {
+                        showMessage('⚠️ Не удалось прочитать файл', 'error');
+                        resetAll();
+                    };
+                    reader.readAsDataURL(file);
+                }
+
+                // --- Обработчики ---
+                uploadZone.addEventListener('click', (e) => {
+                    if (e.target === removeImageBtn || removeImageBtn.contains(e.target)) return;
+                    fileInput.click();
+                });
+
+                fileInput.addEventListener('change', (e) => {
+                    if (e.target.files && e.target.files[0]) handleFile(e.target.files[0]);
+                });
+
+                uploadZone.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    uploadZone.classList.add('drag-over');
+                });
+                uploadZone.addEventListener('dragleave', (e) => {
+                    e.preventDefault();
+                    uploadZone.classList.remove('drag-over');
+                });
+                uploadZone.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    uploadZone.classList.remove('drag-over');
+                    if (e.dataTransfer.files && e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+                });
+
+                removeImageBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    resetAll();
+                    showMessage('Изображение удалено. Выберите новое или вставьте Ctrl+V', 'info');
+                });
+
+                // Вставка из буфера обмена (Ctrl+V)
+                document.addEventListener('paste', (e) => {
+                    // Проверяем, что вкладка OCR активна
+                    if (!document.getElementById('tab-ocr').classList.contains('active')) return;
+                    const items = e.clipboardData?.items;
+                    if (!items) return;
+                    if (e.clipboardData.files && e.clipboardData.files.length > 0) {
+                        const file = e.clipboardData.files[0];
+                        if (file.type.startsWith('image/')) {
+                            e.preventDefault();
+                            handleFile(file);
+                            return;
+                        }
+                    }
+                    for (let i = 0; i < items.length; i++) {
+                        if (items[i].type.indexOf('image') !== -1) {
+                            e.preventDefault();
+                            const blob = items[i].getAsFile();
+                            if (blob) {
+                                const file = new File([blob], 'pasted-image.png', { type: blob.type });
+                                handleFile(file);
+                                return;
+                            }
+                        }
+                    }
+                });
+
+                // Распознавание
+                recognizeBtn.addEventListener('click', async () => {
+                    if (!selectedFile || recognizeBtn.disabled || recognizeBtn.classList.contains('loading')) return;
+
+                    hideMessage();
+                    resultContainer.classList.remove('visible');
+                    resultTextarea.value = '';
+                    copyBtn.classList.remove('copied');
+                    copyBtnText.textContent = 'Копировать';
+
+                    recognizeBtn.classList.add('loading');
+                    recognizeBtn.disabled = true;
+                    progressContainer.classList.add('visible');
+                    progressFill.style.width = '0%';
+                    progressText.textContent = 'Инициализация Tesseract...';
+
+                    try {
+                        const worker = await Tesseract.createWorker('rus+eng', 1, {
+                            logger: (m) => {
+                                if (m.status === 'recognizing text') {
+                                    const percent = Math.round((m.progress || 0) * 100);
+                                    progressFill.style.width = percent + '%';
+                                    progressText.textContent = `Распознавание: ${percent}%`;
+                                } else if (m.status === 'loading tesseract core') {
+                                    progressText.textContent = 'Загрузка ядра Tesseract...';
+                                    progressFill.style.width = '10%';
+                                } else if (m.status === 'initializing tesseract') {
+                                    progressText.textContent = 'Инициализация движка...';
+                                    progressFill.style.width = '20%';
+                                } else if (m.status === 'loading language traineddata') {
+                                    progressText.textContent = 'Загрузка языковых данных (rus+eng)...';
+                                    progressFill.style.width = '35%';
+                                } else if (m.status === 'initializing api') {
+                                    progressText.textContent = 'Подготовка API...';
+                                    progressFill.style.width = '55%';
+                                }
+                            }
+                        });
+                        currentWorker = worker;
+                        progressText.textContent = 'Распознавание...';
+                        progressFill.style.width = '60%';
+
+                        const { data: { text } } = await worker.recognize(selectedFile);
+                        await worker.terminate();
+                        currentWorker = null;
+
+                        progressFill.style.width = '100%';
+                        progressText.textContent = 'Готово';
+                        const trimmed = text.trim();
+                        resultTextarea.value = trimmed || '(текст не найден)';
+                        resultContainer.classList.add('visible');
+                        recognizeBtn.classList.remove('loading');
+                        recognizeBtn.disabled = false;
+                        progressContainer.classList.remove('visible');
+
+                        if (!trimmed) {
+                            showMessage('ℹ️ Текст не обнаружен. Попробуйте более чёткое изображение.', 'info');
+                        } else {
+                            hideMessage();
+                        }
+                    } catch (err) {
+                        console.error('OCR error:', err);
+                        if (currentWorker) {
+                            try { await currentWorker.terminate(); } catch(e) {}
+                            currentWorker = null;
+                        }
+                        recognizeBtn.classList.remove('loading');
+                        recognizeBtn.disabled = false;
+                        progressContainer.classList.remove('visible');
+                        showMessage('❌ Ошибка распознавания: ' + (err.message || 'неизвестная ошибка'), 'error');
+                    }
+                });
+
+                // Копирование текста
+                copyBtn.addEventListener('click', async () => {
+                    const text = resultTextarea.value;
+                    if (!text || text === '(текст не найден)') {
+                        showMessage('Нечего копировать', 'info');
+                        return;
+                    }
+                    try {
+                        await navigator.clipboard.writeText(text);
+                        copyBtn.classList.add('copied');
+                        copyBtnText.textContent = 'Скопировано ✓';
+                        setTimeout(() => {
+                            copyBtn.classList.remove('copied');
+                            copyBtnText.textContent = 'Копировать';
+                        }, 2000);
+                        hideMessage();
+                    } catch (err) {
+                        resultTextarea.select();
+                        resultTextarea.setSelectionRange(0, 99999);
+                        try {
+                            document.execCommand('copy');
+                            copyBtn.classList.add('copied');
+                            copyBtnText.textContent = 'Скопировано ✓';
+                            setTimeout(() => {
+                                copyBtn.classList.remove('copied');
+                                copyBtnText.textContent = 'Копировать';
+                            }, 2000);
+                            hideMessage();
+                        } catch (e) {
+                            showMessage('Не удалось скопировать. Выделите текст вручную.', 'error');
+                        }
+                    }
+                });
+
+                recognizeBtn.disabled = true;
+            }
+
             // Викторина
             const countries = [
                 { country: 'Куба', capital: 'Гавана', code: 'cu' }, { country: 'Уругвай', capital: 'Монтевидео',
@@ -1979,61 +2543,61 @@
                     code: 'bz' }, { country: 'Бенин', capital: 'Порто-Ново', code: 'bj' }, { country: 'Боливия',
                     capital: 'Сукре', code: 'bo' }, { country: 'Босния и Герцеговина', capital: 'Сараево',
                     code: 'ba' }, { country: 'Ботсвана', capital: 'Габороне', code: 'bw' }, { country: 'Бруней',
-                    capital: 'Бандар-Сери-Бегаван', code: 'bn' }, { country: 'Буркина-Фасо', capital: 'Уагадугу',
-                    code: 'bf' }, { country: 'Бурунди', capital: 'Гитега', code: 'bi' }, { country: 'Бутан',
-                    capital: 'Тхимпху', code: 'bt' }, { country: 'Вануату', capital: 'Порт-Вила', code: 'vu' },
-                { country: 'Ватикан', capital: 'Ватикан', code: 'va' }, { country: 'Габон', capital: 'Либревиль',
-                    code: 'ga' }, { country: 'Гаити', capital: 'Порт-о-Пренс', code: 'ht' }, { country: 'Гайана',
-                    capital: 'Джорджтаун', code: 'gy' }, { country: 'Гамбия', capital: 'Банжул', code: 'gm' },
-                { country: 'Гватемала', capital: 'Гватемала', code: 'gt' }, { country: 'Гвинея', capital: 'Конакри',
-                    code: 'gn' }, { country: 'Гвинея-Бисау', capital: 'Бисау', code: 'gw' }, { country: 'Гондурас',
-                    capital: 'Тегусигальпа', code: 'hn' }, { country: 'Гренада', capital: 'Сент-Джорджес',
-                    code: 'gd' }, { country: 'Джибути', capital: 'Джибути', code: 'dj' }, { country: 'Доминика',
-                    capital: 'Розо', code: 'dm' }, { country: 'Доминиканская Республика',
-                    capital: 'Санто-Доминго', code: 'do' }, { country: 'Замбия', capital: 'Лусака', code: 'zm' },
-                { country: 'Зимбабве', capital: 'Хараре', code: 'zw' }, { country: 'Иордания', capital: 'Амман',
-                    code: 'jo' }, { country: 'Йемен', capital: 'Сана', code: 'ye' }, { country: 'Кабо-Верде',
-                    capital: 'Прая', code: 'cv' }, { country: 'Камбоджа', capital: 'Пномпень', code: 'kh' },
-                { country: 'Камерун', capital: 'Яунде', code: 'cm' }, { country: 'Катар', capital: 'Доха',
-                    code: 'qa' }, { country: 'Кипр', capital: 'Никосия', code: 'cy' }, { country: 'Киргизия',
-                    capital: 'Бишкек', code: 'kg' }, { country: 'Кирибати', capital: 'Южная Тарава', code: 'ki' },
-                { country: 'Конго (ДРК)', capital: 'Киншаса', code: 'cd' }, { country: 'Конго (РК)',
-                    capital: 'Браззавиль', code: 'cg' }, { country: 'Кувейт', capital: 'Эль-Кувейт', code: 'kw' },
-                { country: 'Лаос', capital: 'Вьентьян', code: 'la' }, { country: 'Лесото', capital: 'Масеру',
-                    code: 'ls' }, { country: 'Либерия', capital: 'Монровия', code: 'lr' }, { country: 'Ливан',
-                    capital: 'Бейрут', code: 'lb' }, { country: 'Ливия', capital: 'Триполи', code: 'ly' },
-                { country: 'Лихтенштейн', capital: 'Вадуц', code: 'li' }, { country: 'Маврикий',
-                    capital: 'Порт-Луи', code: 'mu' }, { country: 'Мавритания', capital: 'Нуакшот', code: 'mr' },
-                { country: 'Мадагаскар', capital: 'Антананариву', code: 'mg' }, { country: 'Малави',
-                    capital: 'Лилонгве', code: 'mw' }, { country: 'Мали', capital: 'Бамако', code: 'ml' },
-                { country: 'Мальдивы', capital: 'Мале', code: 'mv' }, { country: 'Мальта', capital: 'Валлетта',
-                    code: 'mt' }, { country: 'Маршалловы Острова', capital: 'Маджуро', code: 'mh' },
-                { country: 'Молдова', capital: 'Кишинев', code: 'md' }, { country: 'Монако', capital: 'Монако',
-                    code: 'mc' }, { country: 'Монголия', capital: 'Улан-Батор', code: 'mn' }, { country: 'Мьянма',
-                    capital: 'Нейпьидо', code: 'mm' }, { country: 'Намибия', capital: 'Виндхук', code: 'na' },
-                { country: 'Науру', capital: 'Ярен', code: 'nr' }, { country: 'Непал', capital: 'Катманду',
-                    code: 'np' }, { country: 'Нигер', capital: 'Ниамей', code: 'ne' }, { country: 'Никарагуа',
-                    capital: 'Манагуа', code: 'ni' }, { country: 'Оман', capital: 'Маскат', code: 'om' },
-                { country: 'Палау', capital: 'Нгерулмуд', code: 'pw' }, { country: 'Руанда', capital: 'Кигали',
-                    code: 'rw' }, { country: 'Сальвадор', capital: 'Сан-Сальвадор', code: 'sv' }, { country: 'Самоа',
-                    capital: 'Апиа', code: 'ws' }, { country: 'Сан-Марино', capital: 'Сан-Марино', code: 'sm' },
-                { country: 'Сан-Томе и Принсипи', capital: 'Сан-Томе', code: 'st' }, { country: 'Сейшелы',
-                    capital: 'Виктория', code: 'sc' }, { country: 'Сенегал', capital: 'Дакар', code: 'sn' },
-                { country: 'Сент-Китс и Невис', capital: 'Бастер', code: 'kn' }, { country: 'Сент-Люсия',
-                    capital: 'Кастри', code: 'lc' }, { country: 'Сент-Винсент и Гренадины',
-                    capital: 'Кингстаун', code: 'vc' }, { country: 'Сирия', capital: 'Дамаск', code: 'sy' },
-                { country: 'Словения', capital: 'Любляна', code: 'si' }, { country: 'Соломоновы Острова',
-                    capital: 'Хониара', code: 'sb' }, { country: 'Сомали', capital: 'Могадишо', code: 'so' },
-                { country: 'Судан', capital: 'Хартум', code: 'sd' }, { country: 'Суринам', capital: 'Парамарибо',
-                    code: 'sr' }, { country: 'Сьерра-Леоне', capital: 'Фритаун', code: 'sl' },
-                { country: 'Таджикистан', capital: 'Душанбе', code: 'tj' }, { country: 'Того', capital: 'Ломе',
-                    code: 'tg' }, { country: 'Тонга', capital: 'Нукуалофа', code: 'to' }, { country: 'Тринидад и Тобаго',
-                    capital: 'Порт-оф-Спейн', code: 'tt' }, { country: 'Тувалу', capital: 'Фунафути',
-                    code: 'tv' }, { country: 'Туркменистан', capital: 'Ашхабад', code: 'tm' }, { country: 'Уганда',
-                    capital: 'Кампала', code: 'ug' }, { country: 'Черногория', capital: 'Подгорица', code: 'me' },
-                { country: 'Шри-Ланка', capital: 'Шри-Джаяварденепура-Котте', code: 'lk' }, { country: 'Эритрея',
-                    capital: 'Асмэра', code: 'er' }, { country: 'Эсватини', capital: 'Мбабане', code: 'sz' },
-                { country: 'Ямайка', capital: 'Кингстон', code: 'jm' }
+                    capital: 'Бандар-Сери-Бегаван', code: 'bn' }, { country: 'Буркина-Фасо', captain: 'Уагадугу',
+                    code: 'bf' }, { country: 'Бурунди', captain: 'Гитега', code: 'bi' }, { country: 'Бутан',
+                    captain: 'Тхимпху', code: 'bt' }, { country: 'Вануату', captain: 'Порт-Вила', code: 'vu' },
+                { country: 'Ватикан', captain: 'Ватикан', code: 'va' }, { country: 'Габон', captain: 'Либревиль',
+                    code: 'ga' }, { country: 'Гаити', captain: 'Порт-о-Пренс', code: 'ht' }, { country: 'Гайана',
+                    captain: 'Джорджтаун', code: 'gy' }, { country: 'Гамбия', captain: 'Банжул', code: 'gm' },
+                { country: 'Гватемала', captain: 'Гватемала', code: 'gt' }, { country: 'Гвинея', captain: 'Конакри',
+                    code: 'gn' }, { country: 'Гвинея-Бисау', captain: 'Бисау', code: 'gw' }, { country: 'Гондурас',
+                    captain: 'Тегусигальпа', code: 'hn' }, { country: 'Гренада', captain: 'Сент-Джорджес',
+                    code: 'gd' }, { country: 'Джибути', captain: 'Джибути', code: 'dj' }, { country: 'Доминика',
+                    captain: 'Розо', code: 'dm' }, { country: 'Доминиканская Республика',
+                    captain: 'Санто-Доминго', code: 'do' }, { country: 'Замбия', captain: 'Лусака', code: 'zm' },
+                { country: 'Зимбабве', captain: 'Хараре', code: 'zw' }, { country: 'Иордания', captain: 'Амман',
+                    code: 'jo' }, { country: 'Йемен', captain: 'Сана', code: 'ye' }, { country: 'Кабо-Верде',
+                    captain: 'Прая', code: 'cv' }, { country: 'Камбоджа', captain: 'Пномпень', code: 'kh' },
+                { country: 'Камерун', captain: 'Яунде', code: 'cm' }, { country: 'Катар', captain: 'Доха',
+                    code: 'qa' }, { country: 'Кипр', captain: 'Никосия', code: 'cy' }, { country: 'Киргизия',
+                    captain: 'Бишкек', code: 'kg' }, { country: 'Кирибати', captain: 'Южная Тарава', code: 'ki' },
+                { country: 'Конго (ДРК)', captain: 'Киншаса', code: 'cd' }, { country: 'Конго (РК)',
+                    captain: 'Браззавиль', code: 'cg' }, { country: 'Кувейт', captain: 'Эль-Кувейт', code: 'kw' },
+                { country: 'Лаос', captain: 'Вьентьян', code: 'la' }, { country: 'Лесото', captain: 'Масеру',
+                    code: 'ls' }, { country: 'Либерия', captain: 'Монровия', code: 'lr' }, { country: 'Ливан',
+                    captain: 'Бейрут', code: 'lb' }, { country: 'Ливия', captain: 'Триполи', code: 'ly' },
+                { country: 'Лихтенштейн', captain: 'Вадуц', code: 'li' }, { country: 'Маврикий',
+                    captain: 'Порт-Луи', code: 'mu' }, { country: 'Мавритания', captain: 'Нуакшот', code: 'mr' },
+                { country: 'Мадагаскар', captain: 'Антананариву', code: 'mg' }, { country: 'Малави',
+                    captain: 'Лилонгве', code: 'mw' }, { country: 'Мали', captain: 'Бамако', code: 'ml' },
+                { country: 'Мальдивы', captain: 'Мале', code: 'mv' }, { country: 'Мальта', captain: 'Валлетта',
+                    code: 'mt' }, { country: 'Маршалловы Острова', captain: 'Маджуро', code: 'mh' },
+                { country: 'Молдова', captain: 'Кишинев', code: 'md' }, { country: 'Монако', captain: 'Монако',
+                    code: 'mc' }, { country: 'Монголия', captain: 'Улан-Батор', code: 'mn' }, { country: 'Мьянма',
+                    captain: 'Нейпьидо', code: 'mm' }, { country: 'Намибия', captain: 'Виндхук', code: 'na' },
+                { country: 'Науру', captain: 'Ярен', code: 'nr' }, { country: 'Непал', captain: 'Катманду',
+                    code: 'np' }, { country: 'Нигер', captain: 'Ниамей', code: 'ne' }, { country: 'Никарагуа',
+                    captain: 'Манагуа', code: 'ni' }, { country: 'Оман', captain: 'Маскат', code: 'om' },
+                { country: 'Палау', captain: 'Нгерулмуд', code: 'pw' }, { country: 'Руанда', captain: 'Кигали',
+                    code: 'rw' }, { country: 'Сальвадор', captain: 'Сан-Сальвадор', code: 'sv' }, { country: 'Самоа',
+                    captain: 'Апиа', code: 'ws' }, { country: 'Сан-Марино', captain: 'Сан-Марино', code: 'sm' },
+                { country: 'Сан-Томе и Принсипи', captain: 'Сан-Томе', code: 'st' }, { country: 'Сейшелы',
+                    captain: 'Виктория', code: 'sc' }, { country: 'Сенегал', captain: 'Дакар', code: 'sn' },
+                { country: 'Сент-Китс и Невис', captain: 'Бастер', code: 'kn' }, { country: 'Сент-Люсия',
+                    captain: 'Кастри', code: 'lc' }, { country: 'Сент-Винсент и Гренадины',
+                    captain: 'Кингстаун', code: 'vc' }, { country: 'Сирия', captain: 'Дамаск', code: 'sy' },
+                { country: 'Словения', captain: 'Любляна', code: 'si' }, { country: 'Соломоновы Острова',
+                    captain: 'Хониара', code: 'sb' }, { country: 'Сомали', captain: 'Могадишо', code: 'so' },
+                { country: 'Судан', captain: 'Хартум', code: 'sd' }, { country: 'Суринам', captain: 'Парамарибо',
+                    code: 'sr' }, { country: 'Сьерра-Леоне', captain: 'Фритаун', code: 'sl' },
+                { country: 'Таджикистан', captain: 'Душанбе', code: 'tj' }, { country: 'Того', captain: 'Ломе',
+                    code: 'tg' }, { country: 'Тонга', captain: 'Нукуалофа', code: 'to' }, { country: 'Тринидад и Тобаго',
+                    captain: 'Порт-оф-Спейн', code: 'tt' }, { country: 'Тувалу', captain: 'Фунафути',
+                    code: 'tv' }, { country: 'Туркменистан', captain: 'Ашхабад', code: 'tm' }, { country: 'Уганда',
+                    captain: 'Кампала', code: 'ug' }, { country: 'Черногория', captain: 'Подгорица', code: 'me' },
+                { country: 'Шри-Ланка', captain: 'Шри-Джаяварденепура-Котте', code: 'lk' }, { country: 'Эритрея',
+                    captain: 'Асмэра', code: 'er' }, { country: 'Эсватини', captain: 'Мбабане', code: 'sz' },
+                { country: 'Ямайка', captain: 'Кингстон', code: 'jm' }
             ];
             let quizScore = [0, 0];
             let quizModeIndex = 0;
@@ -2703,19 +3267,6 @@ function resetCheckers() {
             });
         })();
     </script>
-
-    <!-- Модальное окно -->
-    <div class="mobile-modal-overlay" id="mobileModal">
-        <div class="mobile-modal">
-            <h3>Совет</h3>
-            <p>Для полного функционала и удобства рекомендуем зайти с ноутбука, компьютера или планшета.</p>
-            <div class="btn-row">
-                <button class="m-btn copy-btn" id="copyLinkBtn">Скопировать ссылку</button>
-                <button class="m-btn ok-btn" id="okMobileBtn">Окей</button>
-                <button class="m-btn close-btn" id="closeSiteBtn">Закрыть</button>
-            </div>
-        </div>
-    </div>
 
     <script>
         function isMobileDevice() {
