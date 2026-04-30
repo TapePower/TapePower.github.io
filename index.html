@@ -2113,11 +2113,12 @@
                 if (tabName === 'support' && !window._supportInit) { initSupport();
                     window._supportInit = true; }
                 if (tabName === 'graph' && graphChart) setTimeout(() => graphChart.resize(), 50);
-            }
-                if (tabName === 'chat' && !window._chatInit) {
+            if (tabName === 'chat' && !window._chatInit) {
     initChat();
     window._chatInit = true;
 };
+            }
+                
             tabBtns.forEach(btn => btn.addEventListener('click', () => switchTab(btn.getAttribute('data-tab'))));
             document.querySelectorAll('.home-card').forEach(card => card.addEventListener('click', () => switchTab(
                 card.getAttribute('data-goto'))));
@@ -2351,10 +2352,6 @@
                 init2048();
                 window._game2048Init = true;
             }
-            if (tabName === 'chat' && !window._chatInit) {
-    initChat();
-    window._chatInit = true;
-}
         });
     });
 }
@@ -3262,7 +3259,6 @@ function initChat() {
             // Игры
 function initGames() {
     initTicTacToe();
-    if (!window._checkersInit) { initCheckersExtended(); window._checkersInit = true; }
 }
 
             let board, currentPlayer, gameActive;
