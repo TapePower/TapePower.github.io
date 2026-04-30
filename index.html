@@ -1333,6 +1333,33 @@
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: rgba(196,164,92,0.2); border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: rgba(196,164,92,0.4); }
+        /* ===== 2048 TILES ===== */
+#game2048Root .cell {
+    background: #cdc1b4;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.3rem;
+    font-weight: 700;
+    color: #776e65;
+    transition: all 0.15s ease-in-out;
+    aspect-ratio: 1 / 1;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+}
+#game2048Root .tile-2    { background: #eee4da; }
+#game2048Root .tile-4    { background: #ede0c8; }
+#game2048Root .tile-8    { background: #f2b179; color: #f9f6f2; }
+#game2048Root .tile-16   { background: #f59563; color: #f9f6f2; }
+#game2048Root .tile-32   { background: #f67c5f; color: #f9f6f2; }
+#game2048Root .tile-64   { background: #f65e3b; color: #f9f6f2; }
+#game2048Root .tile-128  { background: #edcf72; color: #f9f6f2; font-size: 2rem; }
+#game2048Root .tile-256  { background: #edcc61; color: #f9f6f2; font-size: 2rem; }
+#game2048Root .tile-512  { background: #edc850; color: #f9f6f2; font-size: 2rem; }
+#game2048Root .tile-1024 { background: #edc53f; color: #f9f6f2; font-size: 1.7rem; }
+#game2048Root .tile-2048 { background: #edc22e; color: #f9f6f2; font-size: 1.7rem; }
+#game2048Root .tile-4096 { background: #3c3a32; color: #f9f6f2; font-size: 1.4rem; }
+#game2048Root .tile-8192 { background: #3c3a32; color: #f9f6f2; font-size: 1.4rem; }
     </style>
 </head>
 <body data-theme="dark" oncontextmenu="return false;">
@@ -1610,41 +1637,101 @@
             </div>
         </div>
 
-        <!-- Игры -->
-        <div class="tab-content" id="tab-game">
-            <div class="glass-card">
-                <div class="header"><h2>Игры</h2><button class="theme-btn" onclick="toggleTheme()">🌓 Тема</button></div>
-                <div class="subtab-nav">
-                    <button class="subtab-btn active" data-subtab="tictactoe">❌⭕ Крестики-нолики</button>
-                    <button class="subtab-btn" data-subtab="checkers">⚪️⚫️ Шашки</button>
-                </div>
-                <div class="subtab-content active" id="subtab-tictactoe">
-                    <div class="game-status" id="gameStatus">Ход: ❌</div>
-                    <div class="board" id="board"></div>
-                    <button class="btn" id="resetGame">Новая игра</button>
-                </div>
-<div class="subtab-content" id="subtab-checkers">
-    <div class="checkers-layout">
-        <div class="checkers-board-col">
-            <div id="checkersStatus" style="text-align:center; margin-bottom:14px; color:var(--gold); font-family:'Cormorant Garamond',serif; font-size:1.2rem;">Ход белых</div>
-            <div id="checkersBoard" class="game-board"></div>
-            <div style="display:flex; gap:10px; margin-top:16px;">
-                <button class="btn" id="resetCheckers">Новая игра</button>
-                <button class="btn" id="clearCheckersHistoryBtn">Очистить историю партий</button>
-            </div>
+<!-- Игры -->
+<div class="tab-content" id="tab-game">
+    <div class="glass-card">
+        <div class="header"><h2>Игры</h2><button class="theme-btn" onclick="toggleTheme()">🌓 Тема</button></div>
+        <div class="subtab-nav">
+            <button class="subtab-btn active" data-subtab="tictactoe">❌⭕ Крестики-нолики</button>
+            <button class="subtab-btn" data-subtab="checkers">⚪️⚫️ Шашки</button>
+            <button class="subtab-btn" data-subtab="snake">🐍 Змейка</button>
+            <button class="subtab-btn" data-subtab="game2048">🔢 2048</button>
         </div>
-        <div class="checkers-info-col">
-            <div class="checkers-timer" id="checkersTimerDisplay">--:--</div>
-            <div style="font-weight:500; font-size:0.9rem; color:var(--text-muted);">История ходов</div>
-            <ol class="checkers-move-list" id="checkersMoveHistoryList"></ol>
-            <div style="font-weight:500; font-size:0.9rem; color:var(--text-muted); margin-top:8px;">История партий</div>
-            <div class="checkers-game-history" id="checkersGameHistoryList"></div>
+
+        <!-- Крестики-нолики -->
+        <div class="subtab-content active" id="subtab-tictactoe">
+            <div class="game-status" id="gameStatus">Ход: ❌</div>
+            <div class="board" id="board"></div>
+            <button class="btn" id="resetGame">Новая игра</button>
         </div>
-    </div>
-</div>
+
+        <!-- Шашки -->
+        <div class="subtab-content" id="subtab-checkers">
+            <div class="checkers-layout">
+                <div class="checkers-board-col">
+                    <div id="checkersStatus" style="text-align:center; margin-bottom:14px; color:var(--gold); font-family:'Cormorant Garamond',serif; font-size:1.2rem;">Ход белых</div>
+                    <div id="checkersBoard" class="game-board"></div>
+                    <div style="display:flex; gap:10px; margin-top:16px;">
+                        <button class="btn" id="resetCheckers">Новая игра</button>
+                        <button class="btn" id="clearCheckersHistoryBtn">Очистить историю партий</button>
+                    </div>
+                </div>
+                <div class="checkers-info-col">
+                    <div class="checkers-timer" id="checkersTimerDisplay">--:--</div>
+                    <div style="font-weight:500; font-size:0.9rem; color:var(--text-muted);">История ходов</div>
+                    <ol class="checkers-move-list" id="checkersMoveHistoryList"></ol>
+                    <div style="font-weight:500; font-size:0.9rem; color:var(--text-muted); margin-top:8px;">История партий</div>
+                    <div class="checkers-game-history" id="checkersGameHistoryList"></div>
+                </div>
             </div>
         </div>
 
+        <!-- ЗМЕЙКА -->
+        <div class="subtab-content" id="subtab-snake">
+            <div id="snakeGameRoot" style="display: flex; justify-content: center; padding: 10px 0;">
+                <div class="game-container" style="background: rgba(10,15,27,0.7); backdrop-filter: blur(20px); border-radius: 2.5rem; padding: 1.8rem 2rem 1.5rem; box-shadow: 0 0 50px rgba(0,180,255,0.25), 0 0 0 1px rgba(0,255,200,0.3), inset 0 0 30px rgba(0,180,255,0.1); display: flex; flex-direction: column; align-items: center; max-width: 500px;">
+                    <div class="header" style="width:100%; display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; color:#e0f7ff;">
+                        <div class="score-panel" style="background: rgba(15,25,45,0.8); border-radius:3rem; padding:0.5rem 1.8rem; display:flex; align-items:center; gap:0.6rem; box-shadow:0 0 15px rgba(0,200,255,0.4), inset 0 0 8px rgba(0,0,0,0.6); border:1px solid rgba(0,255,200,0.5);">
+                            <span class="score-icon">🍎</span>
+                            <span id="snakeScoreValue" style="font-size:2.2rem; font-weight:800; background:linear-gradient(to right, #c0f0ff, #5ff0d0); -webkit-background-clip:text; -webkit-text-fill-color:transparent; min-width:3.5rem; text-align:center;">0</span>
+                        </div>
+                        <button class="restart-btn" id="snakeRestartButton" style="background: rgba(20,35,60,0.8); border:none; color:#c0f0ff; font-size:1.3rem; font-weight:bold; padding:0.6rem 2rem; border-radius:3rem; cursor:pointer; letter-spacing:1px; box-shadow:0 0 20px rgba(0,180,255,0.5), 0 4px 8px rgba(0,0,0,0.5); border:1px solid rgba(100,240,255,0.6); transition:all 0.3s ease; display:flex; align-items:center; gap:0.4rem;">
+                            <span>↺</span> Заново
+                        </button>
+                    </div>
+                    <canvas id="snakeCanvas" width="400" height="400" style="display:block; border-radius:1.8rem; background:transparent; box-shadow:0 0 30px rgba(0,180,255,0.3), inset 0 0 20px rgba(0,0,0,0.8), 0 0 0 2px rgba(0,255,200,0.4); width:100%; max-width:450px; aspect-ratio:1/1;"></canvas>
+                    <div class="controls-tip" style="margin-top:1rem; color:#a0c8e0; font-size:0.85rem; display:flex; gap:1.5rem; flex-wrap:wrap; justify-content:center; letter-spacing:0.4px; text-shadow:0 0 6px #003344;">
+                        <span style="background: rgba(16,26,43,0.8); padding:0.3rem 1.2rem; border-radius:2rem; border:1px solid #2d4a5e;">⬆⬇⬅➡</span>
+                        <span style="background: rgba(16,26,43,0.8); padding:0.3rem 1.2rem; border-radius:2rem; border:1px solid #2d4a5e;">WASD / ЦФЫВ</span>
+                        <span style="background: rgba(16,26,43,0.8); padding:0.3rem 1.2rem; border-radius:2rem; border:1px solid #2d4a5e;">Пробел — рестарт</span>
+                    </div>
+                    <div id="snakeGameOverDisplay" class="game-over-message" style="color:#ff7b9c; font-weight:bold; font-size:1.2rem; margin-top:0.3rem; text-shadow:0 0 15px #ff3366; height:1.8rem;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2048 -->
+        <div class="subtab-content" id="subtab-game2048">
+            <div id="game2048Root" style="display: flex; justify-content: center; padding: 10px 0;">
+                <div class="game-container" style="max-width:500px; width:100%; background: #ffffff; border-radius: 16px; padding: 20px; box-shadow: 0 12px 30px rgba(0,0,0,0.1); display: flex; flex-direction: column; gap: 20px;">
+                    <div class="header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px;">
+                        <div class="title-section" style="display:flex; align-items:center; gap:12px;">
+                            <h1 style="font-size:2.8rem; font-weight:800; color:#776e65; letter-spacing:1px; line-height:1;">2048</h1>
+                            <div class="scores" style="display:flex; gap:10px;">
+                                <div class="score-box" style="background:#bbada0; color:white; padding:8px 18px; border-radius:10px; text-align:center; font-weight:bold; display:flex; flex-direction:column; align-items:center; min-width:70px;">
+                                    <span class="score-label" style="font-size:0.7rem; text-transform:uppercase; letter-spacing:1px; opacity:0.9;">Счёт</span>
+                                    <span class="score-value" id="game2048ScoreDisplay" style="font-size:1.4rem; font-weight:700;">0</span>
+                                </div>
+                                <div class="score-box" style="background:#bbada0; color:white; padding:8px 18px; border-radius:10px; text-align:center; font-weight:bold; display:flex; flex-direction:column; align-items:center; min-width:70px;">
+                                    <span class="score-label" style="font-size:0.7rem; text-transform:uppercase; letter-spacing:1px; opacity:0.9;">Рекорд</span>
+                                    <span class="score-value" id="game2048BestDisplay" style="font-size:1.4rem; font-weight:700;">0</span>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="new-game-btn" id="game2048NewGameButton" style="background:#8f7a66; color:#f9f6f2; border:none; padding:12px 22px; font-size:1rem; font-weight:bold; border-radius:8px; cursor:pointer; letter-spacing:0.5px; box-shadow:0 4px 0 #6b5e51; transition:all 0.2s;">Новая игра</button>
+                    </div>
+                    <div style="position: relative;">
+                        <div class="game-board" id="game2048Board" style="background:#bbada0; border-radius:10px; padding:12px; display:grid; grid-template-columns:repeat(4,1fr); gap:12px; aspect-ratio:1/1; width:100%; box-shadow:inset 0 0 8px rgba(0,0,0,0.05); cursor:pointer;"></div>
+                        <div class="message-overlay" id="game2048MessageOverlay" style="position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(238,228,218,0.75); display:flex; align-items:center; justify-content:center; border-radius:10px; font-size:2.5rem; font-weight:800; color:#776e65; text-shadow:0 2px 5px rgba(255,255,255,0.5); pointer-events:none; opacity:0; transition:opacity 0.3s; z-index:10; backdrop-filter:blur(2px);"></div>
+                    </div>
+                    <div class="instructions" style="color:#8f7a66; font-size:0.9rem; text-align:center; font-weight:500;">
+                        <strong>Стрелки</strong> на клавиатуре, <strong>мышь</strong> (перетаскивание) или <strong>свайп</strong> на экране
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
         <!-- Цитаты -->
         <div class="tab-content" id="tab-quotes">
             <div class="glass-card">
@@ -2024,24 +2111,36 @@
 
             // Подтабы общие
             function setupSubtabs(parentSelector) {
-                document.querySelectorAll(parentSelector + ' .subtab-btn').forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        document.querySelectorAll(parentSelector + ' .subtab-btn').forEach(b => b
-                            .classList.remove('active'));
-                        document.querySelectorAll(parentSelector + ' .subtab-content').forEach(c => c
-                            .classList.remove('active'));
-                        btn.classList.add('active');
-                        const subtabId = 'subtab-' + btn.dataset.subtab;
-                        document.getElementById(subtabId).classList.add('active');
-                        if (btn.dataset.subtab === 'checkers' && !window._checkersInit) {
-                            initCheckers();
-                            window._checkersInit = true;
-                        }
-                    });
-                });
+    document.querySelectorAll(parentSelector + ' .subtab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll(parentSelector + ' .subtab-btn').forEach(b => b
+                .classList.remove('active'));
+            document.querySelectorAll(parentSelector + ' .subtab-content').forEach(c => c
+                .classList.remove('active'));
+            btn.classList.add('active');
+            const subtabId = 'subtab-' + btn.dataset.subtab;
+            document.getElementById(subtabId).classList.add('active');
+
+            // Инициализация шашек при первом заходе
+            if (btn.dataset.subtab === 'checkers' && !window._checkersInit) {
+                initCheckers();
+                window._checkersInit = true;
             }
-            setupSubtabs('#tab-luck');
-            setupSubtabs('#tab-game');
+            // Инициализация змейки при первом заходе
+            if (btn.dataset.subtab === 'snake' && !window._snakeInit) {
+                initSnake();
+                window._snakeInit = true;
+            }
+            // Инициализация 2048 при первом заходе
+            if (btn.dataset.subtab === 'game2048' && !window._game2048Init) {
+                init2048();
+                window._game2048Init = true;
+            }
+        });
+    });
+}
+            ('#tab-luck');
+            ('#tab-game');
 
             // Колесо
             const defaultColors = ['#c4a45c','#8b6914','#e8c97a','#a07830','#d4b46c','#705010','#b89448','#604008',
@@ -3353,6 +3452,505 @@ function initCheckersExtended() {
                     };
                 }
             });
+            // --- Змейка ---
+function initSnake() {
+    const canvas = document.getElementById('snakeCanvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const scoreSpan = document.getElementById('snakeScoreValue');
+    const gameOverDiv = document.getElementById('snakeGameOverDisplay');
+    const restartBtn = document.getElementById('snakeRestartButton');
+
+    // полифилл roundRect (если не поддерживается)
+    if (!ctx.roundRect) {
+        ctx.roundRect = function (x, y, w, h, r) {
+            if (w < 2 * r) r = w / 2;
+            if (h < 2 * r) r = h / 2;
+            this.moveTo(x + r, y);
+            this.lineTo(x + w - r, y);
+            this.quadraticCurveTo(x + w, y, x + w, y + r);
+            this.lineTo(x + w, y + h - r);
+            this.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+            this.lineTo(x + r, y + h);
+            this.quadraticCurveTo(x, y + h, x, y + h - r);
+            this.lineTo(x, y + r);
+            this.quadraticCurveTo(x, y, x + r, y);
+            this.closePath();
+            return this;
+        };
+    }
+
+    const GRID_SIZE = 20;
+    const COLS = canvas.width / GRID_SIZE;
+    const ROWS = canvas.height / GRID_SIZE;
+    const BASE_INTERVAL = 150;
+    const MIN_INTERVAL = 75;
+    const SMOOTH_TIME = 0.07;
+
+    let snake = [], visualSnake = [], targetPositions = [];
+    let food = { x: 0, y: 0 };
+    let direction = { x: 1, y: 0 };
+    let nextDirection = { x: 1, y: 0 };
+    let score = 0;
+    let gameActive = false;
+    let gameLoopId = null;
+    let currentInterval = BASE_INTERVAL;
+    let lastUpdateTime = 0;
+    let accumulatedTime = 0;
+    let particles = [];
+
+    function randomCell() {
+        return {
+            x: Math.floor(Math.random() * COLS),
+            y: Math.floor(Math.random() * ROWS)
+        };
+    }
+    function isPositionOnSnake(pos, snakeArray) {
+        return snakeArray.some(seg => seg.x === pos.x && seg.y === pos.y);
+    }
+    function generateFood(snakeArray) {
+        if (snakeArray.length >= COLS * ROWS) return null;
+        let newFood = randomCell();
+        let attempts = 0;
+        while (isPositionOnSnake(newFood, snakeArray) && attempts < COLS * ROWS * 2) {
+            newFood = randomCell();
+            attempts++;
+        }
+        return newFood;
+    }
+    function resetGame() {
+        if (gameLoopId) cancelAnimationFrame(gameLoopId);
+        gameLoopId = null;
+        const startX = Math.floor(COLS / 2);
+        const startY = Math.floor(ROWS / 2);
+        snake = [{ x: startX, y: startY }, { x: startX - 1, y: startY }, { x: startX - 2, y: startY }];
+        visualSnake = [];
+        targetPositions = [];
+        for (let seg of snake) {
+            const cx = seg.x * GRID_SIZE + GRID_SIZE / 2;
+            const cy = seg.y * GRID_SIZE + GRID_SIZE / 2;
+            visualSnake.push({ x: cx, y: cy });
+            targetPositions.push({ x: cx, y: cy });
+        }
+        direction = { x: 1, y: 0 };
+        nextDirection = { x: 1, y: 0 };
+        score = 0;
+        currentInterval = BASE_INTERVAL;
+        gameActive = true;
+        gameOverDiv.textContent = '';
+        scoreSpan.textContent = score;
+        particles = [];
+        const newFood = generateFood(snake);
+        if (newFood) food = newFood;
+        else { gameActive = false; gameOverDiv.textContent = '🏆 Поле заполнено! Победа!'; food = { x: -1, y: -1 }; }
+        lastUpdateTime = performance.now();
+        accumulatedTime = 0;
+        gameLoopId = requestAnimationFrame(gameLoop);
+    }
+    function endGame(reason) {
+        if (!gameActive) return;
+        gameActive = false;
+        if (gameLoopId) cancelAnimationFrame(gameLoopId);
+        gameLoopId = null;
+        gameOverDiv.textContent = reason || '💀 Игра окончена!';
+    }
+    function updateGame() {
+        if (!gameActive) return;
+        const isOpposite = (nextDirection.x === -direction.x && nextDirection.y === -direction.y);
+        if (!isOpposite) direction = { x: nextDirection.x, y: nextDirection.y };
+        const head = snake[0];
+        const newHead = { x: head.x + direction.x, y: head.y + direction.y };
+        if (newHead.x < 0 || newHead.x >= COLS || newHead.y < 0 || newHead.y >= ROWS) {
+            endGame('💥 Стена! Игра окончена.');
+            return;
+        }
+        const willEat = (newHead.x === food.x && newHead.y === food.y);
+        if (isPositionOnSnake(newHead, willEat ? snake : snake.slice(0, -1))) {
+            endGame('🌀 Укусила себя! Игра окончена.');
+            return;
+        }
+        snake.unshift(newHead);
+        if (willEat) {
+            score++;
+            scoreSpan.textContent = score;
+            currentInterval = Math.max(MIN_INTERVAL, BASE_INTERVAL - score * 2);
+            // particles
+            const fx = food.x * GRID_SIZE + GRID_SIZE / 2;
+            const fy = food.y * GRID_SIZE + GRID_SIZE / 2;
+            for (let i = 0; i < 12; i++) {
+                particles.push({
+                    x: fx, y: fy,
+                    vx: (Math.random() - 0.5) * 4,
+                    vy: (Math.random() - 0.5) * 4,
+                    life: 0.6 + Math.random() * 0.4,
+                    maxLife: 0.6 + Math.random() * 0.4,
+                    size: 2 + Math.random() * 4,
+                    color: `hsl(${Math.random() * 30 + 340}, 90%, 65%)`
+                });
+            }
+            const newFood = generateFood(snake);
+            if (newFood) food = newFood;
+            else { endGame('🏆 Потрясающе! Вы заполнили всё поле!'); return; }
+        } else {
+            snake.pop();
+        }
+        targetPositions = snake.map(seg => ({
+            x: seg.x * GRID_SIZE + GRID_SIZE / 2,
+            y: seg.y * GRID_SIZE + GRID_SIZE / 2
+        }));
+        while (visualSnake.length < targetPositions.length) {
+            const last = visualSnake[visualSnake.length - 1];
+            visualSnake.push({ x: last.x, y: last.y });
+        }
+        if (visualSnake.length > targetPositions.length) visualSnake.length = targetPositions.length;
+    }
+    function updateVisuals(dt) {
+        const smoothFactor = Math.min(1, dt / SMOOTH_TIME);
+        for (let i = 0; i < visualSnake.length; i++) {
+            const vis = visualSnake[i];
+            const target = targetPositions[i];
+            if (!target) continue;
+            vis.x += (target.x - vis.x) * smoothFactor;
+            vis.y += (target.y - vis.y) * smoothFactor;
+        }
+    }
+    function updateParticles(dt) {
+        for (let i = particles.length - 1; i >= 0; i--) {
+            const p = particles[i];
+            p.x += p.vx * dt * 60;
+            p.y += p.vy * dt * 60;
+            p.life -= dt;
+            if (p.life <= 0) particles.splice(i, 1);
+        }
+    }
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const bgGrad = ctx.createRadialGradient(canvas.width/2, canvas.height/2, 50, canvas.width/2, canvas.height/2, 300);
+        bgGrad.addColorStop(0, '#131e33');
+        bgGrad.addColorStop(1, '#060b16');
+        ctx.fillStyle = bgGrad;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#ffffff';
+        for (let i = 0; i < 50; i++) {
+            const sx = (i * 23 + 13) % canvas.width;
+            const sy = (i * 19 + 7) % canvas.height;
+            ctx.globalAlpha = 0.3 + Math.sin(Date.now() * 0.002 + i) * 0.2;
+            ctx.beginPath();
+            ctx.arc(sx, sy, 1 + i % 2, 0, Math.PI*2);
+            ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+        ctx.strokeStyle = '#1e3040';
+        ctx.lineWidth = 0.6;
+        for (let i = 0; i <= COLS; i++) {
+            ctx.beginPath(); ctx.moveTo(i*GRID_SIZE,0); ctx.lineTo(i*GRID_SIZE,canvas.height); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(0,i*GRID_SIZE); ctx.lineTo(canvas.width,i*GRID_SIZE); ctx.stroke();
+        }
+        if (food && food.x >= 0 && food.y >= 0) {
+            const time = Date.now() * 0.005;
+            const pulse = 1 + Math.sin(time*5)*0.08;
+            const fx = food.x * GRID_SIZE + GRID_SIZE/2;
+            const fy = food.y * GRID_SIZE + GRID_SIZE/2;
+            ctx.save(); ctx.translate(fx,fy); ctx.scale(pulse,pulse);
+            ctx.shadowColor = '#ff5e7e'; ctx.shadowBlur = 18;
+            const grad = ctx.createRadialGradient(0,0,2,0,0,14);
+            grad.addColorStop(0,'#ff3b5c'); grad.addColorStop(0.7,'#c0243c'); grad.addColorStop(1,'#7a1022');
+            ctx.fillStyle = grad;
+            ctx.beginPath(); ctx.arc(0,0,GRID_SIZE/2.4,0,Math.PI*2); ctx.fill();
+            ctx.fillStyle = '#fff';
+            ctx.beginPath(); ctx.arc(-4,-4,3,0,Math.PI*2); ctx.fill();
+            ctx.restore();
+        }
+        if (visualSnake.length > 0) {
+            for (let i = 0; i < visualSnake.length; i++) {
+                const vis = visualSnake[i];
+                const sx = vis.x - GRID_SIZE/2 + 2;
+                const sy = vis.y - GRID_SIZE/2 + 2;
+                const size = GRID_SIZE - 4;
+                if (i === 0) {
+                    ctx.shadowColor = '#1ce0b0'; ctx.shadowBlur = 16;
+                    const headGrad = ctx.createLinearGradient(sx,sy,sx+size,sy+size);
+                    headGrad.addColorStop(0,'#6affe0'); headGrad.addColorStop(1,'#12b8a0');
+                    ctx.fillStyle = headGrad;
+                    ctx.beginPath(); ctx.roundRect(sx,sy,size,size,9); ctx.fill();
+                    ctx.shadowBlur = 5;
+                    ctx.fillStyle = '#0a0f1c';
+                    ctx.beginPath(); ctx.arc(vis.x-3,vis.y-3,3,0,Math.PI*2); ctx.fill();
+                    ctx.beginPath(); ctx.arc(vis.x+5,vis.y-3,3,0,Math.PI*2); ctx.fill();
+                    ctx.fillStyle = '#ffffff';
+                    ctx.beginPath(); ctx.arc(vis.x-4,vis.y-4,1.2,0,Math.PI*2); ctx.fill();
+                    ctx.beginPath(); ctx.arc(vis.x+4,vis.y-4,1.2,0,Math.PI*2); ctx.fill();
+                } else {
+                    ctx.shadowColor = '#0aa0c0'; ctx.shadowBlur = 10;
+                    const bodyGrad = ctx.createLinearGradient(sx,sy,sx+size,sy+size);
+                    bodyGrad.addColorStop(0,'#2ad4b0'); bodyGrad.addColorStop(0.7,'#1878a0');
+                    ctx.fillStyle = bodyGrad;
+                    ctx.beginPath(); ctx.roundRect(sx,sy,size,size,8); ctx.fill();
+                }
+            }
+        }
+        if (particles.length > 0) {
+            ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0;
+            for (let p of particles) {
+                ctx.globalAlpha = p.life / p.maxLife;
+                ctx.fillStyle = p.color;
+                ctx.beginPath(); ctx.arc(p.x,p.y,p.size*(p.life/p.maxLife),0,Math.PI*2); ctx.fill();
+            }
+            ctx.globalAlpha = 1;
+        }
+        if (!gameActive) {
+            ctx.fillStyle = 'rgba(0,0,0,0.7)';
+            ctx.fillRect(0,0,canvas.width,canvas.height);
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 28px "Segoe UI", "Arial"';
+            ctx.textAlign = 'center';
+            ctx.shadowColor = '#000'; ctx.shadowBlur = 15;
+            ctx.fillText('GAME OVER', canvas.width/2, canvas.height/2);
+            ctx.shadowColor = 'transparent';
+        }
+    }
+    function gameLoop(timestamp) {
+        if (!lastUpdateTime) lastUpdateTime = timestamp;
+        let dt = (timestamp - lastUpdateTime) / 1000;
+        if (dt > 0.1) dt = 0.1;
+        lastUpdateTime = timestamp;
+        if (gameActive) {
+            accumulatedTime += dt * 1000;
+            while (accumulatedTime >= currentInterval) {
+                updateGame();
+                accumulatedTime -= currentInterval;
+                if (!gameActive) break;
+            }
+        }
+        updateVisuals(dt);
+        updateParticles(dt);
+        draw();
+        if (gameActive || visualSnake.some((v,i) => {
+            const t = targetPositions[i];
+            return t && (Math.abs(v.x - t.x) > 0.1 || Math.abs(v.y - t.y) > 0.1);
+        }) || particles.length > 0) {
+            gameLoopId = requestAnimationFrame(gameLoop);
+        } else {
+            draw();
+            gameLoopId = null;
+        }
+    }
+    function handleKeyDown(e) {
+        const key = e.key;
+        if (key.startsWith('Arrow') || key === ' ' || key === 'Space' ||
+            key === 'w' || key === 'a' || key === 's' || key === 'd' ||
+            key === 'W' || key === 'A' || key === 'S' || key === 'D' ||
+            key === 'ц' || key === 'ф' || key === 'ы' || key === 'в' ||
+            key === 'Ц' || key === 'Ф' || key === 'Ы' || key === 'В') {
+            e.preventDefault();
+        }
+        if (key === 'ArrowUp' || key === 'w' || key === 'W' || key === 'ц' || key === 'Ц')
+            { if (direction.y !== 1) nextDirection = { x: 0, y: -1 }; }
+        else if (key === 'ArrowDown' || key === 's' || key === 'S' || key === 'ы' || key === 'Ы')
+            { if (direction.y !== -1) nextDirection = { x: 0, y: 1 }; }
+        else if (key === 'ArrowLeft' || key === 'a' || key === 'A' || key === 'ф' || key === 'Ф')
+            { if (direction.x !== 1) nextDirection = { x: -1, y: 0 }; }
+        else if (key === 'ArrowRight' || key === 'd' || key === 'D' || key === 'в' || key === 'В')
+            { if (direction.x !== -1) nextDirection = { x: 1, y: 0 }; }
+        if (key === ' ' || key === 'Space') { e.preventDefault(); resetGame(); }
+    }
+    restartBtn.addEventListener('click', resetGame);
+    window.addEventListener('keydown', handleKeyDown);
+    // пауза при уходе с вкладки
+    const observer = new MutationObserver(() => {
+        if (document.getElementById('subtab-snake').classList.contains('active')) return;
+        if (gameActive) {
+            // ставим на паузу, сбрасывая gameLoop
+            if (gameLoopId) cancelAnimationFrame(gameLoopId);
+            gameLoopId = null;
+            gameActive = false;
+        }
+    });
+    observer.observe(document.getElementById('subtab-snake'), { attributes: true, attributeFilter: ['class'] });
+    resetGame();
+}
+
+// --- 2048 ---
+function init2048() {
+    const BOARD_SIZE = 4;
+    const WIN_TILE_VALUE = 2048;
+    const gameBoardEl = document.getElementById('game2048Board');
+    const scoreDisplayEl = document.getElementById('game2048ScoreDisplay');
+    const bestDisplayEl = document.getElementById('game2048BestDisplay');
+    const messageOverlayEl = document.getElementById('game2048MessageOverlay');
+    const newGameButton = document.getElementById('game2048NewGameButton');
+    if (!gameBoardEl) return;
+
+    let board = [];
+    let score = 0;
+    let bestScore = 0;
+    let isGameOver = false;
+    let hasWon = false;
+
+    function loadBestScore() {
+        try { const s = localStorage.getItem('2048_bestScore'); bestScore = s && !isNaN(parseInt(s)) ? parseInt(s) : 0; }
+        catch(e) { bestScore = 0; }
+        bestDisplayEl.textContent = bestScore;
+    }
+    function saveBestScore(value) {
+        if (value > bestScore) {
+            bestScore = value;
+            bestDisplayEl.textContent = bestScore;
+            try { localStorage.setItem('2048_bestScore', bestScore); } catch(e) {}
+        }
+    }
+    function createEmptyBoard() { return Array(BOARD_SIZE).fill().map(() => Array(BOARD_SIZE).fill(0)); }
+    function getEmptyCells(grid) {
+        const empty = [];
+        for (let i=0; i<BOARD_SIZE; i++) for (let j=0; j<BOARD_SIZE; j++) if (grid[i][j]===0) empty.push({row:i,col:j});
+        return empty;
+    }
+    function addRandomTile(grid) {
+        const empty = getEmptyCells(grid);
+        if (empty.length===0) return false;
+        const {row,col} = empty[Math.floor(Math.random()*empty.length)];
+        grid[row][col] = Math.random()<0.9 ? 2 : 4;
+        return true;
+    }
+    function renderBoard() {
+        gameBoardEl.innerHTML = '';
+        for (let i=0; i<BOARD_SIZE; i++)
+            for (let j=0; j<BOARD_SIZE; j++) {
+                const v = board[i][j];
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                if (v!==0) { cell.classList.add(`tile-${v}`); cell.textContent = v; }
+                else cell.textContent = '';
+                gameBoardEl.appendChild(cell);
+            }
+    }
+    function showMessage(text) { messageOverlayEl.textContent = text; messageOverlayEl.classList.add('visible'); }
+    function hideMessage() { messageOverlayEl.classList.remove('visible'); }
+    function slideAndMerge(row) {
+        let filtered = row.filter(v => v!==0);
+        let merged = [];
+        let skip = false;
+        for (let i=0; i<filtered.length; i++) {
+            if (skip) { skip=false; continue; }
+            if (i<filtered.length-1 && filtered[i]===filtered[i+1]) {
+                const val = filtered[i]*2;
+                merged.push(val); score += val; skip = true;
+            } else merged.push(filtered[i]);
+        }
+        while (merged.length < BOARD_SIZE) merged.push(0);
+        return merged;
+    }
+    function moveLeft(grid) {
+        let moved = false;
+        const newGrid = grid.map(row => {
+            const orig = [...row];
+            const nr = slideAndMerge(orig);
+            if (JSON.stringify(orig)!==JSON.stringify(nr)) moved = true;
+            return nr;
+        });
+        return { grid: newGrid, moved };
+    }
+    function moveRight(grid) {
+        let moved = false;
+        const newGrid = grid.map(row => {
+            const rev = [...row].reverse();
+            const merged = slideAndMerge(rev);
+            const nr = merged.reverse();
+            if (JSON.stringify(row)!==JSON.stringify(nr)) moved = true;
+            return nr;
+        });
+        return { grid: newGrid, moved };
+    }
+    function transpose(m) { return m[0].map((_,c)=>m.map(r=>r[c])); }
+    function moveUp(grid) {
+        const t = transpose(grid);
+        const {grid:mg, moved} = moveLeft(t);
+        return { grid: transpose(mg), moved };
+    }
+    function moveDown(grid) {
+        const t = transpose(grid);
+        const {grid:mg, moved} = moveRight(t);
+        return { grid: transpose(mg), moved };
+    }
+    function executeMove(direction) {
+        if (isGameOver) return false;
+        let result;
+        switch(direction) {
+            case 'left':  result = moveLeft(board); break;
+            case 'right': result = moveRight(board); break;
+            case 'up':    result = moveUp(board); break;
+            case 'down':  result = moveDown(board); break;
+            default: return false;
+        }
+        if (!result.moved) return false;
+        board = result.grid;
+        scoreDisplayEl.textContent = score;
+        saveBestScore(score);
+        addRandomTile(board);
+        renderBoard();
+        if (!hasWon && board.some(row => row.includes(WIN_TILE_VALUE))) {
+            hasWon = true; showMessage('🎉 2048! Победа!');
+        }
+        if (getEmptyCells(board).length===0) {
+            let canMove = false;
+            for (let i=0; i<BOARD_SIZE; i++)
+                for (let j=0; j<BOARD_SIZE; j++) {
+                    if ((j<BOARD_SIZE-1 && board[i][j]===board[i][j+1]) ||
+                        (i<BOARD_SIZE-1 && board[i+1][j]===board[i][j])) canMove = true;
+                }
+            if (!canMove) { isGameOver = true; showMessage('😔 Игра окончена'); }
+        }
+        return true;
+    }
+    function initGame() {
+        board = createEmptyBoard();
+        score = 0; isGameOver = false; hasWon = false;
+        scoreDisplayEl.textContent = score;
+        addRandomTile(board); addRandomTile(board);
+        renderBoard(); hideMessage();
+    }
+    // обработчики
+    let touchStartX=0,touchStartY=0, mouseStartX=0,mouseStartY=0, isMouseDown=false;
+    function handleSwipeGesture(dx,dy) {
+        const minDist=30;
+        if (Math.abs(dx)<minDist && Math.abs(dy)<minDist) return;
+        let dir;
+        if (Math.abs(dx)>Math.abs(dy)) dir = dx>0 ? 'right':'left';
+        else dir = dy>0 ? 'down':'up';
+        executeMove(dir);
+    }
+    function onKeyDown(e) {
+        if (e.key.startsWith('Arrow')) {
+            e.preventDefault();
+            const map = { ArrowLeft:'left',ArrowRight:'right',ArrowUp:'up',ArrowDown:'down' };
+            executeMove(map[e.key]);
+        }
+    }
+    gameBoardEl.addEventListener('touchstart', e => {
+        if (e.touches.length===1) { touchStartX=e.touches[0].clientX; touchStartY=e.touches[0].clientY; }
+    }, {passive:false});
+    gameBoardEl.addEventListener('touchend', e => {
+        if (touchStartX===0 && touchStartY===0) return;
+        const dx = e.changedTouches[0].clientX - touchStartX;
+        const dy = e.changedTouches[0].clientY - touchStartY;
+        handleSwipeGesture(dx,dy);
+        touchStartX=touchStartY=0;
+    }, {passive:false});
+    gameBoardEl.addEventListener('touchmove', e => e.preventDefault(), {passive:false});
+    gameBoardEl.addEventListener('mousedown', e => { e.preventDefault(); isMouseDown=true; mouseStartX=e.clientX; mouseStartY=e.clientY; });
+    document.addEventListener('mouseup', e => {
+        if (!isMouseDown) return;
+        isMouseDown=false;
+        const dx=e.clientX-mouseStartX, dy=e.clientY-mouseStartY;
+        handleSwipeGesture(dx,dy);
+    });
+    gameBoardEl.addEventListener('dragstart', e => e.preventDefault());
+    newGameButton.addEventListener('click', initGame);
+    window.addEventListener('keydown', onKeyDown);
+    loadBestScore();
+    initGame();
+}
+        
         })();
     </script>
 
