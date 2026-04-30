@@ -1360,7 +1360,188 @@
 #game2048Root .tile-2048 { background: #edc22e; color: #f9f6f2; font-size: 1.7rem; }
 #game2048Root .tile-4096 { background: #3c3a32; color: #f9f6f2; font-size: 1.4rem; }
 #game2048Root .tile-8192 { background: #3c3a32; color: #f9f6f2; font-size: 1.4rem; }
+/* ===== ОБЩИЙ ЧАТ ===== */
+.chat-app {
+    background: rgba(12,15,27,0.7);
+    backdrop-filter: blur(20px);
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    height: 70vh;
+    min-height: 500px;
+    max-height: 800px;
+    overflow: hidden;
+    margin-top: 10px;
+}
+[data-theme="light"] .chat-app {
+    background: rgba(220,215,200,0.6);
+}
+.chat-header {
+    padding: 16px 20px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.chat-header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--text);
+    font-weight: 600;
+}
+.chat-header .online-dot {
+    width: 10px;
+    height: 10px;
+    background: #4ade80;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+}
+@keyframes pulse {
+    0%,100% { box-shadow: 0 0 8px #4ade80; }
+    50% { box-shadow: 0 0 20px #4ade80; }
+}
+.chat-status {
+    font-size: 0.8rem;
+    padding: 4px 12px;
+    border-radius: 20px;
+    background: var(--surface);
+    color: var(--text-muted);
+}
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.chat-messages::-webkit-scrollbar { width: 4px; }
+.chat-messages::-webkit-scrollbar-thumb { background: var(--gold-dim); border-radius: 4px; }
+.chat-empty {
+    color: var(--text-muted);
+    text-align: center;
+    margin-top: 40px;
+    font-style: italic;
+}
+
+/* Сообщения */
+.chat-msg {
+    display: flex;
+    flex-direction: column;
+    max-width: 80%;
+    animation: fadeInUp 0.3s;
+    word-break: break-word;
+}
+.chat-msg.own { align-self: flex-end; }
+.chat-msg.other { align-self: flex-start; }
+.chat-msg.system { align-self: center; max-width: 90%; }
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.chat-msg .bubble {
+    padding: 10px 16px;
+    border-radius: 18px;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    color: #f0f0ff;
+}
+.chat-msg.own .bubble {
+    background: linear-gradient(135deg, #4f6ef6, #3b5de7);
+    border-bottom-right-radius: 4px;
+}
+.chat-msg.other .bubble {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-bottom-left-radius: 4px;
+}
+.chat-msg.system .bubble {
+    background: rgba(196,164,92,0.15);
+    border: 1px solid rgba(196,164,92,0.3);
+    text-align: center;
+    color: var(--gold);
+    font-size: 0.85rem;
+    border-radius: 20px;
+    padding: 8px 18px;
+}
+.chat-msg .meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+    padding: 0 8px;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+.chat-msg.own .meta { justify-content: flex-end; }
+.chat-msg .sender-name { font-weight: 600; color: var(--gold); }
+.chat-msg .time { opacity: 0.7; font-size: 0.7rem; }
+
+/* Поле ввода */
+.chat-input-area {
+    padding: 16px 20px;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.chat-name-row, .chat-message-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+.chat-name-row input, .chat-message-row input {
+    flex: 1;
+    padding: 10px 16px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 25px;
+    color: var(--text);
+    font-size: 0.9rem;
+    outline: none;
+    font-family: 'DM Sans', sans-serif;
+}
+.chat-name-row input:focus, .chat-message-row input:focus {
+    border-color: var(--gold);
+}
+#chatSaveNameBtn {
+    padding: 10px 18px;
+    background: var(--gold-dim);
+    border: 1px solid rgba(196,164,92,0.3);
+    border-radius: 25px;
+    color: var(--gold);
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+#chatSaveNameBtn:hover { background: rgba(196,164,92,0.2); }
+#chatSendBtn {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--grad);
+    border: none;
+    color: white;
+    font-size: 1.3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+#chatSendBtn:hover { transform: scale(1.05); }
+#chatSendBtn:disabled { opacity: 0.4; cursor: not-allowed; }
     </style>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 </head>
 <body data-theme="dark" oncontextmenu="return false;">
 
@@ -1369,6 +1550,7 @@
 
         <div class="tab-nav">
             <button class="tab-btn active" data-tab="home">🏠 Главная</button>
+            <button class="tab-btn" data-tab="chat">💬 Чат</button>
             <button class="tab-btn" data-tab="calc">🧮 Калькулятор</button>
             <button class="tab-btn" data-tab="luck">🍀 Удача</button>
             <button class="tab-btn" data-tab="password">🔐 Пароли</button>
@@ -1394,6 +1576,7 @@
                 </div>
                 <div class="divider"></div>
                 <div class="home-grid">
+                    <div class="home-card" data-goto="chat"><span class="icon">💬</span><div class="title">Общий чат</div><div class="desc">Общение с посетителями</div></div>
                     <div class="home-card" data-goto="calc"><span class="icon">🧮</span><div class="title">Калькулятор</div><div class="desc">Уравнения и графики</div></div>
                     <div class="home-card" data-goto="luck"><span class="icon">🍀</span><div class="title">Удача</div><div class="desc">Колесо фортуны и числа</div></div>
                     <div class="home-card" data-goto="password"><span class="icon">🔐</span><div class="title">Пароли</div><div class="desc">Надёжные пароли</div></div>
@@ -1412,6 +1595,34 @@
             </div>
         </div>
 
+        <!-- Общий чат -->
+<div class="tab-content" id="tab-chat">
+    <div class="glass-card">
+        <div class="header"><h2>Общий чат</h2><button class="theme-btn" onclick="toggleTheme()">🌓 Тема</button></div>
+        <div class="chat-app">
+            <div class="chat-header">
+                <div class="chat-header-left">
+                    <span class="online-dot"></span>
+                    <span id="chatCurrentUserNameDisplay">Гость</span>
+                </div>
+                <div class="chat-status" id="chatConnectionStatus">🔌 Подключение...</div>
+            </div>
+            <div class="chat-messages" id="chatMessagesArea">
+                <div class="chat-empty">✨ Подключаемся к Firebase...</div>
+            </div>
+            <div class="chat-input-area">
+                <div class="chat-name-row">
+                    <input type="text" id="chatNameInput" placeholder="Ваше имя..." maxlength="25" autocomplete="off">
+                    <button id="chatSaveNameBtn">💾 Сохранить</button>
+                </div>
+                <div class="chat-message-row">
+                    <input type="text" id="chatMessageInput" placeholder="Сообщение..." maxlength="500" autocomplete="off">
+                    <button id="chatSendBtn">➤</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
         <!-- Калькулятор -->
         <div class="tab-content" id="tab-calc">
             <div class="glass-card">
@@ -1902,7 +2113,11 @@
                 if (tabName === 'support' && !window._supportInit) { initSupport();
                     window._supportInit = true; }
                 if (tabName === 'graph' && graphChart) setTimeout(() => graphChart.resize(), 50);
-            };
+            }
+                if (tabName === 'chat' && !window._chatInit) {
+    initChat();
+    window._chatInit = true;
+};
             tabBtns.forEach(btn => btn.addEventListener('click', () => switchTab(btn.getAttribute('data-tab'))));
             document.querySelectorAll('.home-card').forEach(card => card.addEventListener('click', () => switchTab(
                 card.getAttribute('data-goto'))));
@@ -2136,11 +2351,159 @@
                 init2048();
                 window._game2048Init = true;
             }
+            if (tabName === 'chat' && !window._chatInit) {
+    initChat();
+    window._chatInit = true;
+}
         });
     });
 }
 setupSubtabs('#tab-luck');
 setupSubtabs('#tab-game');
+            // --- Общий чат ---
+function initChat() {
+    const firebaseConfig = {
+        apiKey: "AIzaSyDcVfTtrCgF0uaeNeQJeIYITn32tFy9gK0",
+        databaseURL: "https://tapepower-3fa61-default-rtdb.firebaseio.com"
+    };
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+    const database = firebase.database();
+
+    const messagesArea = document.getElementById('chatMessagesArea');
+    const nameInput = document.getElementById('chatNameInput');
+    const messageInput = document.getElementById('chatMessageInput');
+    const sendBtn = document.getElementById('chatSendBtn');
+    const saveNameBtn = document.getElementById('chatSaveNameBtn');
+    const currentUserNameDisplay = document.getElementById('chatCurrentUserNameDisplay');
+    const connectionStatus = document.getElementById('chatConnectionStatus');
+
+    const MAX_MESSAGES = 150;
+    let currentUserName = localStorage.getItem('globalChatName') || 'Гость';
+    let messages = [];
+
+    function formatTime(ts) {
+        const d = new Date(ts);
+        return `${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
+    }
+    function isOwn(sender) { return sender === currentUserName; }
+    function escapeHtml(text) {
+        const map = { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#039;' };
+        return String(text).replace(/[&<>"']/g, m => map[m]);
+    }
+
+    function render() {
+        if (messages.length === 0) {
+            messagesArea.innerHTML = '<div class="chat-empty">💭 Пока нет сообщений</div>';
+            return;
+        }
+        let html = '';
+        messages.forEach(msg => {
+            const own = isOwn(msg.sender);
+            const cls = msg.type === 'system' ? 'system' : (own ? 'own' : 'other');
+            html += `<div class="chat-msg ${cls}">`;
+            if (msg.type !== 'system') {
+                html += `<div class="meta"><span class="sender-name">${escapeHtml(msg.sender)}</span><span class="time">${formatTime(msg.timestamp)}</span></div>`;
+            }
+            html += `<div class="bubble">${escapeHtml(msg.text)}</div>`;
+            if (msg.type === 'system') {
+                html += `<div class="meta" style="justify-content:center;"><span class="time">${formatTime(msg.timestamp)}</span></div>`;
+            }
+            html += `</div>`;
+        });
+        messagesArea.innerHTML = html;
+    }
+
+    function scrollBottom() {
+        requestAnimationFrame(() => { messagesArea.scrollTop = messagesArea.scrollHeight; });
+    }
+
+    const messagesRef = database.ref('messages');
+    messagesRef.limitToLast(MAX_MESSAGES).on('child_added', (snapshot) => {
+        const msg = snapshot.val();
+        if (msg && !messages.some(m => m.id === msg.id)) {
+            messages.push(msg);
+            if (messages.length > MAX_MESSAGES) messages = messages.slice(-MAX_MESSAGES);
+            render();
+            scrollBottom();
+        }
+    });
+
+    const connectedRef = database.ref('.info/connected');
+    connectedRef.on('value', (snap) => {
+        if (snap.val() === true) {
+            connectionStatus.textContent = '🟢 Онлайн (все сети)';
+        } else {
+            connectionStatus.textContent = '⛔ Нет сети. Переподключение...';
+        }
+    });
+
+    messagesRef.orderByKey().limitToLast(MAX_MESSAGES).once('value', (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+            const loaded = Object.values(data);
+            messages = loaded.slice(-MAX_MESSAGES);
+        } else {
+            messages = [];
+        }
+        render();
+        scrollBottom();
+    });
+
+    function sendMessage() {
+        const text = messageInput.value.trim();
+        if (!text) return;
+        if (!currentUserName || currentUserName === 'Гость') {
+            alert('Пожалуйста, укажите имя перед отправкой.');
+            return;
+        }
+        const msg = {
+            id: 'm_' + Date.now() + '_' + Math.random().toString(36).substr(2, 7),
+            sender: currentUserName,
+            text: text,
+            timestamp: Date.now(),
+            type: 'user'
+        };
+        messagesRef.push(msg);
+        messageInput.value = '';
+        messageInput.focus();
+    }
+
+    function saveName() {
+        let newName = nameInput.value.trim();
+        if (!newName) { alert('Имя не может быть пустым.'); return; }
+        if (newName.length > 25) newName = newName.substring(0, 25);
+        const oldName = currentUserName;
+        currentUserName = newName;
+        localStorage.setItem('globalChatName', currentUserName);
+        currentUserNameDisplay.textContent = currentUserName;
+        nameInput.value = currentUserName;
+        if (oldName !== currentUserName && oldName !== 'Гость') {
+            const renameMsg = {
+                id: 'm_' + Date.now() + '_' + Math.random().toString(36).substr(2, 7),
+                sender: 'Система',
+                text: `${oldName} сменил имя на ${currentUserName}`,
+                timestamp: Date.now(),
+                type: 'system'
+            };
+            messagesRef.push(renameMsg);
+        }
+    }
+
+    sendBtn.addEventListener('click', sendMessage);
+    messageInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') { e.preventDefault(); sendMessage(); }
+    });
+    saveNameBtn.addEventListener('click', saveName);
+    nameInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') { e.preventDefault(); saveName(); }
+    });
+
+    currentUserNameDisplay.textContent = currentUserName;
+    nameInput.value = currentUserName === 'Гость' ? '' : currentUserName;
+    messageInput.focus();
+}
 
             // Колесо
             const defaultColors = ['#c4a45c','#8b6914','#e8c97a','#a07830','#d4b46c','#705010','#b89448','#604008',
