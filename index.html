@@ -2318,27 +2318,28 @@
                 if (e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode ==
                         74 || e.keyCode == 67)) || (e.ctrlKey && e.keyCode == 85)) return false;
             };
-            const ONLINE_KEY = 'online_clients';
             const clientId = Date.now() + Math.random().toString(36).substr(2, 9);
 
-            function getOnlineList() { try { return JSON.parse(localStorage.getItem(ONLINE_KEY)) || []; } catch (
-                e) { return []; } }
+function initOnlineCounter() {
+    const firebaseConfig = {
+        apiKey: "AIzaSyDcVfTtrCgF0uaeNeQJeIYITn32tFy9gK0",
+        databaseURL: "https://tapepower-3fa61-default-rtdb.firebaseio.com"
+    };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
 
-            function setOnlineList(l) { localStorage.setItem(ONLINE_KEY, JSON.stringify(l)); }
+    const myRef = db.ref('online/' + clientId);
+    myRef.set(true);
+    myRef.onDisconnect().remove(); // Firebase сам удалит при закрытии вкладки
 
-            function updateOnlinePresence() {
-                const list = getOnlineList().filter(e => (e.id !== clientId) && (Date.now() - e.time < 10000));
-                list.push({ id: clientId, time: Date.now() });
-                setOnlineList(list);
-                document.getElementById('onlineCount').textContent = list.length;
-            }
-            window.addEventListener('load', () => { updateOnlinePresence();
-                setInterval(updateOnlinePresence, 5000); });
-            window.addEventListener('beforeunload', () => { setOnlineList(getOnlineList().filter(e => e.id !==
-                    clientId)); });
-            window.addEventListener('storage', (e) => { if (e.key === ONLINE_KEY) document.getElementById('onlineCount')
-                    .textContent = getOnlineList().filter(e => Date.now() - e.time < 10000).length; });
+    // Считаем количество онлайн
+    db.ref('online').on('value', (snap) => {
+        const count = snap.numChildren();
+        document.getElementById('onlineCount').textContent = count;
+    });
+}
 
+window.addEventListener('load', initOnlineCounter);
             window.toggleTheme = function() {
                 const b = document.body;
                 const t = b.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
