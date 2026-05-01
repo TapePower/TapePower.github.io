@@ -2318,7 +2318,11 @@
                 if (e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode ==
                         74 || e.keyCode == 67)) || (e.ctrlKey && e.keyCode == 85)) return false;
             };
-            const clientId = Date.now() + Math.random().toString(36).substr(2, 9);
+let clientId = sessionStorage.getItem('clientId');
+if (!clientId) {
+    clientId = Date.now() + Math.random().toString(36).substr(2, 9);
+    sessionStorage.setItem('clientId', clientId);
+}
 
 function initOnlineCounter() {
     const firebaseConfig = {
