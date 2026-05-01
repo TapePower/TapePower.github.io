@@ -160,6 +160,48 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
+        /* Поиск по вкладкам */
+.tab-search-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-right: 8px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0 12px;
+    transition: border-color 0.2s;
+}
+.tab-search-wrapper:focus-within {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(196,164,92,0.1);
+}
+.search-icon {
+    font-size: 0.9rem;
+    opacity: 0.7;
+}
+.tab-search-input {
+    background: transparent;
+    border: none;
+    padding: 9px 0;
+    font-size: 0.78rem;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    outline: none;
+    width: 140px;
+    transition: width 0.2s;
+}
+.tab-search-input::placeholder {
+    color: var(--text-muted);
+}
+.tab-search-input:focus {
+    width: 180px;
+}
+/* Скрытие нерелевантных вкладок */
+.tab-btn.hidden-by-search {
+    display: none;
+}
+
         /* ─── GLASS CARD ─── */
         .glass-card {
             background: var(--surface);
@@ -416,7 +458,9 @@
             gap: 28px;
         }
 
-        @media (max-width: 768px) { .container { grid-template-columns: 1fr; } }
+        @media (max-width: 768px) { .container { grid-template-columns: 1fr; } 
+                                   .tab-search-wrapper {margin-right: 0;margin-bottom: 4px;flex: 1 1 100%;}.tab-search-input {width: 100% !important;}
+                                  }
 
         /* ─── INPUT GROUP ─── */
         .input-group {
@@ -2017,6 +2061,10 @@
         <div class="site-wordmark">Unified Service — All tools in one place</div>
 
         <div class="tab-nav">
+            <div class="tab-search-wrapper">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="tabSearch" class="tab-search-input" placeholder="Поиск вкладки... (Ctrl+K)">
+            </div>
             <button class="tab-btn active" data-tab="home">🏠 Главная</button>
             <button class="tab-btn" data-tab="chat">💬 Чат</button>
             <button class="tab-btn" data-tab="planner">📅 Планировщик</button>
@@ -2657,6 +2705,51 @@ window.addEventListener('load', initOnlineCounter);
                 if (btn) btn.classList.add('active');
                 if (content) content.classList.add('active');
                 currentTab = tabName;
+                // Поиск по вкладкам
+const tabSearch = document.getElementById('tabSearch');
+if (tabSearch) {
+    tabSearch.addEventListener('input', function() {
+        const query = this.value.trim().toLowerCase();
+        const buttons = document.querySelectorAll('.tab-btn');
+        let firstVisible = null;
+
+        buttons.forEach(btn => {
+            const text = btn.textContent.toLowerCase();
+            const match = query === '' || text.includes(query);
+            btn.classList.toggle('hidden-by-search', !match);
+            if (match && !firstVisible) firstVisible = btn;
+        });
+
+        // Если нажали Enter — активировать первую совпадающую вкладку
+        if (query && firstVisible) {
+            tabSearch.setAttribute('data-first', firstVisible.getAttribute('data-tab'));
+        } else {
+            tabSearch.removeAttribute('data-first');
+        }
+    });
+
+    tabSearch.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const target = this.getAttribute('data-first');
+            if (target) {
+                switchTab(target);
+                this.value = '';
+                this.dispatchEvent(new Event('input')); // обновить видимость
+                this.blur();
+            }
+        }
+    });
+
+    // Горячая клавиша Ctrl+K – фокус на поиск
+    document.addEventListener('keydown', function(e) {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+            e.preventDefault();
+            tabSearch.focus();
+            tabSearch.select();
+        }
+    });
+}
                 if (tabName === 'calc' && chart) setTimeout(() => chart.resize(), 50);
                 if (tabName === 'luck' && !window._wheelInit) { initWheel();
                     window._wheelInit = true; }
