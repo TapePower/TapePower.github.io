@@ -3770,6 +3770,19 @@ function initCheckers() {
                 checkersBoardEl.appendChild(sq);
             }
         }
+        function waitAndRenderLabels() {
+    // Проверяем размер клетки, если 0 — повторяем через rAF до получения реального значения
+    function attempt(triesLeft) {
+        const sq = checkersBoardEl.querySelector('.square');
+        const size = sq ? sq.offsetWidth : 0;
+        if (size > 0) {
+            renderLabels();
+        } else if (triesLeft > 0) {
+            requestAnimationFrame(() => attempt(triesLeft - 1));
+        }
+    }
+    requestAnimationFrame(() => attempt(30));
+}
         requestAnimationFrame(() => renderLabels());
     }
 
