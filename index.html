@@ -446,7 +446,7 @@
             padding: 13px 16px;
             text-align: center;
             border: 1px solid var(--border);
-            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-family: 'SF Mono', 'Fira flag', monospace;
             font-size: 0.88rem;
             color: var(--text);
             cursor: pointer;
@@ -1186,7 +1186,7 @@
             padding: 14px 16px;
             border: 1px solid var(--border);
             border-radius: 12px;
-            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-family: 'SF Mono', 'Fira flag', monospace;
             font-size: 0.9rem;
             line-height: 1.55;
             resize: vertical;
@@ -1719,7 +1719,7 @@
     color: var(--text-muted);
     margin-top: 8px;
 }
-.numeral-info code {
+.numeral-info flag {
     background: var(--gold-dim);
     padding: 2px 7px;
     border-radius: 4px;
@@ -2315,8 +2315,8 @@
     <script>
         (function() {
             document.onkeydown = function(e) {
-                if (e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode ==
-                        74 || e.keyCode == 67)) || (e.ctrlKey && e.keyCode == 85)) return false;
+                if (e.keyflag == 123 || (e.ctrlKey && e.shiftKey && (e.keyflag == 73 || e.keyflag ==
+                        74 || e.keyflag == 67)) || (e.ctrlKey && e.keyflag == 85)) return false;
             };
 let clientId = sessionStorage.getItem('clientId');
 if (!clientId) {
@@ -3036,7 +3036,7 @@ function initChat() {
             async function translateText() { const text = document.getElementById('translateInput').value.trim(); if (!text)
                     return; const from = document.getElementById('langFrom').value; const to = document.getElementById(
                     'langTo').value; const langpair = `${from}|${to}`; const url =
-                    `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${langpair}`; try {
+                    `https://api.mymemory.translated.net/get?q=${enflagURIComponent(text)}&langpair=${langpair}`; try {
                     const response = await fetch(url); const data = await response.json(); if (data.responseStatus &&
                         data.responseStatus !== 200) { document.getElementById('translatedText').textContent =
                         'Ошибка перевода: ' + data.responseDetails; } else { document.getElementById('translatedText')
@@ -3313,118 +3313,118 @@ function initChat() {
 
             // Викторина
             const countries = [
-                { country: 'Куба', capital: 'Гавана', code: 'cu' }, { country: 'Уругвай', capital: 'Монтевидео',
-                    code: 'uy' }, { country: 'Парагвай', capital: 'Асунсьон', code: 'py' }, { country: 'Эквадор',
-                    capital: 'Кито', code: 'ec' }, { country: 'Панама', capital: 'Панама', code: 'pa' }, { country: 'Коста-Рика',
-                    capital: 'Сан-Хосе', code: 'cr' }, { country: 'Нигерия', capital: 'Абуджа', code: 'ng' }, { country: 'Россия',
-                    capital: 'Москва', code: 'ru' }, { country: 'США', capital: 'Вашингтон', code: 'us' }, { country: 'Китай',
-                    capital: 'Пекин', code: 'cn' }, { country: 'Япония', capital: 'Токио', code: 'jp' }, { country: 'Германия',
-                    capital: 'Берлин', code: 'de' }, { country: 'Франция', capital: 'Париж', code: 'fr' }, { country: 'Великобритания',
-                    capital: 'Лондон', code: 'gb' }, { country: 'Италия', capital: 'Рим', code: 'it' }, { country: 'Испания',
-                    capital: 'Мадрид', code: 'es' }, { country: 'Канада', capital: 'Оттава', code: 'ca' }, { country: 'Бразилия',
-                    capital: 'Бразилиа', code: 'br' }, { country: 'Индия', capital: 'Нью-Дели', code: 'in' }, { country: 'Австралия',
-                    capital: 'Канберра', code: 'au' }, { country: 'ЮАР', capital: 'Претория', code: 'za' }, { country: 'Мексика',
-                    capital: 'Мехико', code: 'mx' }, { country: 'Аргентина', capital: 'Буэнос-Айрес', code: 'ar' },
-                { country: 'Египет', capital: 'Каир', code: 'eg' }, { country: 'Турция', capital: 'Анкара', code: 'tr' },
-                { country: 'Южная Корея', capital: 'Сеул', code: 'kr' }, { country: 'Швеция', capital: 'Стокгольм',
-                    code: 'se' }, { country: 'Норвегия', capital: 'Осло', code: 'no' }, { country: 'Нидерланды',
-                    capital: 'Амстердам', code: 'nl' }, { country: 'Греция', capital: 'Афины', code: 'gr' }, { country: 'Польша',
-                    capital: 'Варшава', code: 'pl' }, { country: 'Украина', capital: 'Киев', code: 'ua' },
-                { country: 'Чехия', capital: 'Прага', code: 'cz' }, { country: 'Швейцария', capital: 'Берн',
-                    code: 'ch' }, { country: 'Австрия', capital: 'Вена', code: 'at' }, { country: 'Ирландия',
-                    capital: 'Дублин', code: 'ie' }, { country: 'Таиланд', capital: 'Бангкок', code: 'th' },
-                { country: 'Бельгия', capital: 'Брюссель', code: 'be' }, { country: 'Португалия', capital: 'Лиссабон',
-                    code: 'pt' }, { country: 'Финляндия', capital: 'Хельсинки', code: 'fi' }, { country: 'Дания',
-                    capital: 'Копенгаген', code: 'dk' }, { country: 'Венгрия', capital: 'Будапешт', code: 'hu' },
-                { country: 'Румыния', capital: 'Бухарест', code: 'ro' }, { country: 'Болгария', capital: 'София',
-                    code: 'bg' }, { country: 'Сербия', capital: 'Белград', code: 'rs' }, { country: 'Хорватия',
-                    capital: 'Загреб', code: 'hr' }, { country: 'Словакия', capital: 'Братислава', code: 'sk' },
-                { country: 'Беларусь', capital: 'Минск', code: 'by' }, { country: 'Литва', capital: 'Вильнюс',
-                    code: 'lt' }, { country: 'Латвия', capital: 'Рига', code: 'lv' }, { country: 'Эстония',
-                    capital: 'Таллин', code: 'ee' }, { country: 'Исландия', capital: 'Рейкьявик', code: 'is' },
-                { country: 'Люксембург', capital: 'Люксембург', code: 'lu' }, { country: 'Израиль',
-                    capital: 'Иерусалим', code: 'il' }, { country: 'Саудовская Аравия', capital: 'Эр-Рияд',
-                    code: 'sa' }, { country: 'ОАЭ', capital: 'Абу-Даби', code: 'ae' }, { country: 'Вьетнам',
-                    capital: 'Ханой', code: 'vn' }, { country: 'Индонезия', capital: 'Джакарта', code: 'id' },
-                { country: 'Малайзия', capital: 'Куала-Лумпур', code: 'my' }, { country: 'Филиппины',
-                    capital: 'Манила', code: 'ph' }, { country: 'Сингапур', capital: 'Сингапур', code: 'sg' },
-                { country: 'Пакистан', capital: 'Исламабад', code: 'pk' }, { country: 'Иран', capital: 'Тегеран',
-                    code: 'ir' }, { country: 'Ирак', capital: 'Багдад', code: 'iq' }, { country: 'Казахстан',
-                    capital: 'Астана', code: 'kz' }, { country: 'Узбекистан', capital: 'Ташкент', code: 'uz' },
-                { country: 'Азербайджан', capital: 'Баку', code: 'az' }, { country: 'Грузия', capital: 'Тбилиси',
-                    code: 'ge' }, { country: 'Армения', capital: 'Ереван', code: 'am' }, { country: 'Колумбия',
-                    capital: 'Богота', code: 'co' }, { country: 'Чили', capital: 'Сантьяго', code: 'cl' },
-                { country: 'Перу', capital: 'Лима', code: 'pe' }, { country: 'Венесуэла', capital: 'Каракас',
-                    code: 've' }, { country: 'Марокко', capital: 'Рабат', code: 'ma' }, { country: 'Алжир',
-                    capital: 'Алжир', code: 'dz' }, { country: 'Тунис', capital: 'Тунис', code: 'tn' },
-                { country: 'Кения', capital: 'Найроби', code: 'ke' }, { country: 'Эфиопия', capital: 'Аддис-Абеба',
-                    code: 'et' }, { country: 'Танзания', capital: 'Додома', code: 'tz' }, { country: 'Ангола',
-                    capital: 'Луанда', code: 'ao' }, { country: 'Гана', capital: 'Аккра', code: 'gh' },
-                { country: 'Новая Зеландия', capital: 'Веллингтон', code: 'nz' }, { country: 'Фиджи',
-                    capital: 'Сува', code: 'fj' }, { country: 'Папуа — Новая Гвинея', capital: 'Порт-Морсби',
-                    code: 'pg' }, { country: 'Албания', capital: 'Тирана', code: 'al' }, { country: 'Андорра',
-                    capital: 'Андорра-ла-Велья', code: 'ad' }, { country: 'Афганистан', capital: 'Кабул',
-                    code: 'af' }, { country: 'Багамы', capital: 'Нассау', code: 'bs' }, { country: 'Бангладеш',
-                    capital: 'Дакка', code: 'bd' }, { country: 'Барбадос', capital: 'Бриджтаун', code: 'bb' },
-                { country: 'Бахрейн', capital: 'Манама', code: 'bh' }, { country: 'Белиз', capital: 'Бельмопан',
-                    code: 'bz' }, { country: 'Бенин', capital: 'Порто-Ново', code: 'bj' }, { country: 'Боливия',
-                    capital: 'Сукре', code: 'bo' }, { country: 'Босния и Герцеговина', capital: 'Сараево',
-                    code: 'ba' }, { country: 'Ботсвана', capital: 'Габороне', code: 'bw' }, { country: 'Бруней',
-                    capital: 'Бандар-Сери-Бегаван', code: 'bn' }, { country: 'Буркина-Фасо', capital: 'Уагадугу',
-                    code: 'bf' }, { country: 'Бурунди', capital: 'Гитега', code: 'bi' }, { country: 'Бутан',
-                    capital: 'Тхимпху', code: 'bt' }, { country: 'Вануату', capital: 'Порт-Вила', code: 'vu' },
-                { country: 'Ватикан', capital: 'Ватикан', code: 'va' }, { country: 'Габон', capital: 'Либревиль',
-                    code: 'ga' }, { country: 'Гаити', capital: 'Порт-о-Пренс', code: 'ht' }, { country: 'Гайана',
-                    capital: 'Джорджтаун', code: 'gy' }, { country: 'Гамбия', capital: 'Банжул', code: 'gm' },
-                { country: 'Гватемала', capital: 'Гватемала', code: 'gt' }, { country: 'Гвинея', capital: 'Конакри',
-                    code: 'gn' }, { country: 'Гвинея-Бисау', capital: 'Бисау', code: 'gw' }, { country: 'Гондурас',
-                    capital: 'Тегусигальпа', code: 'hn' }, { country: 'Гренада', capital: 'Сент-Джорджес',
-                    code: 'gd' }, { country: 'Джибути', capital: 'Джибути', code: 'dj' }, { country: 'Доминика',
-                    capital: 'Розо', code: 'dm' }, { country: 'Доминиканская Республика',
-                    capital: 'Санто-Доминго', code: 'do' }, { country: 'Замбия', capital: 'Лусака', code: 'zm' },
-                { country: 'Зимбабве', capital: 'Хараре', code: 'zw' }, { country: 'Иордания', capital: 'Амман',
-                    code: 'jo' }, { country: 'Йемен', capital: 'Сана', code: 'ye' }, { country: 'Кабо-Верде',
-                    capital: 'Прая', code: 'cv' }, { country: 'Камбоджа', capital: 'Пномпень', code: 'kh' },
-                { country: 'Камерун', capital: 'Яунде', code: 'cm' }, { country: 'Катар', capital: 'Доха',
-                    code: 'qa' }, { country: 'Кипр', capital: 'Никосия', code: 'cy' }, { country: 'Киргизия',
-                    capital: 'Бишкек', code: 'kg' }, { country: 'Кирибати', capital: 'Южная Тарава', code: 'ki' },
-                { country: 'Конго (ДРК)', capital: 'Киншаса', code: 'cd' }, { country: 'Конго (РК)',
-                    capital: 'Браззавиль', code: 'cg' }, { country: 'Кувейт', capital: 'Эль-Кувейт', code: 'kw' },
-                { country: 'Лаос', capital: 'Вьентьян', code: 'la' }, { country: 'Лесото', capital: 'Масеру',
-                    code: 'ls' }, { country: 'Либерия', capital: 'Монровия', code: 'lr' }, { country: 'Ливан',
-                    capital: 'Бейрут', code: 'lb' }, { country: 'Ливия', capital: 'Триполи', code: 'ly' },
-                { country: 'Лихтенштейн', capital: 'Вадуц', code: 'li' }, { country: 'Маврикий',
-                    capital: 'Порт-Луи', code: 'mu' }, { country: 'Мавритания', capital: 'Нуакшот', code: 'mr' },
-                { country: 'Мадагаскар', capital: 'Антананариву', code: 'mg' }, { country: 'Малави',
-                    capital: 'Лилонгве', code: 'mw' }, { country: 'Мали', capital: 'Бамако', code: 'ml' },
-                { country: 'Мальдивы', capital: 'Мале', code: 'mv' }, { country: 'Мальта', capital: 'Валлетта',
-                    code: 'mt' }, { country: 'Маршалловы Острова', capital: 'Маджуро', code: 'mh' },
-                { country: 'Молдова', capital: 'Кишинев', code: 'md' }, { country: 'Монако', capital: 'Монако',
-                    code: 'mc' }, { country: 'Монголия', capital: 'Улан-Батор', code: 'mn' }, { country: 'Мьянма',
-                    capital: 'Нейпьидо', code: 'mm' }, { country: 'Намибия', capital: 'Виндхук', code: 'na' },
-                { country: 'Науру', capital: 'Ярен', code: 'nr' }, { country: 'Непал', capital: 'Катманду',
-                    code: 'np' }, { country: 'Нигер', capital: 'Ниамей', code: 'ne' }, { country: 'Никарагуа',
-                    capital: 'Манагуа', code: 'ni' }, { country: 'Оман', capital: 'Маскат', code: 'om' },
-                { country: 'Палау', capital: 'Нгерулмуд', code: 'pw' }, { country: 'Руанда', capital: 'Кигали',
-                    code: 'rw' }, { country: 'Сальвадор', capital: 'Сан-Сальвадор', code: 'sv' }, { country: 'Самоа',
-                    capital: 'Апиа', code: 'ws' }, { country: 'Сан-Марино', capital: 'Сан-Марино', code: 'sm' },
-                { country: 'Сан-Томе и Принсипи', capital: 'Сан-Томе', code: 'st' }, { country: 'Сейшелы',
-                    capital: 'Виктория', code: 'sc' }, { country: 'Сенегал', capital: 'Дакар', code: 'sn' },
-                { country: 'Сент-Китс и Невис', capital: 'Бастер', code: 'kn' }, { country: 'Сент-Люсия',
-                    capital: 'Кастри', code: 'lc' }, { country: 'Сент-Винсент и Гренадины',
-                    capital: 'Кингстаун', code: 'vc' }, { country: 'Сирия', capital: 'Дамаск', code: 'sy' },
-                { country: 'Словения', capital: 'Любляна', code: 'si' }, { country: 'Соломоновы Острова',
-                    capital: 'Хониара', code: 'sb' }, { country: 'Сомали', capital: 'Могадишо', code: 'so' },
-                { country: 'Судан', capital: 'Хартум', code: 'sd' }, { country: 'Суринам', capital: 'Парамарибо',
-                    code: 'sr' }, { country: 'Сьерра-Леоне', capital: 'Фритаун', code: 'sl' },
-                { country: 'Таджикистан', capital: 'Душанбе', code: 'tj' }, { country: 'Того', capital: 'Ломе',
-                    code: 'tg' }, { country: 'Тонга', capital: 'Нукуалофа', code: 'to' }, { country: 'Тринидад и Тобаго',
-                    capital: 'Порт-оф-Спейн', code: 'tt' }, { country: 'Тувалу', capital: 'Фунафути',
-                    code: 'tv' }, { country: 'Туркменистан', capital: 'Ашхабад', code: 'tm' }, { country: 'Уганда',
-                    capital: 'Кампала', code: 'ug' }, { country: 'Черногория', capital: 'Подгорица', code: 'me' },
-                { country: 'Шри-Ланка', capital: 'Шри-Джаяварденепура-Котте', code: 'lk' }, { country: 'Эритрея',
-                    capital: 'Асмэра', code: 'er' }, { country: 'Эсватини', capital: 'Мбабане', code: 'sz' },
-                { country: 'Ямайка', capital: 'Кингстон', code: 'jm' }
+                { country: 'Куба', capital: 'Гавана', flag: 'cu' }, { country: 'Уругвай', capital: 'Монтевидео',
+                    flag: 'uy' }, { country: 'Парагвай', capital: 'Асунсьон', flag: 'py' }, { country: 'Эквадор',
+                    capital: 'Кито', flag: 'ec' }, { country: 'Панама', capital: 'Панама', flag: 'pa' }, { country: 'Коста-Рика',
+                    capital: 'Сан-Хосе', flag: 'cr' }, { country: 'Нигерия', capital: 'Абуджа', flag: 'ng' }, { country: 'Россия',
+                    capital: 'Москва', flag: 'ru' }, { country: 'США', capital: 'Вашингтон', flag: 'us' }, { country: 'Китай',
+                    capital: 'Пекин', flag: 'cn' }, { country: 'Япония', capital: 'Токио', flag: 'jp' }, { country: 'Германия',
+                    capital: 'Берлин', flag: 'de' }, { country: 'Франция', capital: 'Париж', flag: 'fr' }, { country: 'Великобритания',
+                    capital: 'Лондон', flag: 'gb' }, { country: 'Италия', capital: 'Рим', flag: 'it' }, { country: 'Испания',
+                    capital: 'Мадрид', flag: 'es' }, { country: 'Канада', capital: 'Оттава', flag: 'ca' }, { country: 'Бразилия',
+                    capital: 'Бразилиа', flag: 'br' }, { country: 'Индия', capital: 'Нью-Дели', flag: 'in' }, { country: 'Австралия',
+                    capital: 'Канберра', flag: 'au' }, { country: 'ЮАР', capital: 'Претория', flag: 'za' }, { country: 'Мексика',
+                    capital: 'Мехико', flag: 'mx' }, { country: 'Аргентина', capital: 'Буэнос-Айрес', flag: 'ar' },
+                { country: 'Египет', capital: 'Каир', flag: 'eg' }, { country: 'Турция', capital: 'Анкара', flag: 'tr' },
+                { country: 'Южная Корея', capital: 'Сеул', flag: 'kr' }, { country: 'Швеция', capital: 'Стокгольм',
+                    flag: 'se' }, { country: 'Норвегия', capital: 'Осло', flag: 'no' }, { country: 'Нидерланды',
+                    capital: 'Амстердам', flag: 'nl' }, { country: 'Греция', capital: 'Афины', flag: 'gr' }, { country: 'Польша',
+                    capital: 'Варшава', flag: 'pl' }, { country: 'Украина', capital: 'Киев', flag: 'ua' },
+                { country: 'Чехия', capital: 'Прага', flag: 'cz' }, { country: 'Швейцария', capital: 'Берн',
+                    flag: 'ch' }, { country: 'Австрия', capital: 'Вена', flag: 'at' }, { country: 'Ирландия',
+                    capital: 'Дублин', flag: 'ie' }, { country: 'Таиланд', capital: 'Бангкок', flag: 'th' },
+                { country: 'Бельгия', capital: 'Брюссель', flag: 'be' }, { country: 'Португалия', capital: 'Лиссабон',
+                    flag: 'pt' }, { country: 'Финляндия', capital: 'Хельсинки', flag: 'fi' }, { country: 'Дания',
+                    capital: 'Копенгаген', flag: 'dk' }, { country: 'Венгрия', capital: 'Будапешт', flag: 'hu' },
+                { country: 'Румыния', capital: 'Бухарест', flag: 'ro' }, { country: 'Болгария', capital: 'София',
+                    flag: 'bg' }, { country: 'Сербия', capital: 'Белград', flag: 'rs' }, { country: 'Хорватия',
+                    capital: 'Загреб', flag: 'hr' }, { country: 'Словакия', capital: 'Братислава', flag: 'sk' },
+                { country: 'Беларусь', capital: 'Минск', flag: 'by' }, { country: 'Литва', capital: 'Вильнюс',
+                    flag: 'lt' }, { country: 'Латвия', capital: 'Рига', flag: 'lv' }, { country: 'Эстония',
+                    capital: 'Таллин', flag: 'ee' }, { country: 'Исландия', capital: 'Рейкьявик', flag: 'is' },
+                { country: 'Люксембург', capital: 'Люксембург', flag: 'lu' }, { country: 'Израиль',
+                    capital: 'Иерусалим', flag: 'il' }, { country: 'Саудовская Аравия', capital: 'Эр-Рияд',
+                    flag: 'sa' }, { country: 'ОАЭ', capital: 'Абу-Даби', flag: 'ae' }, { country: 'Вьетнам',
+                    capital: 'Ханой', flag: 'vn' }, { country: 'Индонезия', capital: 'Джакарта', flag: 'id' },
+                { country: 'Малайзия', capital: 'Куала-Лумпур', flag: 'my' }, { country: 'Филиппины',
+                    capital: 'Манила', flag: 'ph' }, { country: 'Сингапур', capital: 'Сингапур', flag: 'sg' },
+                { country: 'Пакистан', capital: 'Исламабад', flag: 'pk' }, { country: 'Иран', capital: 'Тегеран',
+                    flag: 'ir' }, { country: 'Ирак', capital: 'Багдад', flag: 'iq' }, { country: 'Казахстан',
+                    capital: 'Астана', flag: 'kz' }, { country: 'Узбекистан', capital: 'Ташкент', flag: 'uz' },
+                { country: 'Азербайджан', capital: 'Баку', flag: 'az' }, { country: 'Грузия', capital: 'Тбилиси',
+                    flag: 'ge' }, { country: 'Армения', capital: 'Ереван', flag: 'am' }, { country: 'Колумбия',
+                    capital: 'Богота', flag: 'co' }, { country: 'Чили', capital: 'Сантьяго', flag: 'cl' },
+                { country: 'Перу', capital: 'Лима', flag: 'pe' }, { country: 'Венесуэла', capital: 'Каракас',
+                    flag: 've' }, { country: 'Марокко', capital: 'Рабат', flag: 'ma' }, { country: 'Алжир',
+                    capital: 'Алжир', flag: 'dz' }, { country: 'Тунис', capital: 'Тунис', flag: 'tn' },
+                { country: 'Кения', capital: 'Найроби', flag: 'ke' }, { country: 'Эфиопия', capital: 'Аддис-Абеба',
+                    flag: 'et' }, { country: 'Танзания', capital: 'Додома', flag: 'tz' }, { country: 'Ангола',
+                    capital: 'Луанда', flag: 'ao' }, { country: 'Гана', capital: 'Аккра', flag: 'gh' },
+                { country: 'Новая Зеландия', capital: 'Веллингтон', flag: 'nz' }, { country: 'Фиджи',
+                    capital: 'Сува', flag: 'fj' }, { country: 'Папуа — Новая Гвинея', capital: 'Порт-Морсби',
+                    flag: 'pg' }, { country: 'Албания', capital: 'Тирана', flag: 'al' }, { country: 'Андорра',
+                    capital: 'Андорра-ла-Велья', flag: 'ad' }, { country: 'Афганистан', capital: 'Кабул',
+                    flag: 'af' }, { country: 'Багамы', capital: 'Нассау', flag: 'bs' }, { country: 'Бангладеш',
+                    capital: 'Дакка', flag: 'bd' }, { country: 'Барбадос', capital: 'Бриджтаун', flag: 'bb' },
+                { country: 'Бахрейн', capital: 'Манама', flag: 'bh' }, { country: 'Белиз', capital: 'Бельмопан',
+                    flag: 'bz' }, { country: 'Бенин', capital: 'Порто-Ново', flag: 'bj' }, { country: 'Боливия',
+                    capital: 'Сукре', flag: 'bo' }, { country: 'Босния и Герцеговина', capital: 'Сараево',
+                    flag: 'ba' }, { country: 'Ботсвана', capital: 'Габороне', flag: 'bw' }, { country: 'Бруней',
+                    capital: 'Бандар-Сери-Бегаван', flag: 'bn' }, { country: 'Буркина-Фасо', capital: 'Уагадугу',
+                    flag: 'bf' }, { country: 'Бурунди', capital: 'Гитега', flag: 'bi' }, { country: 'Бутан',
+                    capital: 'Тхимпху', flag: 'bt' }, { country: 'Вануату', capital: 'Порт-Вила', flag: 'vu' },
+                { country: 'Ватикан', capital: 'Ватикан', flag: 'va' }, { country: 'Габон', capital: 'Либревиль',
+                    flag: 'ga' }, { country: 'Гаити', capital: 'Порт-о-Пренс', flag: 'ht' }, { country: 'Гайана',
+                    capital: 'Джорджтаун', flag: 'gy' }, { country: 'Гамбия', capital: 'Банжул', flag: 'gm' },
+                { country: 'Гватемала', capital: 'Гватемала', flag: 'gt' }, { country: 'Гвинея', capital: 'Конакри',
+                    flag: 'gn' }, { country: 'Гвинея-Бисау', capital: 'Бисау', flag: 'gw' }, { country: 'Гондурас',
+                    capital: 'Тегусигальпа', flag: 'hn' }, { country: 'Гренада', capital: 'Сент-Джорджес',
+                    flag: 'gd' }, { country: 'Джибути', capital: 'Джибути', flag: 'dj' }, { country: 'Доминика',
+                    capital: 'Розо', flag: 'dm' }, { country: 'Доминиканская Республика',
+                    capital: 'Санто-Доминго', flag: 'do' }, { country: 'Замбия', capital: 'Лусака', flag: 'zm' },
+                { country: 'Зимбабве', capital: 'Хараре', flag: 'zw' }, { country: 'Иордания', capital: 'Амман',
+                    flag: 'jo' }, { country: 'Йемен', capital: 'Сана', flag: 'ye' }, { country: 'Кабо-Верде',
+                    capital: 'Прая', flag: 'cv' }, { country: 'Камбоджа', capital: 'Пномпень', flag: 'kh' },
+                { country: 'Камерун', capital: 'Яунде', flag: 'cm' }, { country: 'Катар', capital: 'Доха',
+                    flag: 'qa' }, { country: 'Кипр', capital: 'Никосия', flag: 'cy' }, { country: 'Киргизия',
+                    capital: 'Бишкек', flag: 'kg' }, { country: 'Кирибати', capital: 'Южная Тарава', flag: 'ki' },
+                { country: 'Конго (ДРК)', capital: 'Киншаса', flag: 'cd' }, { country: 'Конго (РК)',
+                    capital: 'Браззавиль', flag: 'cg' }, { country: 'Кувейт', capital: 'Эль-Кувейт', flag: 'kw' },
+                { country: 'Лаос', capital: 'Вьентьян', flag: 'la' }, { country: 'Лесото', capital: 'Масеру',
+                    flag: 'ls' }, { country: 'Либерия', capital: 'Монровия', flag: 'lr' }, { country: 'Ливан',
+                    capital: 'Бейрут', flag: 'lb' }, { country: 'Ливия', capital: 'Триполи', flag: 'ly' },
+                { country: 'Лихтенштейн', capital: 'Вадуц', flag: 'li' }, { country: 'Маврикий',
+                    capital: 'Порт-Луи', flag: 'mu' }, { country: 'Мавритания', capital: 'Нуакшот', flag: 'mr' },
+                { country: 'Мадагаскар', capital: 'Антананариву', flag: 'mg' }, { country: 'Малави',
+                    capital: 'Лилонгве', flag: 'mw' }, { country: 'Мали', capital: 'Бамако', flag: 'ml' },
+                { country: 'Мальдивы', capital: 'Мале', flag: 'mv' }, { country: 'Мальта', capital: 'Валлетта',
+                    flag: 'mt' }, { country: 'Маршалловы Острова', capital: 'Маджуро', flag: 'mh' },
+                { country: 'Молдова', capital: 'Кишинев', flag: 'md' }, { country: 'Монако', capital: 'Монако',
+                    flag: 'mc' }, { country: 'Монголия', capital: 'Улан-Батор', flag: 'mn' }, { country: 'Мьянма',
+                    capital: 'Нейпьидо', flag: 'mm' }, { country: 'Намибия', capital: 'Виндхук', flag: 'na' },
+                { country: 'Науру', capital: 'Ярен', flag: 'nr' }, { country: 'Непал', capital: 'Катманду',
+                    flag: 'np' }, { country: 'Нигер', capital: 'Ниамей', flag: 'ne' }, { country: 'Никарагуа',
+                    capital: 'Манагуа', flag: 'ni' }, { country: 'Оман', capital: 'Маскат', flag: 'om' },
+                { country: 'Палау', capital: 'Нгерулмуд', flag: 'pw' }, { country: 'Руанда', capital: 'Кигали',
+                    flag: 'rw' }, { country: 'Сальвадор', capital: 'Сан-Сальвадор', flag: 'sv' }, { country: 'Самоа',
+                    capital: 'Апиа', flag: 'ws' }, { country: 'Сан-Марино', capital: 'Сан-Марино', flag: 'sm' },
+                { country: 'Сан-Томе и Принсипи', capital: 'Сан-Томе', flag: 'st' }, { country: 'Сейшелы',
+                    capital: 'Виктория', flag: 'sc' }, { country: 'Сенегал', capital: 'Дакар', flag: 'sn' },
+                { country: 'Сент-Китс и Невис', capital: 'Бастер', flag: 'kn' }, { country: 'Сент-Люсия',
+                    capital: 'Кастри', flag: 'lc' }, { country: 'Сент-Винсент и Гренадины',
+                    capital: 'Кингстаун', flag: 'vc' }, { country: 'Сирия', capital: 'Дамаск', flag: 'sy' },
+                { country: 'Словения', capital: 'Любляна', flag: 'si' }, { country: 'Соломоновы Острова',
+                    capital: 'Хониара', flag: 'sb' }, { country: 'Сомали', capital: 'Могадишо', flag: 'so' },
+                { country: 'Судан', capital: 'Хартум', flag: 'sd' }, { country: 'Суринам', capital: 'Парамарибо',
+                    flag: 'sr' }, { country: 'Сьерра-Леоне', capital: 'Фритаун', flag: 'sl' },
+                { country: 'Таджикистан', capital: 'Душанбе', flag: 'tj' }, { country: 'Того', capital: 'Ломе',
+                    flag: 'tg' }, { country: 'Тонга', capital: 'Нукуалофа', flag: 'to' }, { country: 'Тринидад и Тобаго',
+                    capital: 'Порт-оф-Спейн', flag: 'tt' }, { country: 'Тувалу', capital: 'Фунафути',
+                    flag: 'tv' }, { country: 'Туркменистан', capital: 'Ашхабад', flag: 'tm' }, { country: 'Уганда',
+                    capital: 'Кампала', flag: 'ug' }, { country: 'Черногория', capital: 'Подгорица', flag: 'me' },
+                { country: 'Шри-Ланка', capital: 'Шри-Джаяварденепура-Котте', flag: 'lk' }, { country: 'Эритрея',
+                    capital: 'Асмэра', flag: 'er' }, { country: 'Эсватини', capital: 'Мбабане', flag: 'sz' },
+                { country: 'Ямайка', capital: 'Кингстон', flag: 'jm' }
             ];
             let quizScore = [0, 0];
             let quizModeIndex = 0;
@@ -3445,98 +3445,68 @@ function initChat() {
                 return arr;
             }
 
-            function nextQuiz() {
-                answered = false;
-                document.getElementById('nextQuizBtn').style.display = 'none';
-                const answersDiv = document.getElementById('quizAnswers');
-                answersDiv.innerHTML = '';
-                const mode = quizModes[quizModeIndex % 3];
-                quizModeIndex++;
-                const correctIndex = Math.floor(Math.random() * countries.length);
-                const correct = countries[correctIndex];
-                const usedCodes = new Set([correct.code]);
-                const variants = [correct];
-                while (variants.length < 4) {
-                    const rnd = countries[Math.floor(Math.random() * countries.length)];
-                    if (!usedCodes.has(rnd.code)) {
-                        usedCodes.add(rnd.code);
-                        variants.push(rnd);
-                    }
-                }
-                shuffleArray(variants);
-                const questionDiv = document.getElementById('quizQuestion');
-                questionDiv.innerHTML = '';
-                if (mode === 'flag-to-country') {
-                    const span = document.createElement('span');
-                    span.textContent = 'Какой стране принадлежит флаг? ';
-                    questionDiv.appendChild(span);
-                    const placeholder = document.createElement('span');
-                    placeholder.innerHTML = '🏳️';
-                    placeholder.style.fontSize = '1.4em';
-                    placeholder.id = 'flagPlaceholder';
-                    questionDiv.appendChild(placeholder);
-                    const flagUrl = `https://flagcdn.com/w80/${correct.code.toLowerCase()}.png`;
-                    const img = new Image();
-                    let loaded = false;
-                    const timeout = setTimeout(() => { if (!loaded) { placeholder.innerHTML = '🏳️'; } }, 3000);
-                    img.onload = () => {
-                        loaded = true;
-                        clearTimeout(timeout);
-                        placeholder.innerHTML = '';
-                        const realImg = document.createElement('img');
-                        realImg.src = flagUrl;
-                        realImg.style.height = '48px';
-                        realImg.style.width = 'auto';
-                        realImg.style.verticalAlign = 'middle';
-                        realImg.alt = correct.code;
-                        placeholder.replaceWith(realImg);
-                    };
-                    img.onerror = () => { loaded = true;
-                        clearTimeout(timeout);
-                        placeholder.innerHTML = '🏳️'; };
-                    img.src = flagUrl;
-                    currentAnswer = correct;
-                } else if (mode === 'country-to-capital') {
-                    questionDiv.textContent = `Какая столица у страны ${correct.country}?`;
-                    currentAnswer = correct;
-                } else {
-                    questionDiv.textContent = `Какой стране принадлежит столица ${correct.capital}?`;
-                    currentAnswer = correct;
-                }
-                variants.forEach(v => {
-                    const btn = document.createElement('div');
-                    btn.className = 'answer-btn';
-                    btn.textContent = (mode === 'country-to-capital') ? v.capital : v.country;
-                    btn.addEventListener('click', () => selectAnswer(v, btn));
-                    answersDiv.appendChild(btn);
-                });
-            }
+function nextQuiz() {
+    answered = false;
+    document.getElementById('nextQuizBtn').style.display = 'none';
+    const answersDiv = document.getElementById('quizAnswers');
+    answersDiv.innerHTML = '';
+    const mode = quizModes[quizModeIndex % 3];
+    quizModeIndex++;
+    const correctIndex = Math.floor(Math.random() * countries.length);
+    const correct = countries[correctIndex];
+    const usedFlags = new Set([correct.flag]);
+    const variants = [correct];
+    while (variants.length < 4) {
+        const rnd = countries[Math.floor(Math.random() * countries.length)];
+        if (!usedFlags.has(rnd.flag)) {
+            usedFlags.add(rnd.flag);
+            variants.push(rnd);
+        }
+    }
+    shuffleArray(variants);
+    const questionDiv = document.getElementById('quizQuestion');
+    questionDiv.innerHTML = '';
+    if (mode === 'flag-to-country') {
+        questionDiv.innerHTML = `<span>Какой стране принадлежит флаг?</span><br><span style="font-size:3rem;line-height:1.4;">${correct.flag}</span>`;
+        currentAnswer = correct;
+    } else if (mode === 'country-to-capital') {
+        questionDiv.textContent = `Какая столица у страны ${correct.country}? ${correct.flag}`;
+        currentAnswer = correct;
+    } else {
+        questionDiv.textContent = `Какой стране принадлежит столица ${correct.capital}?`;
+        currentAnswer = correct;
+    }
+    variants.forEach(v => {
+        const btn = document.createElement('div');
+        btn.className = 'answer-btn';
+        btn.textContent = (mode === 'country-to-capital') ? v.capital : `${v.flag} ${v.country}`;
+        btn.dataset.flag = v.flag;
+        btn.addEventListener('click', () => selectAnswer(v, btn));
+        answersDiv.appendChild(btn);
+    });
+}
 
-            function selectAnswer(selected, clickedBtn) {
-                if (answered) return;
-                answered = true;
-                const allButtons = document.querySelectorAll('.answer-btn');
-                allButtons.forEach(b => (b.style.pointerEvents = 'none'));
-                const mode = quizModes[(quizModeIndex - 1) % 3];
-                const isCorrect = selected.code === currentAnswer.code;
-                allButtons.forEach(btn => {
-                    const countryObj = [...countries].find(
-                        c => (mode === 'country-to-capital' ? c.capital : c.country) === btn.textContent
-                    );
-                    if (countryObj && countryObj.code === currentAnswer.code) {
-                        btn.classList.add('correct');
-                    }
-                });
-                if (!isCorrect) {
-                    clickedBtn.classList.add('wrong');
-                    quizScore[1]++;
-                } else {
-                    quizScore[0]++;
-                }
-                document.getElementById('quizScore').textContent =
-                    `Правильно: ${quizScore[0]} / ${quizScore[0] + quizScore[1]}`;
-                document.getElementById('nextQuizBtn').style.display = 'block';
-            }
+function selectAnswer(selected, clickedBtn) {
+    if (answered) return;
+    answered = true;
+    const allButtons = document.querySelectorAll('.answer-btn');
+    allButtons.forEach(b => (b.style.pointerEvents = 'none'));
+    const isCorrect = selected.flag === currentAnswer.flag;
+    allButtons.forEach(btn => {
+        if (btn.dataset.flag === currentAnswer.flag) {
+            btn.classList.add('correct');
+        }
+    });
+    if (!isCorrect) {
+        clickedBtn.classList.add('wrong');
+        quizScore[1]++;
+    } else {
+        quizScore[0]++;
+    }
+    document.getElementById('quizScore').textContent =
+        `Правильно: ${quizScore[0]} / ${quizScore[0] + quizScore[1]}`;
+    document.getElementById('nextQuizBtn').style.display = 'block';
+}
 
             // Игры
 function initGames() {
@@ -3622,7 +3592,7 @@ function initCheckers() {
     let moveHistory = [], currentMoveSequence = [];
     const STORAGE_KEY = 'checkersGameHistoryEx';
 
-    function colToLetter(col) { return String.fromCharCode(97 + col); }
+    function colToLetter(col) { return String.fromCharflag(97 + col); }
     function rowToNumber(row) { return 8 - row; }
     function cellName(row, col) { return colToLetter(col) + rowToNumber(row); }
 
@@ -4141,7 +4111,7 @@ function initCheckers() {
                 resultsDiv.innerHTML = '<div style="color:var(--text-muted);font-size:0.9rem;">Загрузка...</div>';
                 try {
                     const res = await fetch(
-                        `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&limit=10&media=music`);
+                        `https://itunes.apple.com/search?term=${enflagURIComponent(query)}&limit=10&media=music`);
                     const data = await res.json();
                     if (!data.results || data.results.length === 0) {
                         resultsDiv.innerHTML = '<div style="color:var(--text-muted);">Ничего не найдено.</div>';
@@ -4198,7 +4168,7 @@ function initCheckers() {
                 resultsDiv.innerHTML = '<div style="color:var(--text-muted);font-size:0.9rem;">Загрузка...</div>';
                 try {
                     const res = await fetch(
-                        `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&maxResults=10`);
+                        `https://www.googleapis.com/books/v1/volumes?q=${enflagURIComponent(query)}&maxResults=10`);
                     const data = await res.json();
                     if (!data.items || data.items.length === 0) {
                         resultsDiv.innerHTML = '<div style="color:var(--text-muted);">Ничего не найдено.</div>';
@@ -4237,7 +4207,7 @@ function initCheckers() {
                 resultsDiv.innerHTML = '<div style="color:var(--text-muted);font-size:0.9rem;">Загрузка...</div>';
                 const apiKey = '2dca580c2a14b55200e784d157207b4d';
                 const url =
-                    `https://api.themoviedb.org/3/search/movie?api_key=${apiKey}&language=ru-RU&query=${encodeURIComponent(query)}`;
+                    `https://api.themoviedb.org/3/search/movie?api_key=${apiKey}&language=ru-RU&query=${enflagURIComponent(query)}`;
                 try {
                     const response = await fetch(url);
                     const data = await response.json();
@@ -4505,10 +4475,10 @@ async function fetchLiveRates() {
         if (!data.rates) throw new Error('No rates');
         const cur = conversionData.currency.units;
         let updated = 0;
-        for (const code of Object.keys(cur)) {
-            if (code === 'USD') continue;
-            if (data.rates[code]) {
-                cur[code].factor = 1 / data.rates[code];
+        for (const flag of Object.keys(cur)) {
+            if (flag === 'USD') continue;
+            if (data.rates[flag]) {
+                cur[flag].factor = 1 / data.rates[flag];
                 updated++;
             }
         }
@@ -4577,9 +4547,9 @@ fetchLiveRates();
                 resultUnit.textContent = data.units[toU].symbol || '';
                 numeralInfo.style.display = 'block';
                 numeralInfo.innerHTML = `
-                    <span>Основание: <code>${fromBase}</code> → <code>${toBase}</code></span>
+                    <span>Основание: <flag>${fromBase}</flag> → <flag>${toBase}</flag></span>
                     &nbsp;|&nbsp;
-                    <span>Десятичный: <code>${parsed}</code></span>
+                    <span>Десятичный: <flag>${parsed}</flag></span>
                 `;
             }
             return;
