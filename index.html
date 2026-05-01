@@ -79,6 +79,377 @@
                 radial-gradient(ellipse 60% 50% at 80% 90%, rgba(140,100,30,0.04) 0%, transparent 50%);
         }
 
+        <!-- Планировщик -->
+<div class="tab-content" id="tab-planner">
+    <div class="glass-card" style="padding:0; overflow:hidden;">
+
+        <style>
+            .pl-wrap {
+                display: grid;
+                grid-template-columns: 1fr 320px;
+                min-height: 600px;
+            }
+            @media(max-width:900px){ .pl-wrap { grid-template-columns:1fr; } }
+
+            .pl-cal {
+                padding: 32px 36px;
+                border-right: 1px solid var(--border);
+            }
+            .pl-notes {
+                padding: 28px 24px;
+                display: flex;
+                flex-direction: column;
+                gap: 16px;
+                overflow-y: auto;
+                max-height: 700px;
+            }
+
+            /* шапка вкладки */
+            .pl-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 22px 32px 0;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            .pl-header h2 {
+                font-family: 'Cormorant Garamond', serif;
+                font-size: 2rem;
+                font-style: italic;
+                background: var(--grad);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+            }
+
+            /* навигация по месяцам */
+            .pl-nav {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                margin-bottom: 24px;
+            }
+            .pl-nav h3 {
+                font-family: 'Cormorant Garamond', serif;
+                font-size: 1.35rem;
+                font-weight: 600;
+                color: var(--text);
+                flex: 1;
+                text-align: center;
+                background: none;
+                -webkit-text-fill-color: var(--text);
+            }
+            .pl-nav-btn {
+                background: var(--surface);
+                border: 1px solid var(--border);
+                color: var(--text-muted);
+                width: 34px; height: 34px;
+                border-radius: 8px;
+                cursor: pointer;
+                font-size: 1rem;
+                display: flex; align-items: center; justify-content: center;
+                transition: all 0.2s;
+            }
+            .pl-nav-btn:hover { border-color: rgba(196,164,92,0.4); color: var(--gold); }
+
+            /* сетка календаря */
+            .pl-grid {
+                display: grid;
+                grid-template-columns: repeat(7, 1fr);
+                gap: 4px;
+            }
+            .pl-day-hdr {
+                text-align: center;
+                font-size: 0.63rem;
+                letter-spacing: 0.1em;
+                color: var(--text-muted);
+                padding: 6px 0;
+                text-transform: uppercase;
+            }
+            .pl-day {
+                aspect-ratio: 1;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                border-radius: 8px;
+                cursor: pointer;
+                font-size: 0.82rem;
+                position: relative;
+                border: 1px solid transparent;
+                transition: all 0.15s;
+                color: var(--text);
+                font-family: 'DM Sans', sans-serif;
+            }
+            .pl-day:hover:not(.pl-empty) {
+                background: var(--surface-hover);
+                border-color: var(--border);
+            }
+            .pl-day.pl-empty { cursor: default; }
+            .pl-day.pl-today {
+                border-color: rgba(196,164,92,0.5);
+                color: var(--gold);
+                font-weight: 600;
+            }
+            .pl-day.pl-selected {
+                background: var(--gold-dim);
+                border-color: rgba(196,164,92,0.5);
+                color: var(--gold2);
+            }
+            .pl-day.pl-has-note::after {
+                content: '';
+                width: 4px; height: 4px;
+                border-radius: 50%;
+                background: #6ea88a;
+                position: absolute;
+                bottom: 4px;
+            }
+            .pl-day.pl-other { color: var(--text-muted); opacity: 0.4; }
+
+            /* панель заметки на день */
+            .pl-day-panel {
+                display: none;
+                margin-top: 20px;
+                border-top: 1px solid var(--border);
+                padding-top: 18px;
+            }
+            .pl-day-panel.active { display: block; }
+            .pl-day-panel h4 {
+                font-family: 'Cormorant Garamond', serif;
+                font-size: 1.1rem;
+                color: var(--gold2);
+                margin-bottom: 10px;
+                font-weight: 600;
+            }
+            .pl-day-panel textarea {
+                width: 100%;
+                background: var(--surface);
+                border: 1px solid var(--border);
+                border-radius: 10px;
+                color: var(--text);
+                font-family: 'DM Sans', sans-serif;
+                font-size: 0.88rem;
+                line-height: 1.6;
+                padding: 12px 14px;
+                resize: vertical;
+                min-height: 100px;
+                outline: none;
+                transition: border-color 0.2s;
+            }
+            .pl-day-panel textarea:focus { border-color: rgba(196,164,92,0.5); }
+            .pl-day-panel textarea::placeholder { color: var(--text-muted); }
+            .pl-save-row {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                margin-top: 8px;
+            }
+            .pl-save-btn {
+                background: var(--gold-dim);
+                border: 1px solid rgba(196,164,92,0.3);
+                color: var(--gold2);
+                padding: 7px 18px;
+                border-radius: 8px;
+                font-family: 'DM Sans', sans-serif;
+                font-size: 0.78rem;
+                font-weight: 600;
+                letter-spacing: 0.06em;
+                text-transform: uppercase;
+                cursor: pointer;
+                transition: all 0.2s;
+            }
+            .pl-save-btn:hover { background: rgba(196,164,92,0.2); }
+            .pl-saved-msg {
+                font-size: 0.75rem;
+                color: #6ea88a;
+                opacity: 0;
+                transition: opacity 0.3s;
+            }
+            .pl-saved-msg.show { opacity: 1; }
+
+            /* правая панель — общие заметки */
+            .pl-notes-title {
+                font-family: 'Cormorant Garamond', serif;
+                font-size: 1.3rem;
+                font-weight: 600;
+                color: var(--text);
+                border-bottom: 1px solid var(--border);
+                padding-bottom: 10px;
+                background: none;
+                -webkit-text-fill-color: var(--text);
+            }
+            .pl-add-area { display: flex; flex-direction: column; gap: 8px; }
+            .pl-note-inp {
+                background: var(--surface);
+                border: 1px solid var(--border);
+                border-radius: 10px;
+                color: var(--text);
+                font-family: 'DM Sans', sans-serif;
+                font-size: 0.85rem;
+                padding: 10px 14px;
+                outline: none;
+                transition: border-color 0.2s;
+                width: 100%;
+            }
+            .pl-note-inp:focus { border-color: rgba(196,164,92,0.4); }
+            .pl-note-inp::placeholder { color: var(--text-muted); }
+            .pl-add-btn {
+                background: var(--gold-dim);
+                border: 1px solid rgba(196,164,92,0.25);
+                color: var(--gold);
+                padding: 9px;
+                border-radius: 8px;
+                font-family: 'DM Sans', sans-serif;
+                font-size: 0.78rem;
+                font-weight: 600;
+                letter-spacing: 0.06em;
+                text-transform: uppercase;
+                cursor: pointer;
+                transition: all 0.2s;
+            }
+            .pl-add-btn:hover { background: rgba(196,164,92,0.2); border-color: rgba(196,164,92,0.4); }
+
+            /* карточки заметок */
+            .pl-note-list { display: flex; flex-direction: column; gap: 8px; overflow-y: auto; }
+            .pl-note-card {
+                background: var(--surface);
+                border: 1px solid var(--border);
+                border-radius: 10px;
+                overflow: hidden;
+                transition: border-color 0.15s;
+            }
+            .pl-note-card:hover { border-color: rgba(196,164,92,0.2); }
+            .pl-note-hdr {
+                display: flex;
+                align-items: center;
+                padding: 9px 12px;
+                gap: 8px;
+                cursor: pointer;
+            }
+            .pl-note-card.open .pl-note-hdr { border-bottom: 1px solid var(--border); }
+            .pl-note-name {
+                flex: 1;
+                font-size: 0.83rem;
+                color: var(--text);
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                font-family: 'DM Sans', sans-serif;
+            }
+            .pl-note-dt {
+                font-size: 0.66rem;
+                color: var(--text-muted);
+                font-family: 'DM Sans', sans-serif;
+                white-space: nowrap;
+            }
+            .pl-note-arr {
+                color: var(--text-muted);
+                font-size: 0.7rem;
+                transition: transform 0.2s;
+            }
+            .pl-note-card.open .pl-note-arr { transform: rotate(180deg); }
+            .pl-note-del {
+                background: none;
+                border: none;
+                color: var(--text-muted);
+                cursor: pointer;
+                font-size: 0.82rem;
+                padding: 0 2px;
+                transition: color 0.15s;
+                line-height: 1;
+            }
+            .pl-note-del:hover { color: #e05c5c; }
+            .pl-note-body {
+                display: none;
+                padding: 10px 12px;
+            }
+            .pl-note-card.open .pl-note-body { display: block; }
+            .pl-note-body textarea {
+                width: 100%;
+                background: rgba(0,0,0,0.2);
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                color: var(--text);
+                font-family: 'DM Sans', sans-serif;
+                font-size: 0.82rem;
+                line-height: 1.6;
+                padding: 10px 12px;
+                resize: vertical;
+                min-height: 70px;
+                outline: none;
+                transition: border-color 0.2s;
+            }
+            .pl-note-body textarea:focus { border-color: rgba(196,164,92,0.4); }
+            .pl-note-body textarea::placeholder { color: var(--text-muted); }
+            .pl-note-act {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                margin-top: 6px;
+            }
+            .pl-note-save {
+                background: none;
+                border: 1px solid var(--border);
+                color: var(--text-muted);
+                padding: 4px 12px;
+                border-radius: 6px;
+                font-family: 'DM Sans', sans-serif;
+                font-size: 0.72rem;
+                letter-spacing: 0.05em;
+                text-transform: uppercase;
+                cursor: pointer;
+                transition: all 0.15s;
+            }
+            .pl-note-save:hover { border-color: rgba(196,164,92,0.4); color: var(--gold); }
+            .pl-empty {
+                color: var(--text-muted);
+                font-size: 0.8rem;
+                text-align: center;
+                padding: 24px 0;
+                letter-spacing: 0.04em;
+                font-family: 'DM Sans', sans-serif;
+            }
+        </style>
+
+        <div class="pl-header">
+            <h2>Планировщик</h2>
+            <button class="theme-btn" onclick="toggleTheme()">🌓 Тема</button>
+        </div>
+
+        <div class="pl-wrap">
+            <!-- КАЛЕНДАРЬ -->
+            <div class="pl-cal">
+                <div class="pl-nav">
+                    <button class="pl-nav-btn" id="plPrev">←</button>
+                    <h3 id="plMonthLabel"></h3>
+                    <button class="pl-nav-btn" id="plNext">→</button>
+                </div>
+                <div class="pl-grid" id="plGrid"></div>
+
+                <div class="pl-day-panel" id="plDayPanel">
+                    <h4 id="plDayTitle"></h4>
+                    <textarea id="plDayText" placeholder="Заметка на этот день..."></textarea>
+                    <div class="pl-save-row">
+                        <button class="pl-save-btn" id="plSaveDayBtn">Сохранить</button>
+                        <span class="pl-saved-msg" id="plDaySaved">✓ сохранено</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ЗАМЕТКИ -->
+            <div class="pl-notes">
+                <h3 class="pl-notes-title">Заметки</h3>
+                <div class="pl-add-area">
+                    <input class="pl-note-inp" id="plNoteInp" placeholder="Название заметки...">
+                    <button class="pl-add-btn" id="plAddNoteBtn">+ Добавить заметку</button>
+                </div>
+                <div class="pl-note-list" id="plNoteList"></div>
+            </div>
+        </div>
+
+    </div>
+</div>
         .main-wrapper {
             max-width: 1140px;
             width: 100%;
