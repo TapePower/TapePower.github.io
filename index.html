@@ -3609,8 +3609,7 @@ function initCheckers() {
                 document.getElementById('gameStatus').textContent = `Ход: ${currentPlayer}`;
             }
 
-           // ─── РАСШИРЕННЫЕ ШАШКИ (история, таймер, localStorage) ───
-function initCheckersExtended() {
+           function initCheckersExtended() {
     const checkersBoardEl = document.getElementById('checkersBoard');
     const statusEl = document.getElementById('checkersStatus');
     const timerEl = document.getElementById('checkersTimerDisplay');
@@ -3638,8 +3637,11 @@ function initCheckersExtended() {
     function clearGameHistory() { localStorage.removeItem(STORAGE_KEY); renderGameHistory(); }
     function renderGameHistory() {
         const history = loadGameHistory();
-        gameHistoryEl.innerHTML = history.length === 0 ? '<div style="padding:8px; color:var(--text-muted);">Нет сохранённых партий</div>' :
-            history.slice().reverse().map(g => `<div class="game-entry">${g.date} — ${g.winner} (${g.timeControl===0?'без ограничений':g.timeControl+'с'})</div>`).join('');
+        gameHistoryEl.innerHTML = history.length === 0
+            ? '<div style="padding:8px; color:var(--text-muted);">Нет сохранённых партий</div>'
+            : history.slice().reverse().map(g =>
+                `<div class="game-entry">${g.date} — ${g.winner} (${g.timeControl === 0 ? 'без ограничений' : g.timeControl + 'с'})</div>`
+              ).join('');
     }
 
     function resetMoveHistory() { moveHistory = []; currentMoveSequence = []; moveListEl.innerHTML = ''; }
@@ -3656,23 +3658,39 @@ function initCheckersExtended() {
         if (timeControl === 0) { timerEl.textContent = '--:--'; return; }
         const m = Math.floor(Math.max(0, timeLeft) / 60), s = Math.floor(Math.max(0, timeLeft) % 60);
         timerEl.textContent = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-        timerEl.style.color = timeLeft <= 0 ? '#ff5555' : 'var(--text)';
+        timerEl.style.color = timeLeft <= 10 ? '#ff5555' : 'var(--text)';
     }
     function startTimer() {
         if (timeControl === 0) { updateTimerDisplay(); return; }
         stopTimer();
-        timeLeft = timeControl;
         updateTimerDisplay();
         timerInterval = setInterval(() => {
             if (timeLeft > 0) { timeLeft--; updateTimerDisplay(); }
             if (timeLeft <= 0) {
                 stopTimer();
-                statusEl.textContent = `Время вышло! Ход ${currentTurn === 'white' ? 'белых' : 'чёрных'}. Сделайте ход.`;
-                alert(`Время на ход истекло! Сейчас ход ${currentTurn === 'white' ? 'белых' : 'чёрных'}.`);
+                const loser = currentTurn === 'white' ? 'Белые' : 'Чёрные';
+                const winner = currentTurn === 'white' ? 'black' : 'white';
+                statusEl.textContent = `⏰ Время вышло! Победа ${winner === 'white' ? 'белых' : 'чёрных'}!`;
+                addGameToHistory(winner, moveHistory, timeControl);
             }
         }, 1000);
     }
-    function resetTimerForNewTurn() { stopTimer(); if (timeControl > 0) { timeLeft = timeControl; updateTimerDisplay(); startTimer(); } else updateTimerDisplay(); }
+    function resetTimerForNewTurn() {
+        stopTimer();
+        if (timeControl > 0) { timeLeft = timeControl; updateTimerDisplay(); startTimer(); }
+        else updateTimerDisplay();
+    }
+
+    function showTimeModal(callback) {
+        const modal = document.getElementById('checkersTimeModal');
+        modal.style.display = 'flex';
+        document.getElementById('startCheckersGameBtn').onclick = function() {
+            const selected = document.querySelector('input[name="checkersTimeControl"]:checked');
+            timeControl = selected ? parseInt(selected.value) : 0;
+            modal.style.display = 'none';
+            callback();
+        };
+    }
 
     function setupBoard() {
         checkersBoard = [];
@@ -3686,9 +3704,17 @@ function initCheckersExtended() {
                 } else checkersBoard[r][c] = null;
             }
         }
-        currentTurn = 'white'; selectedCell = null; forcedCapture = false; highlightMoves = [];
-        checkForcedCapture(); drawBoard(); statusEl.textContent = 'Ход белых';
-        resetMoveHistory(); stopTimer(); resetTimerForNewTurn();
+        currentTurn = 'white';
+        selectedCell = null;
+        forcedCapture = false;
+        highlightMoves = [];
+        checkForcedCapture();
+        drawBoard();
+        statusEl.textContent = 'Ход белых';
+        resetMoveHistory();
+        stopTimer();
+        timeLeft = timeControl;
+        resetTimerForNewTurn();
     }
 
     function drawBoard() {
@@ -3699,7 +3725,10 @@ function initCheckersExtended() {
                 sq.className = `square ${(r + c) % 2 === 0 ? 'light-sq' : 'dark-sq'}`;
                 sq.dataset.row = r; sq.dataset.col = c;
                 if (selectedCell && r === selectedCell.row && c === selectedCell.col) sq.classList.add('selected-cell');
-                if (highlightMoves.some(m => m.row === r && m.col === c)) sq.classList.add('highlight-move');
+                if (highlightMoves.some(m => m.row === r && m.col === c)) {
+                    sq.classList.add(highlightMoves.find(m => m.row === r && m.col === c).capture
+                        ? 'highlight-capture' : 'highlight-move');
+                }
                 const piece = checkersBoard[r][c];
                 if (piece) {
                     const el = document.createElement('div');
@@ -3715,14 +3744,84 @@ function initCheckersExtended() {
 
     function checkForcedCapture() {
         forcedCapture = false;
-        for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++)
-            if (checkersBoard[r][c] && checkersBoard[r][c].startsWith(currentTurn) && canCaptureFrom(r, c)) { forcedCapture = true; return; }
+        for (let r = 0; r < 8; r++)
+            for (let c = 0; c < 8; c++)
+                if (checkersBoard[r][c] && checkersBoard[r][c].startsWith(currentTurn)
+                    && getCaptureMoves(r, c).length > 0) { forcedCapture = true; return; }
     }
 
     function canCaptureFrom(row, col) {
+        return getCaptureMoves(row, col).length > 0;
+    }
+
+    // Возвращает только ходы-взятия для фигуры
+    function getCaptureMoves(row, col) {
         const piece = checkersBoard[row][col];
-        if (!piece) return false;
-        return getValidMoves(row, col).some(m => m.capture);
+        if (!piece) return [];
+        const isKing = piece.endsWith('_king');
+        const opponent = piece.startsWith('white') ? 'black' : 'white';
+        const captures = [];
+
+        for (let dr = -1; dr <= 1; dr += 2) {
+            for (let dc = -1; dc <= 1; dc += 2) {
+                // Ищем первую вражескую фигуру по диагонали
+                let foundEnemy = null, enemyR = -1, enemyC = -1;
+                for (let step = 1; step <= (isKing ? 7 : 1); step++) {
+                    const nr = row + dr * step, nc = col + dc * step;
+                    if (nr < 0 || nr > 7 || nc < 0 || nc > 7) break;
+                    const target = checkersBoard[nr][nc];
+                    if (target === null) {
+                        if (foundEnemy) {
+                            // Дамка может приземлиться на любую клетку за врагом
+                            captures.push({ toRow: nr, toCol: nc, captureRow: enemyR, captureCol: enemyC });
+                            if (!isKing) break; // обычная шашка — только первая клетка
+                        }
+                    } else if (target.startsWith(opponent) && !foundEnemy) {
+                        foundEnemy = target;
+                        enemyR = nr; enemyC = nc;
+                        if (!isKing) {
+                            // обычная шашка: проверяем только одну клетку за врагом
+                            const jr = nr + dr, jc = nc + dc;
+                            if (jr >= 0 && jr <= 7 && jc >= 0 && jc <= 7 && checkersBoard[jr][jc] === null)
+                                captures.push({ toRow: jr, toCol: jc, captureRow: enemyR, captureCol: enemyC });
+                            break;
+                        }
+                    } else {
+                        break; // своя фигура или вторая вражеская — стоп
+                    }
+                }
+            }
+        }
+        return captures;
+    }
+
+    // Обычные ходы (без взятия)
+    function getSimpleMoves(row, col) {
+        const piece = checkersBoard[row][col];
+        if (!piece) return [];
+        const isKing = piece.endsWith('_king');
+        const isWhite = piece.startsWith('white');
+        const moves = [];
+
+        for (let dr = -1; dr <= 1; dr += 2) {
+            for (let dc = -1; dc <= 1; dc += 2) {
+                if (!isKing && ((isWhite && dr !== -1) || (!isWhite && dr !== 1))) continue;
+                for (let step = 1; step <= (isKing ? 7 : 1); step++) {
+                    const nr = row + dr * step, nc = col + dc * step;
+                    if (nr < 0 || nr > 7 || nc < 0 || nc > 7) break;
+                    if (checkersBoard[nr][nc] !== null) break;
+                    moves.push({ toRow: nr, toCol: nc, capture: false });
+                }
+            }
+        }
+        return moves;
+    }
+
+    function getValidMoves(row, col) {
+        const captures = getCaptureMoves(row, col);
+        if (captures.length > 0) return captures.map(m => ({ ...m, capture: true }));
+        if (forcedCapture) return []; // другая фигура должна бить
+        return getSimpleMoves(row, col);
     }
 
     function onSquareClick(row, col) {
@@ -3731,32 +3830,47 @@ function initCheckersExtended() {
                 if (!forcedCapture) { selectedCell = null; highlightMoves = []; drawBoard(); }
                 return;
             }
-            if (highlightMoves.some(m => m.row === row && m.col === col)) {
-                const target = highlightMoves.find(m => m.row === row && m.col === col);
-                if (target) executeMove(row, col, target.capture);
-                return;
+            const target = highlightMoves.find(m => m.row === row && m.col === col);
+            if (target) { executeMove(row, col, target.capture, target.captureRow, target.captureCol); return; }
+            // Клик на другую свою фигуру
+            if (checkersBoard[row][col] && checkersBoard[row][col].startsWith(currentTurn)) {
+                if (forcedCapture && !canCaptureFrom(row, col)) return;
+                selectPiece(row, col);
             }
             return;
         }
         if (checkersBoard[row][col] && checkersBoard[row][col].startsWith(currentTurn)) {
             if (forcedCapture && !canCaptureFrom(row, col)) return;
-            const moves = getValidMoves(row, col);
-            if (moves.length > 0) {
-                selectedCell = { row, col };
-                highlightMoves = forcedCapture ? moves.filter(m => m.capture).map(m => ({ row: m.toRow, col: m.toCol, capture: true })) :
-                    moves.map(m => ({ row: m.toRow, col: m.toCol, capture: m.capture }));
-            } else { selectedCell = null; highlightMoves = []; }
-            drawBoard();
+            selectPiece(row, col);
         }
     }
 
-    function executeMove(toRow, toCol, isCapture) {
+    function selectPiece(row, col) {
+        const moves = getValidMoves(row, col);
+        if (moves.length > 0) {
+            selectedCell = { row, col };
+            highlightMoves = moves.map(m => ({
+                row: m.toRow, col: m.toCol,
+                capture: !!m.capture,
+                captureRow: m.captureRow, captureCol: m.captureCol
+            }));
+        } else {
+            selectedCell = null; highlightMoves = [];
+        }
+        drawBoard();
+    }
+
+    function executeMove(toRow, toCol, isCapture, captureRow, captureCol) {
         const piece = checkersBoard[selectedCell.row][selectedCell.col];
         checkersBoard[toRow][toCol] = piece;
         checkersBoard[selectedCell.row][selectedCell.col] = null;
+
+        // Превращение в дамку
         if (piece === 'white' && toRow === 0) checkersBoard[toRow][toCol] = 'white_king';
         else if (piece === 'black' && toRow === 7) checkersBoard[toRow][toCol] = 'black_king';
-        if (isCapture) removeCapturedPiece(selectedCell.row, selectedCell.col, toRow, toCol);
+
+        // Удаление побитой шашки
+        if (isCapture && captureRow !== undefined) checkersBoard[captureRow][captureCol] = null;
 
         const fromCell = cellName(selectedCell.row, selectedCell.col);
         const toCell = cellName(toRow, toCol);
@@ -3766,85 +3880,59 @@ function initCheckersExtended() {
         selectedCell = null; highlightMoves = [];
         drawBoard();
 
+        // Проверяем продолжение серии взятий
         if (isCapture) {
-            const newMoves = getValidMoves(toRow, toCol).filter(m => m.capture);
-            if (newMoves.length > 0) {
+            const newCaptures = getCaptureMoves(toRow, toCol);
+            if (newCaptures.length > 0) {
                 selectedCell = { row: toRow, col: toCol };
-                highlightMoves = newMoves.map(m => ({ row: m.toRow, col: m.toCol, capture: true }));
+                highlightMoves = newCaptures.map(m => ({
+                    row: m.toRow, col: m.toCol, capture: true,
+                    captureRow: m.captureRow, captureCol: m.captureCol
+                }));
                 drawBoard();
                 statusEl.textContent = `${currentTurn === 'white' ? 'Белые' : 'Чёрные'} бьют дальше`;
                 return;
             }
         }
 
-        const sep = isCapture || currentMoveSequence.length > 2 ? ':' : '-';
+        // Записываем ход
+        const sep = isCapture ? ':' : '-';
         addMoveToHistory(currentMoveSequence.join(sep));
         currentMoveSequence = [];
 
         currentTurn = currentTurn === 'white' ? 'black' : 'white';
         checkForcedCapture();
-        statusEl.textContent = `Ход ${currentTurn === 'white' ? 'белых' : 'чёрных'}` + (forcedCapture ? ' (должны взять!)' : '');
+        statusEl.textContent = `Ход ${currentTurn === 'white' ? 'белых' : 'чёрных'}`
+            + (forcedCapture ? ' (обязательное взятие!)' : '');
         resetTimerForNewTurn();
         drawBoard();
+
         if (!hasAnyMoves(currentTurn)) {
             const winner = currentTurn === 'white' ? 'black' : 'white';
-            statusEl.textContent = `Победа ${winner === 'white' ? 'белых' : 'чёрных'}!`;
+            statusEl.textContent = `🏆 Победа ${winner === 'white' ? 'белых' : 'чёрных'}!`;
             stopTimer();
             addGameToHistory(winner, moveHistory, timeControl);
         }
     }
 
-    function removeCapturedPiece(fromRow, fromCol, toRow, toCol) {
-        const dr = Math.sign(toRow - fromRow), dc = Math.sign(toCol - fromCol);
-        let r = fromRow + dr, c = fromCol + dc;
-        const opponent = currentTurn === 'white' ? 'black' : 'white';
-        while (r !== toRow || c !== toCol) {
-            if (checkersBoard[r][c] && checkersBoard[r][c].startsWith(opponent)) { checkersBoard[r][c] = null; return; }
-            r += dr; c += dc;
-        }
-    }
-
-    function getValidMoves(row, col) {
-        const piece = checkersBoard[row][col];
-        if (!piece) return [];
-        const isKing = piece.endsWith('_king'), isWhite = piece.startsWith('white'), opponent = isWhite ? 'black' : 'white';
-        const moves = [], captureMoves = [];
-        for (let dr = -1; dr <= 1; dr += 2) for (let dc = -1; dc <= 1; dc += 2) for (let step = 1; step <= (isKing ? 7 : 1); step++) {
-            const nr = row + dr * step, nc = col + dc * step;
-            if (nr < 0 || nr > 7 || nc < 0 || nc > 7) break;
-            const target = checkersBoard[nr]?.[nc];
-            if (target === null) {
-                if (!isKing && ((isWhite && dr !== -1) || (!isWhite && dr !== 1))) continue;
-                moves.push({ toRow: nr, toCol: nc, capture: false });
-            } else if (target.startsWith(opponent)) {
-                const jr = nr + dr, jc = nc + dc;
-                if (jr >= 0 && jr <= 7 && jc >= 0 && jc <= 7 && checkersBoard[jr][jc] === null) captureMoves.push({ toRow: jr, toCol: jc, capture: true });
-                break;
-            } else break;
-        }
-        return captureMoves.length > 0 ? captureMoves : moves;
-    }
-
     function hasAnyMoves(player) {
-        for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++)
-            if (checkersBoard[r][c] && checkersBoard[r][c].startsWith(player) && getValidMoves(r, c).length > 0) return true;
+        for (let r = 0; r < 8; r++)
+            for (let c = 0; c < 8; c++)
+                if (checkersBoard[r][c] && checkersBoard[r][c].startsWith(player)
+                    && getValidMoves(r, c).length > 0) return true;
         return false;
     }
 
-    function resetCheckers() {
-        document.getElementById('checkersTimeModal').style.display = 'flex';
-        document.getElementById('startCheckersGameBtn').onclick = function() {
-            const selected = document.querySelector('input[name="checkersTimeControl"]:checked');
-            timeControl = selected ? parseInt(selected.value) : 0;
-            document.getElementById('checkersTimeModal').style.display = 'none';
-            setupBoard();
-        };
-    }
+    document.getElementById('resetCheckers').addEventListener('click', () => {
+        showTimeModal(() => setupBoard());
+    });
+    document.getElementById('clearCheckersHistoryBtn').addEventListener('click', () => {
+        if (confirm('Удалить историю партий?')) clearGameHistory();
+    });
 
-    document.getElementById('resetCheckers').addEventListener('click', resetCheckers);
-    document.getElementById('clearCheckersHistoryBtn').addEventListener('click', () => { if (confirm('Удалить историю партий?')) clearGameHistory(); });
     renderGameHistory();
-    setupBoard();
+    // При первой загрузке сразу показываем модалку выбора времени
+    showTimeModal(() => setupBoard());
 }
 
             // Цитаты
