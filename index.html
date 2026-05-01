@@ -1760,6 +1760,253 @@
         font-size: 1rem;
     }
 }
+        /* ===== CALENDAR & NOTES ===== */
+.calendar-app {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.cal-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 10px;
+}
+.cal-nav h3 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    font-family: 'Cormorant Garamond', serif;
+}
+.cal-nav-btn {
+    width: 40px !important; height: 40px !important;
+    padding: 0 !important;
+    border-radius: 8px !important;
+    font-size: 1.2rem;
+}
+
+.cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+}
+.cal-day-header {
+    text-align: center;
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    padding: 0.5rem 0;
+    text-transform: uppercase;
+}
+.cal-day {
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    position: relative;
+    border: 1px solid transparent;
+    transition: all 0.15s;
+    background: transparent;
+    color: var(--text);
+    gap: 3px;
+}
+.cal-day:hover:not(.empty) {
+    background: var(--surface);
+    border-color: var(--border);
+}
+.cal-day.empty { cursor: default; }
+.cal-day.today {
+    border-color: var(--gold);
+    color: var(--gold);
+    font-weight: 500;
+}
+.cal-day.selected {
+    background: var(--surface-hover);
+    border-color: var(--gold);
+    color: var(--gold);
+}
+.cal-day.other-month {
+    color: var(--text-muted);
+    opacity: 0.5;
+}
+.cal-day.has-note::after {
+    content: '';
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: #6ea88a;
+    position: absolute;
+    bottom: 5px;
+}
+
+/* Day note panel */
+.day-note-panel {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    display: none;
+}
+.day-note-panel.active { display: block; }
+.day-note-panel h4 {
+    font-family: 'Cormorant Garamond', serif;
+    color: var(--gold);
+    margin-bottom: 10px;
+    background: none;
+    -webkit-text-fill-color: var(--gold);
+}
+
+/* Save status */
+.save-status {
+    font-size: 0.75rem;
+    color: #6ea88a;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+.save-status.show { opacity: 1; }
+
+/* Notes list */
+.add-note-area {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+.note-title-input {
+    flex: 1;
+    min-width: 200px;
+    background: rgba(0,0,0,0.25);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 10px 16px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s;
+}
+[data-theme="light"] .note-title-input {
+    background: rgba(255,255,255,0.7);
+}
+.note-title-input:focus {
+    border-color: var(--gold);
+}
+
+.notes-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+.note-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+}
+.note-card:hover { border-color: var(--text-muted); }
+
+.note-card-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    cursor: pointer;
+    border-bottom: 1px solid transparent;
+}
+.note-card.open .note-card-header {
+    border-bottom-color: var(--border);
+}
+.note-card-title {
+    flex: 1;
+    font-size: 0.85rem;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: 500;
+}
+.note-card-date {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+}
+.note-toggle {
+    color: var(--text-muted);
+    font-size: 0.7rem;
+    transition: transform 0.2s;
+}
+.note-card.open .note-toggle { transform: rotate(180deg); }
+.note-delete {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0 4px;
+    transition: color 0.15s;
+}
+.note-delete:hover { color: #c47060; }
+
+.note-card-body {
+    display: none;
+    padding: 12px 14px;
+}
+.note-card.open .note-card-body { display: block; }
+.note-card-body textarea {
+    width: 100%;
+    min-height: 80px;
+    background: rgba(0,0,0,0.2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'DM Sans', monospace;
+    font-size: 0.8rem;
+    padding: 10px;
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.2s;
+}
+[data-theme="light"] .note-card-body textarea {
+    background: rgba(255,255,255,0.6);
+}
+.note-card-body textarea:focus { border-color: var(--gold); }
+.note-save-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 8px;
+}
+.note-save-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.75rem;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    transition: all 0.2s;
+}
+.note-save-btn:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+}
+
+.empty-state {
+    color: var(--text-muted);
+    text-align: center;
+    padding: 20px;
+    font-size: 0.85rem;
+    font-style: italic;
+}
     </style>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
@@ -1846,377 +2093,48 @@
         </div>
     </div>
 </div>
-         <!-- Планировщик -->
-<div class="tab-content" id="tab-planner">
-    <div class="glass-card" style="padding:0; overflow:hidden;">
-
-        <style>
-            .pl-wrap {
-                display: grid;
-                grid-template-columns: 1fr 320px;
-                min-height: 600px;
-            }
-            @media(max-width:900px){ .pl-wrap { grid-template-columns:1fr; } }
-
-            .pl-cal {
-                padding: 32px 36px;
-                border-right: 1px solid var(--border);
-            }
-            .pl-notes {
-                padding: 28px 24px;
-                display: flex;
-                flex-direction: column;
-                gap: 16px;
-                overflow-y: auto;
-                max-height: 700px;
-            }
-
-            /* шапка вкладки */
-            .pl-header {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                padding: 22px 32px 0;
-                flex-wrap: wrap;
-                gap: 10px;
-            }
-            .pl-header h2 {
-                font-family: 'Cormorant Garamond', serif;
-                font-size: 2rem;
-                font-style: italic;
-                background: var(--grad);
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-                background-clip: text;
-            }
-
-            /* навигация по месяцам */
-            .pl-nav {
-                display: flex;
-                align-items: center;
-                gap: 12px;
-                margin-bottom: 24px;
-            }
-            .pl-nav h3 {
-                font-family: 'Cormorant Garamond', serif;
-                font-size: 1.35rem;
-                font-weight: 600;
-                color: var(--text);
-                flex: 1;
-                text-align: center;
-                background: none;
-                -webkit-text-fill-color: var(--text);
-            }
-            .pl-nav-btn {
-                background: var(--surface);
-                border: 1px solid var(--border);
-                color: var(--text-muted);
-                width: 34px; height: 34px;
-                border-radius: 8px;
-                cursor: pointer;
-                font-size: 1rem;
-                display: flex; align-items: center; justify-content: center;
-                transition: all 0.2s;
-            }
-            .pl-nav-btn:hover { border-color: rgba(196,164,92,0.4); color: var(--gold); }
-
-            /* сетка календаря */
-            .pl-grid {
-                display: grid;
-                grid-template-columns: repeat(7, 1fr);
-                gap: 4px;
-            }
-            .pl-day-hdr {
-                text-align: center;
-                font-size: 0.63rem;
-                letter-spacing: 0.1em;
-                color: var(--text-muted);
-                padding: 6px 0;
-                text-transform: uppercase;
-            }
-            .pl-day {
-                aspect-ratio: 1;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                border-radius: 8px;
-                cursor: pointer;
-                font-size: 0.82rem;
-                position: relative;
-                border: 1px solid transparent;
-                transition: all 0.15s;
-                color: var(--text);
-                font-family: 'DM Sans', sans-serif;
-            }
-            .pl-day:hover:not(.pl-empty) {
-                background: var(--surface-hover);
-                border-color: var(--border);
-            }
-            .pl-day.pl-empty { cursor: default; }
-            .pl-day.pl-today {
-                border-color: rgba(196,164,92,0.5);
-                color: var(--gold);
-                font-weight: 600;
-            }
-            .pl-day.pl-selected {
-                background: var(--gold-dim);
-                border-color: rgba(196,164,92,0.5);
-                color: var(--gold2);
-            }
-            .pl-day.pl-has-note::after {
-                content: '';
-                width: 4px; height: 4px;
-                border-radius: 50%;
-                background: #6ea88a;
-                position: absolute;
-                bottom: 4px;
-            }
-            .pl-day.pl-other { color: var(--text-muted); opacity: 0.4; }
-
-            /* панель заметки на день */
-            .pl-day-panel {
-                display: none;
-                margin-top: 20px;
-                border-top: 1px solid var(--border);
-                padding-top: 18px;
-            }
-            .pl-day-panel.active { display: block; }
-            .pl-day-panel h4 {
-                font-family: 'Cormorant Garamond', serif;
-                font-size: 1.1rem;
-                color: var(--gold2);
-                margin-bottom: 10px;
-                font-weight: 600;
-            }
-            .pl-day-panel textarea {
-                width: 100%;
-                background: var(--surface);
-                border: 1px solid var(--border);
-                border-radius: 10px;
-                color: var(--text);
-                font-family: 'DM Sans', sans-serif;
-                font-size: 0.88rem;
-                line-height: 1.6;
-                padding: 12px 14px;
-                resize: vertical;
-                min-height: 100px;
-                outline: none;
-                transition: border-color 0.2s;
-            }
-            .pl-day-panel textarea:focus { border-color: rgba(196,164,92,0.5); }
-            .pl-day-panel textarea::placeholder { color: var(--text-muted); }
-            .pl-save-row {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                margin-top: 8px;
-            }
-            .pl-save-btn {
-                background: var(--gold-dim);
-                border: 1px solid rgba(196,164,92,0.3);
-                color: var(--gold2);
-                padding: 7px 18px;
-                border-radius: 8px;
-                font-family: 'DM Sans', sans-serif;
-                font-size: 0.78rem;
-                font-weight: 600;
-                letter-spacing: 0.06em;
-                text-transform: uppercase;
-                cursor: pointer;
-                transition: all 0.2s;
-            }
-            .pl-save-btn:hover { background: rgba(196,164,92,0.2); }
-            .pl-saved-msg {
-                font-size: 0.75rem;
-                color: #6ea88a;
-                opacity: 0;
-                transition: opacity 0.3s;
-            }
-            .pl-saved-msg.show { opacity: 1; }
-
-            /* правая панель — общие заметки */
-            .pl-notes-title {
-                font-family: 'Cormorant Garamond', serif;
-                font-size: 1.3rem;
-                font-weight: 600;
-                color: var(--text);
-                border-bottom: 1px solid var(--border);
-                padding-bottom: 10px;
-                background: none;
-                -webkit-text-fill-color: var(--text);
-            }
-            .pl-add-area { display: flex; flex-direction: column; gap: 8px; }
-            .pl-note-inp {
-                background: var(--surface);
-                border: 1px solid var(--border);
-                border-radius: 10px;
-                color: var(--text);
-                font-family: 'DM Sans', sans-serif;
-                font-size: 0.85rem;
-                padding: 10px 14px;
-                outline: none;
-                transition: border-color 0.2s;
-                width: 100%;
-            }
-            .pl-note-inp:focus { border-color: rgba(196,164,92,0.4); }
-            .pl-note-inp::placeholder { color: var(--text-muted); }
-            .pl-add-btn {
-                background: var(--gold-dim);
-                border: 1px solid rgba(196,164,92,0.25);
-                color: var(--gold);
-                padding: 9px;
-                border-radius: 8px;
-                font-family: 'DM Sans', sans-serif;
-                font-size: 0.78rem;
-                font-weight: 600;
-                letter-spacing: 0.06em;
-                text-transform: uppercase;
-                cursor: pointer;
-                transition: all 0.2s;
-            }
-            .pl-add-btn:hover { background: rgba(196,164,92,0.2); border-color: rgba(196,164,92,0.4); }
-
-            /* карточки заметок */
-            .pl-note-list { display: flex; flex-direction: column; gap: 8px; overflow-y: auto; }
-            .pl-note-card {
-                background: var(--surface);
-                border: 1px solid var(--border);
-                border-radius: 10px;
-                overflow: hidden;
-                transition: border-color 0.15s;
-            }
-            .pl-note-card:hover { border-color: rgba(196,164,92,0.2); }
-            .pl-note-hdr {
-                display: flex;
-                align-items: center;
-                padding: 9px 12px;
-                gap: 8px;
-                cursor: pointer;
-            }
-            .pl-note-card.open .pl-note-hdr { border-bottom: 1px solid var(--border); }
-            .pl-note-name {
-                flex: 1;
-                font-size: 0.83rem;
-                color: var(--text);
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                font-family: 'DM Sans', sans-serif;
-            }
-            .pl-note-dt {
-                font-size: 0.66rem;
-                color: var(--text-muted);
-                font-family: 'DM Sans', sans-serif;
-                white-space: nowrap;
-            }
-            .pl-note-arr {
-                color: var(--text-muted);
-                font-size: 0.7rem;
-                transition: transform 0.2s;
-            }
-            .pl-note-card.open .pl-note-arr { transform: rotate(180deg); }
-            .pl-note-del {
-                background: none;
-                border: none;
-                color: var(--text-muted);
-                cursor: pointer;
-                font-size: 0.82rem;
-                padding: 0 2px;
-                transition: color 0.15s;
-                line-height: 1;
-            }
-            .pl-note-del:hover { color: #e05c5c; }
-            .pl-note-body {
-                display: none;
-                padding: 10px 12px;
-            }
-            .pl-note-card.open .pl-note-body { display: block; }
-            .pl-note-body textarea {
-                width: 100%;
-                background: rgba(0,0,0,0.2);
-                border: 1px solid var(--border);
-                border-radius: 8px;
-                color: var(--text);
-                font-family: 'DM Sans', sans-serif;
-                font-size: 0.82rem;
-                line-height: 1.6;
-                padding: 10px 12px;
-                resize: vertical;
-                min-height: 70px;
-                outline: none;
-                transition: border-color 0.2s;
-            }
-            .pl-note-body textarea:focus { border-color: rgba(196,164,92,0.4); }
-            .pl-note-body textarea::placeholder { color: var(--text-muted); }
-            .pl-note-act {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                margin-top: 6px;
-            }
-            .pl-note-save {
-                background: none;
-                border: 1px solid var(--border);
-                color: var(--text-muted);
-                padding: 4px 12px;
-                border-radius: 6px;
-                font-family: 'DM Sans', sans-serif;
-                font-size: 0.72rem;
-                letter-spacing: 0.05em;
-                text-transform: uppercase;
-                cursor: pointer;
-                transition: all 0.15s;
-            }
-            .pl-note-save:hover { border-color: rgba(196,164,92,0.4); color: var(--gold); }
-            .pl-empty {
-                color: var(--text-muted);
-                font-size: 0.8rem;
-                text-align: center;
-                padding: 24px 0;
-                letter-spacing: 0.04em;
-                font-family: 'DM Sans', sans-serif;
-            }
-        </style>
-
-        <div class="pl-header">
-            <h2>Планировщик</h2>
+        <!-- Календарь и Заметки -->
+<div class="tab-content" id="tab-calendar">
+    <div class="glass-card">
+        <div class="header">
+            <h2>Календарь и заметки</h2>
             <button class="theme-btn" onclick="toggleTheme()">🌓 Тема</button>
         </div>
 
-        <div class="pl-wrap">
-            <!-- КАЛЕНДАРЬ -->
-            <div class="pl-cal">
-                <div class="pl-nav">
-                    <button class="pl-nav-btn" id="plPrev">←</button>
-                    <h3 id="plMonthLabel"></h3>
-                    <button class="pl-nav-btn" id="plNext">→</button>
-                </div>
-                <div class="pl-grid" id="plGrid"></div>
+        <div class="calendar-app">
+            <!-- Навигация по месяцам -->
+            <div class="cal-nav">
+                <button class="btn cal-nav-btn" id="prevMonth">←</button>
+                <h3 id="monthLabel" style="background:none; -webkit-text-fill-color: var(--text); color:var(--text);">Месяц</h3>
+                <button class="btn cal-nav-btn" id="nextMonth">→</button>
+            </div>
 
-                <div class="pl-day-panel" id="plDayPanel">
-                    <h4 id="plDayTitle"></h4>
-                    <textarea id="plDayText" placeholder="Заметка на этот день..."></textarea>
-                    <div class="pl-save-row">
-                        <button class="pl-save-btn" id="plSaveDayBtn">Сохранить</button>
-                        <span class="pl-saved-msg" id="plDaySaved">✓ сохранено</span>
-                    </div>
+            <!-- Сетка календаря -->
+            <div class="cal-grid" id="calGrid"></div>
+
+            <!-- Заметка на выбранный день -->
+            <div class="day-note-panel" id="dayNotePanel">
+                <h4 id="dayNoteTitle">Выберите день</h4>
+                <textarea id="dayNoteText" placeholder="Заметка на этот день..."></textarea>
+                <div style="display:flex; align-items:center; gap:1rem; margin-top:0.5rem;">
+                    <button class="btn" id="saveDayNote" style="width:auto; margin:0;">Сохранить</button>
+                    <span class="save-status" id="daySaveStatus">✓ сохранено</span>
                 </div>
             </div>
 
-            <!-- ЗАМЕТКИ -->
-            <div class="pl-notes">
-                <h3 class="pl-notes-title">Заметки</h3>
-                <div class="pl-add-area">
-                    <input class="pl-note-inp" id="plNoteInp" placeholder="Название заметки...">
-                    <button class="pl-add-btn" id="plAddNoteBtn">+ Добавить заметку</button>
-                </div>
-                <div class="pl-note-list" id="plNoteList"></div>
+            <div class="divider"></div>
+
+            <!-- Общие заметки -->
+            <h3 style="margin-bottom:1rem;">📝 Общие заметки</h3>
+            <div class="add-note-area">
+                <input class="note-title-input" id="newNoteTitle" placeholder="Название заметки..." />
+                <button class="btn" id="addNoteBtn" style="width:auto; margin:0;">+ Добавить заметку</button>
             </div>
+            <div class="notes-list" id="notesList"></div>
         </div>
-
     </div>
 </div>
+
         
         <!-- Калькулятор -->
         <div class="tab-content" id="tab-calc">
@@ -5545,7 +5463,234 @@ function init2048() {
     loadBestScore();
     initGame();
 }
-        
+        // --- Календарь и заметки ---
+function initCalendar() {
+    // ========== STORAGE ==========
+    const LS = {
+        get: (k, def = null) => {
+            try { const v = localStorage.getItem(k); return v !== null ? JSON.parse(v) : def; }
+            catch { return def; }
+        },
+        set: (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
+    };
+    const DAY_KEY = d => `day_note_${d}`;
+    const NOTES_KEY = 'general_notes';
+
+    // ========== CALENDAR ==========
+    let viewYear, viewMonth, selectedDate = null;
+    const MONTHS_RU = ['Январь','Февраль','Март','Апрель','Май','Июнь',
+                       'Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+    const DAYS_RU = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
+
+    function today() {
+        const d = new Date();
+        return [d.getFullYear(), d.getMonth(), d.getDate()];
+    }
+    function dateStr(y, m, d) {
+        return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    }
+
+    function renderCalendar() {
+        const [ty, tm, td] = today();
+        const firstDay = new Date(viewYear, viewMonth, 1).getDay();
+        const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+        const startOffset = (firstDay + 6) % 7;
+        const prevDays = new Date(viewYear, viewMonth, 0).getDate();
+
+        document.getElementById('monthLabel').textContent = `${MONTHS_RU[viewMonth]} ${viewYear}`;
+
+        const grid = document.getElementById('calGrid');
+        grid.innerHTML = '';
+
+        DAYS_RU.forEach(d => {
+            const el = document.createElement('div');
+            el.className = 'cal-day-header';
+            el.textContent = d;
+            grid.appendChild(el);
+        });
+
+        for (let i = startOffset - 1; i >= 0; i--) {
+            const d = prevDays - i;
+            const m = viewMonth - 1;
+            const y = m < 0 ? viewYear - 1 : viewYear;
+            addDayCell(grid, d, y, (m+12)%12, true, ty, tm, td);
+        }
+
+        for (let d = 1; d <= daysInMonth; d++) {
+            addDayCell(grid, d, viewYear, viewMonth, false, ty, tm, td);
+        }
+
+        const total = startOffset + daysInMonth;
+        const trailing = total % 7 === 0 ? 0 : 7 - (total % 7);
+        for (let d = 1; d <= trailing; d++) {
+            const m = viewMonth + 1;
+            const y = m > 11 ? viewYear + 1 : viewYear;
+            addDayCell(grid, d, y, m%12, true, ty, tm, td);
+        }
+    }
+
+    function addDayCell(grid, d, y, m, otherMonth, ty, tm, td) {
+        const ds = dateStr(y, m, d);
+        const hasNote = !!LS.get(DAY_KEY(ds));
+        const isToday = y === ty && m === tm && d === td;
+        const isSelected = ds === selectedDate;
+
+        const el = document.createElement('div');
+        el.className = 'cal-day' +
+            (otherMonth ? ' other-month' : '') +
+            (isToday ? ' today' : '') +
+            (isSelected ? ' selected' : '') +
+            (hasNote ? ' has-note' : '');
+        el.textContent = d;
+        el.dataset.date = ds;
+
+        if (!otherMonth) {
+            el.addEventListener('click', () => selectDay(ds, d, m, y));
+        }
+        grid.appendChild(el);
+    }
+
+    function selectDay(ds, d, m, y) {
+        selectedDate = ds;
+        renderCalendar();
+        const panel = document.getElementById('dayNotePanel');
+        panel.classList.add('active');
+        const months = ['января','февраля','марта','апреля','мая','июня',
+                        'июля','августа','сентября','октября','ноября','декабря'];
+        document.getElementById('dayNoteTitle').textContent = `${d} ${months[m]} ${y}`;
+        document.getElementById('dayNoteText').value = LS.get(DAY_KEY(ds), '');
+        document.getElementById('daySaveStatus').classList.remove('show');
+    }
+
+    document.getElementById('prevMonth').addEventListener('click', () => {
+        viewMonth--; if (viewMonth < 0) { viewMonth = 11; viewYear--; }
+        renderCalendar();
+    });
+    document.getElementById('nextMonth').addEventListener('click', () => {
+        viewMonth++; if (viewMonth > 11) { viewMonth = 0; viewYear++; }
+        renderCalendar();
+    });
+
+    document.getElementById('saveDayNote').addEventListener('click', () => {
+        if (!selectedDate) return;
+        const val = document.getElementById('dayNoteText').value;
+        if (val.trim()) LS.set(DAY_KEY(selectedDate), val);
+        else localStorage.removeItem(DAY_KEY(selectedDate));
+        renderCalendar();
+        const st = document.getElementById('daySaveStatus');
+        st.classList.add('show');
+        setTimeout(() => st.classList.remove('show'), 2000);
+    });
+
+    document.getElementById('dayNoteText').addEventListener('input', () => {
+        if (!selectedDate) return;
+        const val = document.getElementById('dayNoteText').value;
+        if (val.trim()) LS.set(DAY_KEY(selectedDate), val);
+        else localStorage.removeItem(DAY_KEY(selectedDate));
+        document.querySelectorAll('.cal-day').forEach(el => {
+            if (el.dataset.date === selectedDate) {
+                if (val.trim()) el.classList.add('has-note');
+                else el.classList.remove('has-note');
+            }
+        });
+    });
+
+    // ========== GENERAL NOTES ==========
+    let notes = LS.get(NOTES_KEY, []);
+    function saveNotes() { LS.set(NOTES_KEY, notes); }
+    function formatDate(ts) {
+        const d = new Date(ts);
+        return `${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')}.${d.getFullYear()}`;
+    }
+
+    function renderNotes() {
+        const list = document.getElementById('notesList');
+        list.innerHTML = '';
+        if (notes.length === 0) {
+            list.innerHTML = '<div class="empty-state">Нет заметок</div>';
+            return;
+        }
+        [...notes].reverse().forEach((note, revIdx) => {
+            const idx = notes.length - 1 - revIdx;
+            const card = document.createElement('div');
+            card.className = 'note-card';
+            const header = document.createElement('div');
+            header.className = 'note-card-header';
+            header.innerHTML = `
+                <span class="note-card-title">${escHtml(note.title || 'Без названия')}</span>
+                <span class="note-card-date">${formatDate(note.created)}</span>
+                <span class="note-toggle">▼</span>
+                <button class="note-delete" data-idx="${idx}">✕</button>
+            `;
+            const body = document.createElement('div');
+            body.className = 'note-card-body';
+            body.innerHTML = `
+                <textarea placeholder="Текст заметки...">${escHtml(note.content || '')}</textarea>
+                <div class="note-save-row">
+                    <button class="note-save-btn">Сохранить</button>
+                    <span class="save-status">✓ сохранено</span>
+                </div>
+            `;
+
+            header.querySelector('.note-toggle').addEventListener('click', e => {
+                e.stopPropagation();
+                card.classList.toggle('open');
+            });
+            header.querySelector('.note-card-title').addEventListener('click', () => card.classList.toggle('open'));
+            header.querySelector('.note-card-date').addEventListener('click', () => card.classList.toggle('open'));
+            header.querySelector('.note-delete').addEventListener('click', e => {
+                e.stopPropagation();
+                if (confirm('Удалить заметку?')) {
+                    notes.splice(idx, 1);
+                    saveNotes();
+                    renderNotes();
+                }
+            });
+
+            const ta = body.querySelector('textarea');
+            const saveBtn = body.querySelector('.note-save-btn');
+            const status = body.querySelector('.save-status');
+            saveBtn.addEventListener('click', () => {
+                notes[idx].content = ta.value;
+                saveNotes();
+                status.classList.add('show');
+                setTimeout(() => status.classList.remove('show'), 2000);
+            });
+            ta.addEventListener('blur', () => {
+                notes[idx].content = ta.value;
+                saveNotes();
+            });
+
+            card.appendChild(header);
+            card.appendChild(body);
+            list.appendChild(card);
+        });
+    }
+
+    function escHtml(s) {
+        return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    document.getElementById('addNoteBtn').addEventListener('click', () => {
+        const inp = document.getElementById('newNoteTitle');
+        const title = inp.value.trim() || 'Без названия';
+        notes.push({ title, content: '', created: Date.now() });
+        saveNotes();
+        inp.value = '';
+        renderNotes();
+        const cards = document.querySelectorAll('.note-card');
+        if (cards.length > 0) cards[0].classList.add('open');
+    });
+    document.getElementById('newNoteTitle').addEventListener('keydown', e => {
+        if (e.key === 'Enter') document.getElementById('addNoteBtn').click();
+    });
+
+    // Инициализация
+    const [y, m] = today();
+    viewYear = y; viewMonth = m;
+    renderCalendar();
+    renderNotes();
+}
         })();
     </script>
 
