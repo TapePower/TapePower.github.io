@@ -2762,6 +2762,8 @@ window.addEventListener('load', initOnlineCounter);
                     window._booksInit = true; }
                 if (tabName === 'films' && !window._filmsInit) { initFilms();
                     window._filmsInit = true; }
+                if (tabName === 'planner' && !window._plannerInit) { initPlanner();
+                    window._plannerInit = true; }
                 if (tabName === 'support' && !window._supportInit) { initSupport();
                     window._supportInit = true; }
                 if (tabName === 'graph' && graphChart) setTimeout(() => graphChart.resize(), 50);
