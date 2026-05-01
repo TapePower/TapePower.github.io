@@ -2705,7 +2705,45 @@ window.addEventListener('load', initOnlineCounter);
                 if (btn) btn.classList.add('active');
                 if (content) content.classList.add('active');
                 currentTab = tabName;
-                // Поиск по вкладкам
+
+                if (tabName === 'calc' && chart) setTimeout(() => chart.resize(), 50);
+                if (tabName === 'luck' && !window._wheelInit) { initWheel();
+                    window._wheelInit = true; }
+                if (tabName === 'password' && !window._passInit) { initPassword();
+                    window._passInit = true; }
+                if (tabName === 'time' && !window._timeInit) { initTimeTab();
+                    window._timeInit = true; }
+                if (tabName === 'translate' && !window._transInit) { initTranslate();
+                    window._transInit = true; }
+                if (tabName === 'ocr' && !window._ocrInit) { initOCR();
+                    window._ocrInit = true; }
+                if (tabName === 'quiz' && !window._quizInit) { initQuiz();
+                    window._quizInit = true; }
+                if (tabName === 'game' && !window._gameInit) { initGames();
+                    window._gameInit = true; }
+                if (tabName === 'quotes' && !window._quotesInit) { initQuotes();
+                    window._quotesInit = true; }
+                if (tabName === 'music' && !window._musicInit) { initMusic();
+                    window._musicInit = true; }
+                if (tabName === 'books' && !window._booksInit) { initBooks();
+                    window._booksInit = true; }
+                if (tabName === 'films' && !window._filmsInit) { initFilms();
+                    window._filmsInit = true; }
+                if (tabName === 'planner' && !window._plannerInit) { initPlanner();
+                    window._plannerInit = true; }
+                if (tabName === 'support' && !window._supportInit) { initSupport();
+                    window._supportInit = true; }
+                if (tabName === 'graph' && graphChart) setTimeout(() => graphChart.resize(), 50);
+            if (tabName === 'chat' && !window._chatInit) {
+    initChat();
+    window._chatInit = true;
+};
+            }
+                
+            tabBtns.forEach(btn => btn.addEventListener('click', () => switchTab(btn.getAttribute('data-tab'))));
+            document.querySelectorAll('.home-card').forEach(card => card.addEventListener('click', () => switchTab(
+                card.getAttribute('data-goto'))));
+                            // Поиск по вкладкам
 const tabSearch = document.getElementById('tabSearch');
 if (tabSearch) {
     tabSearch.addEventListener('input', function() {
@@ -2750,43 +2788,6 @@ if (tabSearch) {
         }
     });
 }
-                if (tabName === 'calc' && chart) setTimeout(() => chart.resize(), 50);
-                if (tabName === 'luck' && !window._wheelInit) { initWheel();
-                    window._wheelInit = true; }
-                if (tabName === 'password' && !window._passInit) { initPassword();
-                    window._passInit = true; }
-                if (tabName === 'time' && !window._timeInit) { initTimeTab();
-                    window._timeInit = true; }
-                if (tabName === 'translate' && !window._transInit) { initTranslate();
-                    window._transInit = true; }
-                if (tabName === 'ocr' && !window._ocrInit) { initOCR();
-                    window._ocrInit = true; }
-                if (tabName === 'quiz' && !window._quizInit) { initQuiz();
-                    window._quizInit = true; }
-                if (tabName === 'game' && !window._gameInit) { initGames();
-                    window._gameInit = true; }
-                if (tabName === 'quotes' && !window._quotesInit) { initQuotes();
-                    window._quotesInit = true; }
-                if (tabName === 'music' && !window._musicInit) { initMusic();
-                    window._musicInit = true; }
-                if (tabName === 'books' && !window._booksInit) { initBooks();
-                    window._booksInit = true; }
-                if (tabName === 'films' && !window._filmsInit) { initFilms();
-                    window._filmsInit = true; }
-                if (tabName === 'planner' && !window._plannerInit) { initPlanner();
-                    window._plannerInit = true; }
-                if (tabName === 'support' && !window._supportInit) { initSupport();
-                    window._supportInit = true; }
-                if (tabName === 'graph' && graphChart) setTimeout(() => graphChart.resize(), 50);
-            if (tabName === 'chat' && !window._chatInit) {
-    initChat();
-    window._chatInit = true;
-};
-            }
-                
-            tabBtns.forEach(btn => btn.addEventListener('click', () => switchTab(btn.getAttribute('data-tab'))));
-            document.querySelectorAll('.home-card').forEach(card => card.addEventListener('click', () => switchTab(
-                card.getAttribute('data-goto'))));
 
             // Калькулятор
             let chart = null;
