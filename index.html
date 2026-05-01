@@ -3460,6 +3460,7 @@ function initChat() {
                     if (currentWorker) {
                         try { currentWorker.terminate(); } catch(e) {}
                         currentWorker = null;
+                         fileInput.value = '';
                     }
                     selectedFile = null;
                     fileInput.value = '';
@@ -3538,9 +3539,12 @@ function initChat() {
                     if (e.target === removeImageBtn || removeImageBtn.contains(e.target)) return;
                     fileInput.click();
                 });
-
                 fileInput.addEventListener('change', (e) => {
-                    if (e.target.files && e.target.files[0]) handleFile(e.target.files[0]);
+                    if (e.target.files && e.target.files[0]) {
+                        handleFile(e.target.files[0]);
+                    }
+                    // Сброс, чтобы можно было выбрать тот же файл повторно
+                    e.target.value = '';
                 });
 
                 uploadZone.addEventListener('dragover', (e) => {
