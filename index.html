@@ -1539,6 +1539,226 @@
 }
 #chatSendBtn:hover { transform: scale(1.05); }
 #chatSendBtn:disabled { opacity: 0.4; cursor: not-allowed; }
+/* ===== КОНВЕРТЕР ВЕЛИЧИН ===== */
+.converter-wrapper {
+    margin-top: 10px;
+}
+
+/* Кнопки категорий */
+.category-scroll {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    justify-content: center;
+    margin: 10px 0 20px;
+    padding: 0 4px;
+}
+.cat-btn {
+    padding: 8px 14px;
+    border-radius: 22px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    cursor: pointer;
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--text);
+    transition: all 0.2s;
+    white-space: nowrap;
+    user-select: none;
+    font-family: 'DM Sans', sans-serif;
+}
+.cat-btn:hover {
+    border-color: var(--gold);
+    background: var(--surface-hover);
+    transform: translateY(-1px);
+}
+.cat-btn.active {
+    background: var(--gold-dim);
+    color: var(--gold2);
+    border-color: var(--gold);
+    font-weight: 600;
+    box-shadow: 0 2px 10px rgba(196,164,92,0.2);
+}
+.cat-btn .cat-icon {
+    margin-right: 5px;
+    font-size: 1rem;
+}
+
+/* Карточка */
+.converter-card {
+    background: var(--surface);
+    border-radius: 16px;
+    padding: 22px 18px 20px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+}
+.converter-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--gold);
+    margin-bottom: 16px;
+    text-align: center;
+    letter-spacing: 0.02em;
+    font-family: 'Cormorant Garamond', serif;
+}
+.converter-row {
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+.field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-width: 120px;
+    flex: 1;
+}
+.field-group label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.field-group select,
+.field-group input {
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    font-size: 0.9rem;
+    background: rgba(0,0,0,0.2);
+    color: var(--text);
+    transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+    width: 100%;
+    min-width: 100px;
+}
+[data-theme="light"] .field-group select,
+[data-theme="light"] .field-group input {
+    background: rgba(255,255,255,0.7);
+}
+.field-group select:focus,
+.field-group input:focus {
+    outline: none;
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(196,164,92,0.1);
+}
+.field-group input {
+    font-size: 1.1rem;
+    font-weight: 500;
+    text-align: center;
+}
+
+/* Кнопка swap */
+.swap-btn-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-bottom: 6px;
+}
+.swap-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    cursor: pointer;
+    font-size: 1.2rem;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--gold);
+    flex-shrink: 0;
+}
+.swap-btn:hover {
+    background: var(--gold-dim);
+    border-color: var(--gold);
+    transform: rotate(180deg);
+}
+
+/* Результат */
+.result-area {
+    text-align: center;
+    margin-top: 18px;
+    padding: 14px 18px;
+    background: var(--bg);
+    border-radius: 8px;
+    border: 1px dashed var(--border);
+    min-height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.result-label {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+.result-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--gold);
+    letter-spacing: 0.02em;
+    word-break: break-all;
+}
+.result-unit {
+    font-size: 0.95rem;
+    color: var(--text);
+    font-weight: 500;
+}
+
+/* Системы счисления */
+.numeral-info {
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 8px;
+}
+.numeral-info code {
+    background: var(--gold-dim);
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    color: var(--gold);
+}
+
+/* Ошибка */
+.error-msg {
+    color: #f87171;
+    text-align: center;
+    font-size: 0.85rem;
+    margin-top: 6px;
+    font-weight: 500;
+    display: none;
+}
+.error-msg.visible {
+    display: block;
+}
+
+/* Адаптив */
+@media (max-width: 600px) {
+    .converter-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+    .field-group {
+        min-width: auto;
+    }
+    .swap-btn-wrap {
+        padding: 4px 0;
+    }
+    .swap-btn {
+        width: 34px;
+        height: 34px;
+        font-size: 1rem;
+    }
+}
     </style>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
@@ -1631,6 +1851,7 @@
                     <button class="subtab-btn active" data-subtab="quadratic">📈 Квадратные уравнения</button>
                     <button class="subtab-btn" data-subtab="expression">🔢 Выражения</button>
                     <button class="subtab-btn" data-subtab="graph">📉 График</button>
+                    <button class="subtab-btn" data-subtab="converter">🔄 Конвертация</button>
                 </div>
                 <div class="subtab-content active" id="subtab-quadratic">
                     <div class="container">
@@ -1683,6 +1904,57 @@
                     <button class="btn" id="drawGraphBtn">Построить график</button>
                     <div class="chart-wrap" style="height:400px; margin-top:28px;"><canvas id="graphCanvas"></canvas></div>
                 </div>
+                <!-- Конвертер величин -->
+<div class="subtab-content" id="subtab-converter">
+    <div class="converter-wrapper">
+        <!-- Категории -->
+        <div class="category-scroll" id="convCategoryButtons">
+            <button class="cat-btn active" data-cat="length"><span class="cat-icon">📏</span>Длина</button>
+            <button class="cat-btn" data-cat="weight"><span class="cat-icon">⚖️</span>Вес</button>
+            <button class="cat-btn" data-cat="area"><span class="cat-icon">📐</span>Площадь</button>
+            <button class="cat-btn" data-cat="volume"><span class="cat-icon">🧪</span>Объём</button>
+            <button class="cat-btn" data-cat="speed"><span class="cat-icon">🚀</span>Скорость</button>
+            <button class="cat-btn" data-cat="temperature"><span class="cat-icon">🌡️</span>Температура</button>
+            <button class="cat-btn" data-cat="energy"><span class="cat-icon">⚡</span>Энергия</button>
+            <button class="cat-btn" data-cat="time"><span class="cat-icon">⏱️</span>Время</button>
+            <button class="cat-btn" data-cat="data"><span class="cat-icon">💾</span>Данные</button>
+            <button class="cat-btn" data-cat="angle"><span class="cat-icon">📐</span>Угол</button>
+            <button class="cat-btn" data-cat="currency"><span class="cat-icon">💱</span>Валюта</button>
+            <button class="cat-btn" data-cat="numeral"><span class="cat-icon">🔢</span>Системы</button>
+        </div>
+
+        <!-- Карточка конвертера -->
+        <div class="converter-card">
+            <div class="converter-title" id="convConverterTitle">Длина</div>
+            <div class="converter-row">
+                <div class="field-group">
+                    <label for="convUnitFrom">Из</label>
+                    <select id="convUnitFrom"></select>
+                </div>
+                <div class="swap-btn-wrap">
+                    <button class="swap-btn" id="convSwapBtn" title="Поменять местами">⇄</button>
+                </div>
+                <div class="field-group">
+                    <label for="convUnitTo">В</label>
+                    <select id="convUnitTo"></select>
+                </div>
+            </div>
+            <div class="converter-row" style="margin-top:14px;">
+                <div class="field-group" style="flex:2;">
+                    <label for="convInputValue">Значение</label>
+                    <input type="text" id="convInputValue" placeholder="Введите число" value="1">
+                </div>
+            </div>
+            <div class="result-area" id="convResultArea">
+                <span class="result-label">Результат:</span>
+                <span class="result-value" id="convResultValue">—</span>
+                <span class="result-unit" id="convResultUnit"></span>
+            </div>
+            <div class="error-msg" id="convErrorMsg"></div>
+            <div class="numeral-info" id="convNumeralInfo" style="display:none;"></div>
+        </div>
+    </div>
+</div>
             </div>
         </div>
 
@@ -2351,6 +2623,10 @@
             if (btn.dataset.subtab === 'game2048' && !window._game2048Init) {
                 init2048();
                 window._game2048Init = true;
+            }
+            if (btn.dataset.subtab === 'converter' && !window._convInit) {
+                initConverter();
+                window._convInit = true;
             }
         });
     });
@@ -3815,6 +4091,290 @@ function initCheckersExtended() {
                     };
                 }
             });
+            // --- Конвертер величин ---
+function initConverter() {
+    const conversionData = {
+        length: {
+            name: 'Длина', baseUnit: 'метр',
+            units: {
+                'миллиметр': { factor: 0.001, symbol: 'мм' },
+                'сантиметр': { factor: 0.01, symbol: 'см' },
+                'дециметр': { factor: 0.1, symbol: 'дм' },
+                'метр': { factor: 1, symbol: 'м' },
+                'километр': { factor: 1000, symbol: 'км' },
+                'дюйм': { factor: 0.0254, symbol: 'in' },
+                'фут': { factor: 0.3048, symbol: 'ft' },
+                'миля': { factor: 1609.344, symbol: 'mi' },
+            },
+        },
+        weight: {
+            name: 'Вес / Масса', baseUnit: 'грамм',
+            units: {
+                'миллиграмм': { factor: 0.001, symbol: 'мг' },
+                'грамм': { factor: 1, symbol: 'г' },
+                'килограмм': { factor: 1000, symbol: 'кг' },
+                'унция': { factor: 28.349523125, symbol: 'oz' },
+                'фунт': { factor: 453.59237, symbol: 'lb' },
+                'центнер': { factor: 100000, symbol: 'ц' },
+                'тонна': { factor: 1000000, symbol: 'т' },
+            },
+        },
+        area: {
+            name: 'Площадь', baseUnit: 'кв. метр',
+            units: {
+                'кв. миллиметр': { factor: 0.000001, symbol: 'мм²' },
+                'кв. сантиметр': { factor: 0.0001, symbol: 'см²' },
+                'кв. дециметр': { factor: 0.01, symbol: 'дм²' },
+                'кв. метр': { factor: 1, symbol: 'м²' },
+                'ар': { factor: 100, symbol: 'а' },
+                'гектар': { factor: 10000, symbol: 'га' },
+                'кв. километр': { factor: 1000000, symbol: 'км²' },
+                'акр': { factor: 4046.8564224, symbol: 'ac' },
+                'кв. дюйм': { factor: 0.00064516, symbol: 'in²' },
+                'кв. фут': { factor: 0.09290304, symbol: 'ft²' },
+                'кв. миля': { factor: 2589988.110336, symbol: 'mi²' },
+            },
+        },
+        volume: {
+            name: 'Объём', baseUnit: 'куб. метр',
+            units: {
+                'куб. сантиметр': { factor: 0.000001, symbol: 'см³' },
+                'куб. дециметр': { factor: 0.001, symbol: 'дм³' },
+                'куб. метр': { factor: 1, symbol: 'м³' },
+                'куб. километр': { factor: 1e9, symbol: 'км³' },
+                'чайная ложка': { factor: 4.92892159375e-6, symbol: 'ч.л.' },
+                'столовая ложка': { factor: 1.478676478125e-5, symbol: 'ст.л.' },
+                'чашка': { factor: 0.0002365882365, symbol: 'cup' },
+                'галлон': { factor: 0.003785411784, symbol: 'gal' },
+            },
+        },
+        speed: {
+            name: 'Скорость', baseUnit: 'метр/сек',
+            units: {
+                'метр/сек': { factor: 1, symbol: 'м/с' },
+                'км/час': { factor: 0.27777777778, symbol: 'км/ч' },
+                'миля/час': { factor: 0.44704, symbol: 'mph' },
+                'узел': { factor: 0.51444444444, symbol: 'уз' },
+            },
+        },
+        temperature: {
+            name: 'Температура', baseUnit: null,
+            units: {
+                'Цельсия': { symbol: '°C' },
+                'Фаренгейт': { symbol: '°F' },
+                'Кельвин': { symbol: 'K' },
+            },
+        },
+        energy: {
+            name: 'Энергия', baseUnit: 'джоуль',
+            units: {
+                'джоуль': { factor: 1, symbol: 'Дж' },
+                'калория': { factor: 4.184, symbol: 'кал' },
+                'килокалория': { factor: 4184, symbol: 'ккал' },
+                'килоджоуль': { factor: 1000, symbol: 'кДж' },
+                'киловатт-час': { factor: 3600000, symbol: 'кВт·ч' },
+                'ньютон-метр': { factor: 1, symbol: 'Н·м' },
+            },
+        },
+        time: {
+            name: 'Время', baseUnit: 'секунда',
+            units: {
+                'миллисекунда': { factor: 0.001, symbol: 'мс' },
+                'секунда': { factor: 1, symbol: 'с' },
+                'минута': { factor: 60, symbol: 'мин' },
+                'час': { factor: 3600, symbol: 'ч' },
+                'день': { factor: 86400, symbol: 'дн' },
+                'неделя': { factor: 604800, symbol: 'нед' },
+                'год': { factor: 31536000, symbol: 'г' },
+            },
+        },
+        data: {
+            name: 'Данные', baseUnit: 'байт',
+            units: {
+                'бит': { factor: 0.125, symbol: 'бит' },
+                'байт': { factor: 1, symbol: 'Б' },
+                'килобайт': { factor: 1024, symbol: 'КБ' },
+                'мегабайт': { factor: 1048576, symbol: 'МБ' },
+                'гигабайт': { factor: 1073741824, symbol: 'ГБ' },
+                'терабайт': { factor: 1099511627776, symbol: 'ТБ' },
+                'петабайт': { factor: 1125899906842624, symbol: 'ПБ' },
+            },
+        },
+        angle: {
+            name: 'Угол', baseUnit: 'радиан',
+            units: {
+                'градус': { factor: Math.PI / 180, symbol: '°' },
+                'радиан': { factor: 1, symbol: 'рад' },
+            },
+        },
+        currency: {
+            name: 'Валюта', baseUnit: 'USD',
+            units: {
+                'USD': { factor: 1, symbol: '$' },
+                'EUR': { factor: 0.92, symbol: '€' },
+                'RUB': { factor: 92, symbol: '₽' },
+                'GBP': { factor: 0.79, symbol: '£' },
+                'JPY': { factor: 150, symbol: '¥' },
+                'CNY': { factor: 7.24, symbol: '¥' },
+                // можно добавить остальные по желанию
+            },
+        },
+        numeral: {
+            name: 'Системы счисления', baseUnit: null,
+            units: {
+                'двоичная (2)': { base: 2, symbol: '₂' },
+                'восьмеричная (8)': { base: 8, symbol: '₈' },
+                'десятеричная (10)': { base: 10, symbol: '₁₀' },
+                'шестнадцатеричная (16)': { base: 16, symbol: '₁₆' },
+            },
+        },
+    };
+
+    const categoryButtons = document.getElementById('convCategoryButtons');
+    const converterTitle = document.getElementById('convConverterTitle');
+    const unitFrom = document.getElementById('convUnitFrom');
+    const unitTo = document.getElementById('convUnitTo');
+    const inputValue = document.getElementById('convInputValue');
+    const resultValue = document.getElementById('convResultValue');
+    const resultUnit = document.getElementById('convResultUnit');
+    const swapBtn = document.getElementById('convSwapBtn');
+    const errorMsg = document.getElementById('convErrorMsg');
+    const numeralInfo = document.getElementById('convNumeralInfo');
+
+    let currentCategory = 'length';
+
+    function populateUnits(category) {
+        const data = conversionData[category];
+        unitFrom.innerHTML = '';
+        unitTo.innerHTML = '';
+        const unitKeys = Object.keys(data.units);
+        unitKeys.forEach(key => {
+            unitFrom.appendChild(new Option(key, key));
+            unitTo.appendChild(new Option(key, key));
+        });
+        if (unitKeys.length >= 2) {
+            unitFrom.selectedIndex = 0;
+            unitTo.selectedIndex = Math.min(1, unitKeys.length - 1);
+        }
+    }
+
+    function performConversion() {
+        errorMsg.classList.remove('visible');
+        numeralInfo.style.display = 'none';
+        const rawValue = inputValue.value.trim();
+        const cat = currentCategory;
+        const data = conversionData[cat];
+        const fromU = unitFrom.value;
+        const toU = unitTo.value;
+
+        if (cat === 'numeral') {
+            const fromBase = data.units[fromU].base;
+            const regex = new RegExp('^[+-]?[' + (fromBase <= 10 ? '0-' + (fromBase - 1) : '0-9a-fA-F') + ']+$');
+            if (!regex.test(rawValue) && rawValue !== '') {
+                errorMsg.textContent = '⚠️ Недопустимые символы для ' + fromU;
+                errorMsg.classList.add('visible');
+                resultValue.textContent = '—';
+                resultUnit.textContent = '';
+                return;
+            }
+            const parsed = parseInt(rawValue || '0', fromBase);
+            if (isNaN(parsed)) {
+                errorMsg.textContent = '⚠️ Ошибка преобразования';
+                errorMsg.classList.add('visible');
+                resultValue.textContent = '—';
+                resultUnit.textContent = '';
+            } else {
+                const toBase = data.units[toU].base;
+                resultValue.textContent = parsed.toString(toBase).toUpperCase();
+                resultUnit.textContent = data.units[toU].symbol || '';
+                numeralInfo.style.display = 'block';
+                numeralInfo.innerHTML = `
+                    <span>Основание: <code>${fromBase}</code> → <code>${toBase}</code></span>
+                    &nbsp;|&nbsp;
+                    <span>Десятичный: <code>${parsed}</code></span>
+                `;
+            }
+            return;
+        }
+
+        if (cat === 'temperature') {
+            const val = parseFloat(rawValue);
+            if (isNaN(val)) {
+                errorMsg.textContent = '⚠️ Введите число';
+                errorMsg.classList.add('visible');
+                resultValue.textContent = '—';
+                resultUnit.textContent = '';
+                return;
+            }
+            let celsius;
+            if (fromU === 'Цельсия') celsius = val;
+            else if (fromU === 'Фаренгейт') celsius = (val - 32) * 5/9;
+            else if (fromU === 'Кельвин') celsius = val - 273.15;
+            else { errorMsg.textContent = 'Ошибка'; return; }
+
+            let result;
+            if (toU === 'Цельсия') result = celsius;
+            else if (toU === 'Фаренгейт') result = celsius * 9/5 + 32;
+            else if (toU === 'Кельвин') result = celsius + 273.15;
+            else { errorMsg.textContent = 'Ошибка'; return; }
+
+            resultValue.textContent = result.toPrecision(10);
+            resultUnit.textContent = data.units[toU].symbol || '';
+            return;
+        }
+
+        const val = parseFloat(rawValue);
+        if (isNaN(val)) {
+            errorMsg.textContent = '⚠️ Введите число';
+            errorMsg.classList.add('visible');
+            resultValue.textContent = '—';
+            resultUnit.textContent = '';
+            return;
+        }
+        const fromFactor = data.units[fromU].factor;
+        const toFactor = data.units[toU].factor;
+        const valueInBase = val * fromFactor;
+        const result = valueInBase / toFactor;
+        resultValue.textContent = Number(result.toPrecision(12)).toString();
+        resultUnit.textContent = data.units[toU].symbol || '';
+    }
+
+    function swapUnits() {
+        const temp = unitFrom.value;
+        unitFrom.value = unitTo.value;
+        unitTo.value = temp;
+        performConversion();
+    }
+
+    function switchCategory(cat) {
+        currentCategory = cat;
+        converterTitle.textContent = conversionData[cat].name;
+        populateUnits(cat);
+        inputValue.value = (cat === 'numeral') ? 'FF' : '1';
+        document.querySelectorAll('#convCategoryButtons .cat-btn').forEach(b => b.classList.remove('active'));
+        const activeBtn = document.querySelector(`#convCategoryButtons [data-cat="${cat}"]`);
+        if (activeBtn) activeBtn.classList.add('active');
+        numeralInfo.style.display = 'none';
+        errorMsg.classList.remove('visible');
+        performConversion();
+    }
+
+    // Events
+    categoryButtons.addEventListener('click', (e) => {
+        const btn = e.target.closest('.cat-btn');
+        if (!btn) return;
+        const cat = btn.dataset.cat;
+        if (cat && cat !== currentCategory) switchCategory(cat);
+    });
+
+    unitFrom.addEventListener('change', performConversion);
+    unitTo.addEventListener('change', performConversion);
+    inputValue.addEventListener('input', performConversion);
+    swapBtn.addEventListener('click', swapUnits);
+
+    // Init
+    switchCategory('length');
+}
             // --- Змейка ---
 function initSnake() {
     const canvas = document.getElementById('snakeCanvas');
