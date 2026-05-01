@@ -2141,10 +2141,15 @@
         <!-- Шашки -->
         <div class="subtab-content" id="subtab-checkers">
             <div class="checkers-layout">
-                <div class="checkers-board-col">
-                    <div id="checkersStatus" style="text-align:center; margin-bottom:14px; color:var(--gold); font-family:'Cormorant Garamond',serif; font-size:1.2rem;">Ход белых</div>
-                    <div id="checkersBoard" class="game-board"></div>
-                    <div style="display:flex; gap:10px; margin-top:16px;">
+<div class="checkers-board-col">
+    <div id="checkersStatus" style="text-align:center; margin-bottom:14px; color:var(--gold); font-family:'Cormorant Garamond',serif; font-size:1.2rem;">Ход белых</div>
+    <div style="padding: 24px 28px; display:inline-block;">
+        <div style="position:relative; display:inline-block;">
+            <div id="checkersBoard" class="game-board"></div>
+            <div id="checkersBoardLabels" style="position:absolute; inset:0; pointer-events:none;"></div>
+        </div>
+    </div>
+    <div style="display:flex; gap:10px; margin-top:16px;">
                         <button class="btn" id="resetCheckers">Новая игра</button>
                         <button class="btn" id="clearCheckersHistoryBtn">Очистить историю партий</button>
                     </div>
