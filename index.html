@@ -3629,6 +3629,13 @@ function initCheckers() {
     function loadGameHistory() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; } catch(e) { return []; } }
     function saveGameHistory(history) { localStorage.setItem(STORAGE_KEY, JSON.stringify(history)); }
 
+    function deleteGameFromHistory(index) {
+        const history = loadGameHistory();
+        history.splice(index, 1);
+        saveGameHistory(history);
+        renderGameHistory();
+    }
+
     function addGameToHistory(winner, moves, tc) {
         const history = loadGameHistory();
         history.push({
@@ -3649,24 +3656,45 @@ function initCheckers() {
             gameHistoryEl.innerHTML = '<div style="padding:8px; color:var(--text-muted);">Нет сохранённых партий</div>';
             return;
         }
-        gameHistoryEl.innerHTML = history.slice().reverse().map((g, idx) => {
+        gameHistoryEl.innerHTML = '';
+        history.slice().reverse().forEach((g, idx) => {
             const realIdx = history.length - 1 - idx;
             const movesHtml = g.moves && g.moves.length > 0
-                ? g.moves.map((m, i) => `<span style="margin-right:6px; color:var(--text-muted);">${i+1}.</span>${m}`).join('<br>')
+                ? g.moves.map((m, i) => `<span style="color:var(--text-muted);margin-right:4px;">${i+1}.</span>${m}`).join('<br>')
                 : '<span style="color:var(--text-muted);">Нет ходов</span>';
-            return `
-                <div class="game-entry" style="border-bottom:1px solid var(--border); padding:6px 0;">
-                    <div style="display:flex; justify-content:space-between; align-items:center; cursor:pointer;"
-                         onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display==='none' ? 'block' : 'none'">
-                        <span><b>${g.winner}</b> · ${g.timeControl === 0 ? 'без лимита' : g.timeControl + 'с'}</span>
-                        <span style="color:var(--text-muted); font-size:0.75rem;">${g.date} ▾</span>
+
+            const entry = document.createElement('div');
+            entry.style.cssText = 'border-bottom:1px solid var(--border); padding:6px 0;';
+            entry.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:center; gap:6px;">
+                    <div style="flex:1; cursor:pointer; display:flex; justify-content:space-between; align-items:center;"
+                         class="game-entry-toggle">
+                        <span style="font-size:0.82rem;"><b>${g.winner}</b> · ${g.timeControl === 0 ? 'без лимита' : g.timeControl + 'с'}</span>
+                        <span style="color:var(--text-muted); font-size:0.72rem;">${g.date} ▾</span>
                     </div>
-                    <div style="display:none; margin-top:6px; padding:8px; background:var(--surface);
-                                border-radius:8px; font-family:monospace; font-size:0.82rem; line-height:1.8;">
-                        ${movesHtml}
-                    </div>
+                    <button class="game-delete-btn" title="Удалить партию"
+                        style="background:none; border:none; color:#f87171; cursor:pointer; font-size:1rem;
+                               padding:2px 6px; border-radius:6px; transition:background 0.2s; flex-shrink:0;"
+                        onmouseover="this.style.background='rgba(248,113,113,0.12)'"
+                        onmouseout="this.style.background='none'">✕</button>
+                </div>
+                <div class="game-entry-moves" style="display:none; margin-top:6px; padding:8px;
+                     background:var(--surface); border-radius:8px; font-family:monospace;
+                     font-size:0.82rem; line-height:1.8;">
+                    ${movesHtml}
                 </div>`;
-        }).join('');
+
+            entry.querySelector('.game-entry-toggle').addEventListener('click', () => {
+                const movesDiv = entry.querySelector('.game-entry-moves');
+                movesDiv.style.display = movesDiv.style.display === 'none' ? 'block' : 'none';
+            });
+
+            entry.querySelector('.game-delete-btn').addEventListener('click', () => {
+                if (confirm('Удалить эту партию?')) deleteGameFromHistory(realIdx);
+            });
+
+            gameHistoryEl.appendChild(entry);
+        });
     }
 
     function resetMoveHistory() { moveHistory = []; currentMoveSequence = []; moveListEl.innerHTML = ''; }
@@ -3687,8 +3715,7 @@ function initCheckers() {
     }
     function startTimer() {
         if (timeControl === 0) { updateTimerDisplay(); return; }
-        stopTimer();
-        updateTimerDisplay();
+        stopTimer(); updateTimerDisplay();
         timerInterval = setInterval(() => {
             if (timeLeft > 0) { timeLeft--; updateTimerDisplay(); }
             if (timeLeft <= 0) {
@@ -3716,6 +3743,142 @@ function initCheckers() {
         };
     }
 
+    function getSqSize() {
+        const sq = checkersBoardEl.querySelector('.square');
+        return sq ? sq.getBoundingClientRect().width : 50;
+    }
+
+    function drawBoard() {
+        checkersBoardEl.innerHTML = '';
+        for (let r = 0; r < 8; r++) {
+            for (let c = 0; c < 8; c++) {
+                const sq = document.createElement('div');
+                sq.className = `square ${(r + c) % 2 === 0 ? 'light-sq' : 'dark-sq'}`;
+                sq.dataset.row = r; sq.dataset.col = c;
+                if (selectedCell && r === selectedCell.row && c === selectedCell.col)
+                    sq.classList.add('selected-cell');
+                const hm = highlightMoves.find(m => m.row === r && m.col === c);
+                if (hm) sq.classList.add(hm.capture ? 'highlight-capture' : 'highlight-move');
+                const piece = checkersBoard[r][c];
+                if (piece) {
+                    const el = document.createElement('div');
+                    el.className = `piece ${piece.startsWith('white') ? 'white-piece' : 'black-piece'}`;
+                    if (piece.endsWith('_king')) el.classList.add('king');
+                    sq.appendChild(el);
+                }
+                sq.addEventListener('click', () => onSquareClick(r, c));
+                checkersBoardEl.appendChild(sq);
+            }
+        }
+        requestAnimationFrame(() => renderLabels());
+    }
+
+    function renderLabels() {
+        // Удаляем старые подписи
+        const container = checkersBoardEl.parentElement;
+        container.querySelectorAll('.checkers-labels-wrap').forEach(el => el.remove());
+
+        const boardRect = checkersBoardEl.getBoundingClientRect();
+        const containerRect = container.getBoundingClientRect();
+        const sqSize = boardRect.width / 8;
+
+        const wrap = document.createElement('div');
+        wrap.className = 'checkers-labels-wrap';
+        wrap.style.cssText = `
+            position: absolute;
+            pointer-events: none;
+            left: ${checkersBoardEl.offsetLeft}px;
+            top: ${checkersBoardEl.offsetTop}px;
+            width: ${checkersBoardEl.offsetWidth}px;
+            height: ${checkersBoardEl.offsetHeight}px;
+        `;
+
+        const letters = ['a','b','c','d','e','f','g','h'];
+
+        // Буквы снизу
+        letters.forEach((l, i) => {
+            const el = document.createElement('div');
+            el.style.cssText = `
+                position:absolute;
+                bottom: -20px;
+                left: ${i * sqSize}px;
+                width: ${sqSize}px;
+                text-align: center;
+                font-size: 0.72rem;
+                font-weight: 600;
+                color: var(--text-muted);
+                font-family: 'DM Sans', sans-serif;
+                line-height: 20px;
+            `;
+            el.textContent = l;
+            wrap.appendChild(el);
+        });
+
+        // Буквы сверху
+        letters.forEach((l, i) => {
+            const el = document.createElement('div');
+            el.style.cssText = `
+                position:absolute;
+                top: -20px;
+                left: ${i * sqSize}px;
+                width: ${sqSize}px;
+                text-align: center;
+                font-size: 0.72rem;
+                font-weight: 600;
+                color: var(--text-muted);
+                font-family: 'DM Sans', sans-serif;
+                line-height: 20px;
+            `;
+            el.textContent = l;
+            wrap.appendChild(el);
+        });
+
+        // Цифры слева
+        for (let r = 0; r < 8; r++) {
+            const el = document.createElement('div');
+            el.style.cssText = `
+                position:absolute;
+                left: -20px;
+                top: ${r * sqSize}px;
+                width: 18px;
+                height: ${sqSize}px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 0.72rem;
+                font-weight: 600;
+                color: var(--text-muted);
+                font-family: 'DM Sans', sans-serif;
+            `;
+            el.textContent = 8 - r;
+            wrap.appendChild(el);
+        }
+
+        // Цифры справа
+        for (let r = 0; r < 8; r++) {
+            const el = document.createElement('div');
+            el.style.cssText = `
+                position:absolute;
+                right: -20px;
+                top: ${r * sqSize}px;
+                width: 18px;
+                height: ${sqSize}px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 0.72rem;
+                font-weight: 600;
+                color: var(--text-muted);
+                font-family: 'DM Sans', sans-serif;
+            `;
+            el.textContent = 8 - r;
+            wrap.appendChild(el);
+        }
+
+        container.style.position = 'relative';
+        container.appendChild(wrap);
+    }
+
     function setupBoard() {
         checkersBoard = [];
         for (let r = 0; r < 8; r++) {
@@ -3728,96 +3891,10 @@ function initCheckers() {
                 } else checkersBoard[r][c] = null;
             }
         }
-        currentTurn = 'white';
-        selectedCell = null;
-        forcedCapture = false;
-        highlightMoves = [];
-        checkForcedCapture();
-        drawBoard();
+        currentTurn = 'white'; selectedCell = null; forcedCapture = false; highlightMoves = [];
+        checkForcedCapture(); drawBoard();
         statusEl.textContent = 'Ход белых';
-        resetMoveHistory();
-        stopTimer();
-        timeLeft = timeControl;
-        resetTimerForNewTurn();
-    }
-
-    function drawBoard() {
-        // Обёртка с подписями
-        const wrapper = checkersBoardEl.parentElement;
-        let boardWrapper = wrapper.querySelector('.checkers-board-wrapper');
-        if (!boardWrapper) {
-            boardWrapper = document.createElement('div');
-            boardWrapper.className = 'checkers-board-wrapper';
-            boardWrapper.style.cssText = 'display:inline-block; position:relative;';
-            wrapper.insertBefore(boardWrapper, checkersBoardEl);
-            boardWrapper.appendChild(checkersBoardEl);
-        }
-
-        // Убираем старые подписи
-        boardWrapper.querySelectorAll('.board-label-row, .board-label-col').forEach(el => el.remove());
-
-        const sqSize = checkersBoardEl.querySelector ? 50 : 50; // размер клетки из CSS
-        const letters = ['a','b','c','d','e','f','g','h'];
-
-        // Горизонтальные подписи (буквы) — снизу и сверху
-        ['top','bottom'].forEach(pos => {
-            const row = document.createElement('div');
-            row.className = 'board-label-row';
-            row.style.cssText = `display:flex; justify-content:center; height:20px; margin-${pos === 'top' ? 'bottom' : 'top'}:2px;`;
-            // отступ под цифры слева
-            const spacer = document.createElement('div');
-            spacer.style.width = '20px';
-            row.appendChild(spacer);
-            letters.forEach(l => {
-                const el = document.createElement('div');
-                el.style.cssText = 'width:50px; text-align:center; font-size:0.75rem; color:var(--text-muted); font-weight:600; line-height:20px; font-family:"DM Sans",sans-serif;';
-                el.textContent = l;
-                row.appendChild(el);
-            });
-            if (pos === 'top') boardWrapper.insertBefore(row, checkersBoardEl);
-            else boardWrapper.appendChild(row);
-        });
-
-        // Вертикальные подписи (цифры) — слева и справа
-        ['left','right'].forEach(side => {
-            const col = document.createElement('div');
-            col.className = 'board-label-col';
-            col.style.cssText = `position:absolute; top:22px; ${side}:${side === 'left' ? '-20px' : 'auto'}; ${side === 'right' ? 'right:-20px' : ''}; display:flex; flex-direction:column;`;
-            for (let r = 0; r < 8; r++) {
-                const el = document.createElement('div');
-                el.style.cssText = 'width:18px; height:50px; display:flex; align-items:center; justify-content:center; font-size:0.75rem; color:var(--text-muted); font-weight:600; font-family:"DM Sans",sans-serif;';
-                el.textContent = 8 - r;
-                col.appendChild(el);
-            }
-            boardWrapper.appendChild(col);
-        });
-
-        // Сама доска
-        checkersBoardEl.innerHTML = '';
-        for (let r = 0; r < 8; r++) {
-            for (let c = 0; c < 8; c++) {
-                const sq = document.createElement('div');
-                sq.className = `square ${(r + c) % 2 === 0 ? 'light-sq' : 'dark-sq'}`;
-                sq.dataset.row = r; sq.dataset.col = c;
-
-                if (selectedCell && r === selectedCell.row && c === selectedCell.col)
-                    sq.classList.add('selected-cell');
-
-                const hm = highlightMoves.find(m => m.row === r && m.col === c);
-                if (hm) sq.classList.add(hm.capture ? 'highlight-capture' : 'highlight-move');
-
-                const piece = checkersBoard[r][c];
-                if (piece) {
-                    const el = document.createElement('div');
-                    el.className = `piece ${piece.startsWith('white') ? 'white-piece' : 'black-piece'}`;
-                    if (piece.endsWith('_king')) el.classList.add('king');
-                    sq.appendChild(el);
-                }
-
-                sq.addEventListener('click', () => onSquareClick(r, c));
-                checkersBoardEl.appendChild(sq);
-            }
-        }
+        resetMoveHistory(); stopTimer(); timeLeft = timeControl; resetTimerForNewTurn();
     }
 
     function checkForcedCapture() {
@@ -3836,7 +3913,6 @@ function initCheckers() {
         const isKing = piece.endsWith('_king');
         const opponent = piece.startsWith('white') ? 'black' : 'white';
         const captures = [];
-
         for (let dr = -1; dr <= 1; dr += 2) {
             for (let dc = -1; dc <= 1; dc += 2) {
                 let foundEnemy = false, enemyR = -1, enemyC = -1;
@@ -3861,10 +3937,8 @@ function initCheckers() {
     function getSimpleMoves(row, col) {
         const piece = checkersBoard[row][col];
         if (!piece) return [];
-        const isKing = piece.endsWith('_king');
-        const isWhite = piece.startsWith('white');
+        const isKing = piece.endsWith('_king'), isWhite = piece.startsWith('white');
         const moves = [];
-
         for (let dr = -1; dr <= 1; dr += 2) {
             for (let dc = -1; dc <= 1; dc += 2) {
                 if (!isKing && ((isWhite && dr !== -1) || (!isWhite && dr !== 1))) continue;
@@ -3911,8 +3985,7 @@ function initCheckers() {
         if (moves.length > 0) {
             selectedCell = { row, col };
             highlightMoves = moves.map(m => ({
-                row: m.toRow, col: m.toCol,
-                capture: !!m.capture,
+                row: m.toRow, col: m.toCol, capture: !!m.capture,
                 captureRow: m.captureRow, captureCol: m.captureCol
             }));
         } else { selectedCell = null; highlightMoves = []; }
@@ -3923,10 +3996,8 @@ function initCheckers() {
         const piece = checkersBoard[selectedCell.row][selectedCell.col];
         checkersBoard[toRow][toCol] = piece;
         checkersBoard[selectedCell.row][selectedCell.col] = null;
-
         if (piece === 'white' && toRow === 0) checkersBoard[toRow][toCol] = 'white_king';
         else if (piece === 'black' && toRow === 7) checkersBoard[toRow][toCol] = 'black_king';
-
         if (isCapture && captureRow !== undefined) checkersBoard[captureRow][captureCol] = null;
 
         const fromCell = cellName(selectedCell.row, selectedCell.col);
@@ -3978,9 +4049,12 @@ function initCheckers() {
         return false;
     }
 
+    // Перерисовываем подписи при изменении размера окна
+    window.addEventListener('resize', () => { if (checkersBoardEl.children.length > 0) renderLabels(); });
+
     document.getElementById('resetCheckers').addEventListener('click', () => showTimeModal(() => setupBoard()));
     document.getElementById('clearCheckersHistoryBtn').addEventListener('click', () => {
-        if (confirm('Удалить историю партий?')) clearGameHistory();
+        if (confirm('Удалить все партии?')) clearGameHistory();
     });
 
     renderGameHistory();
