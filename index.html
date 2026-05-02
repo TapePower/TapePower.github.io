@@ -2830,30 +2830,38 @@ if (tabName === 'dailygame') {
             document.querySelectorAll('.home-card').forEach(card => card.addEventListener('click', () => switchTab(
                 card.getAttribute('data-goto'))));
                             // Поиск по вкладкам
-// Поиск по вкладкам
 const tabSearch = document.getElementById('tabSearch');
 if (tabSearch) {
-    // Сбросить значение при фокусе чтобы браузер не подставлял пароли
-    tabSearch.addEventListener('focus', function() {
-        this.value = '';
-        this.setAttribute('readonly', 'readonly');
-        setTimeout(() => this.removeAttribute('readonly'), 100);
-    });
-
     tabSearch.addEventListener('input', function() {
         const query = this.value.trim().toLowerCase();
         const buttons = document.querySelectorAll('.tab-btn');
         let firstVisible = null;
+
         buttons.forEach(btn => {
             const text = btn.textContent.toLowerCase();
             const match = query === '' || text.includes(query);
             btn.classList.toggle('hidden-by-search', !match);
             if (match && !firstVisible) firstVisible = btn;
         });
+
+        // Если нажали Enter — активировать первую совпадающую вкладку
         if (query && firstVisible) {
             tabSearch.setAttribute('data-first', firstVisible.getAttribute('data-tab'));
         } else {
             tabSearch.removeAttribute('data-first');
+        }
+    });
+
+    tabSearch.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const target = this.getAttribute('data-first');
+            if (target) {
+                switchTab(target);
+                this.value = '';
+                this.dispatchEvent(new Event('input')); // обновить видимость
+                this.blur();
+            }
         }
     });
 
