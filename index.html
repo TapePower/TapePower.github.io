@@ -3148,7 +3148,12 @@ if (['chat', 'daily'].includes(tabName) && !currentUser) {
 };
             }
                 
-            tabBtns.forEach(btn => btn.addEventListener('click', () => switchTab(btn.getAttribute('data-tab'))));
+            tabBtns.forEach(btn => btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const tab = btn.getAttribute('data-tab');
+    if (!tab) return;
+    switchTab(tab);
+}));
             document.querySelectorAll('.home-card').forEach(card => card.addEventListener('click', () => switchTab(
                 card.getAttribute('data-goto'))));
                             // Поиск по вкладкам
