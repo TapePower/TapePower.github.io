@@ -6199,7 +6199,72 @@ function initPlanner() {
     renderNotes();
 }
 
-            // ═══════════════════════════════════════════
+
+<!-- AUTH MODAL -->
+<div class="auth-overlay" id="authOverlay">
+    <div class="auth-modal" id="authModal">
+        <button class="auth-close" id="authClose">✕</button>
+
+        <!-- Регистрация -->
+        <div id="authRegister">
+            <h2>Регистрация</h2>
+            <p class="auth-subtitle">Создайте аккаунт для доступа ко всем функциям</p>
+            <div class="auth-field">
+                <label>Никнейм (только латиница)</label>
+                <input type="text" id="regNickname" placeholder="cooluser123" maxlength="20" autocomplete="off">
+            </div>
+            <div class="auth-field">
+                <label>Email</label>
+                <input type="email" id="regEmail" placeholder="you@example.com" autocomplete="off">
+            </div>
+            <div class="auth-field">
+                <label>Пароль</label>
+                <input type="password" id="regPassword" placeholder="Минимум 6 символов">
+            </div>
+            <button class="auth-btn" id="regSubmitBtn">Создать аккаунт</button>
+            <div class="auth-error" id="regError"></div>
+            <div class="auth-success" id="regSuccess"></div>
+            <div class="auth-switch">Уже есть аккаунт? <span id="toLoginBtn">Войти</span></div>
+        </div>
+
+        <!-- Вход -->
+        <div id="authLogin" style="display:none;">
+            <h2>Вход</h2>
+            <p class="auth-subtitle">Рады вас видеть снова</p>
+            <div class="auth-field">
+                <label>Email</label>
+                <input type="email" id="loginEmail" placeholder="you@example.com" autocomplete="off">
+            </div>
+            <div class="auth-field">
+                <label>Пароль</label>
+                <input type="password" id="loginPassword" placeholder="Ваш пароль">
+            </div>
+            <button class="auth-btn" id="loginSubmitBtn">Войти</button>
+            <div style="text-align:center; margin-top:10px;">
+                <span style="font-size:0.78rem; color:var(--gold); cursor:pointer;" id="forgotPassBtn">Забыли пароль?</span>
+            </div>
+            <div class="auth-error" id="loginError"></div>
+            <div class="auth-success" id="loginSuccess"></div>
+            <div class="auth-switch">Нет аккаунта? <span id="toRegBtn">Зарегистрироваться</span></div>
+        </div>
+
+        <!-- Сброс пароля -->
+        <div id="authReset" style="display:none;">
+            <h2>Сброс пароля</h2>
+            <p class="auth-subtitle">Отправим ссылку на вашу почту</p>
+            <div class="auth-field">
+                <label>Email</label>
+                <input type="email" id="resetEmail" placeholder="you@example.com">
+            </div>
+            <button class="auth-btn" id="resetSubmitBtn">Отправить ссылку</button>
+            <div class="auth-error" id="resetError"></div>
+            <div class="auth-success" id="resetSuccess"></div>
+            <div class="auth-switch"><span id="backToLoginBtn">← Назад ко входу</span></div>
+        </div>
+    </div>
+</div>
+
+                        // ═══════════════════════════════════════════
 // AUTH SYSTEM
 // ═══════════════════════════════════════════
 let currentUser = null;
@@ -6947,68 +7012,5 @@ window.addEventListener('load', () => {
             <button class="btn" id="startCheckersGameBtn" style="margin-top:20px;">Начать игру</button>
         </div>
     </div>
-<!-- AUTH MODAL -->
-<div class="auth-overlay" id="authOverlay">
-    <div class="auth-modal" id="authModal">
-        <button class="auth-close" id="authClose">✕</button>
-
-        <!-- Регистрация -->
-        <div id="authRegister">
-            <h2>Регистрация</h2>
-            <p class="auth-subtitle">Создайте аккаунт для доступа ко всем функциям</p>
-            <div class="auth-field">
-                <label>Никнейм (только латиница)</label>
-                <input type="text" id="regNickname" placeholder="cooluser123" maxlength="20" autocomplete="off">
-            </div>
-            <div class="auth-field">
-                <label>Email</label>
-                <input type="email" id="regEmail" placeholder="you@example.com" autocomplete="off">
-            </div>
-            <div class="auth-field">
-                <label>Пароль</label>
-                <input type="password" id="regPassword" placeholder="Минимум 6 символов">
-            </div>
-            <button class="auth-btn" id="regSubmitBtn">Создать аккаунт</button>
-            <div class="auth-error" id="regError"></div>
-            <div class="auth-success" id="regSuccess"></div>
-            <div class="auth-switch">Уже есть аккаунт? <span id="toLoginBtn">Войти</span></div>
-        </div>
-
-        <!-- Вход -->
-        <div id="authLogin" style="display:none;">
-            <h2>Вход</h2>
-            <p class="auth-subtitle">Рады вас видеть снова</p>
-            <div class="auth-field">
-                <label>Email</label>
-                <input type="email" id="loginEmail" placeholder="you@example.com" autocomplete="off">
-            </div>
-            <div class="auth-field">
-                <label>Пароль</label>
-                <input type="password" id="loginPassword" placeholder="Ваш пароль">
-            </div>
-            <button class="auth-btn" id="loginSubmitBtn">Войти</button>
-            <div style="text-align:center; margin-top:10px;">
-                <span style="font-size:0.78rem; color:var(--gold); cursor:pointer;" id="forgotPassBtn">Забыли пароль?</span>
-            </div>
-            <div class="auth-error" id="loginError"></div>
-            <div class="auth-success" id="loginSuccess"></div>
-            <div class="auth-switch">Нет аккаунта? <span id="toRegBtn">Зарегистрироваться</span></div>
-        </div>
-
-        <!-- Сброс пароля -->
-        <div id="authReset" style="display:none;">
-            <h2>Сброс пароля</h2>
-            <p class="auth-subtitle">Отправим ссылку на вашу почту</p>
-            <div class="auth-field">
-                <label>Email</label>
-                <input type="email" id="resetEmail" placeholder="you@example.com">
-            </div>
-            <button class="auth-btn" id="resetSubmitBtn">Отправить ссылку</button>
-            <div class="auth-error" id="resetError"></div>
-            <div class="auth-success" id="resetSuccess"></div>
-            <div class="auth-switch"><span id="backToLoginBtn">← Назад ко входу</span></div>
-        </div>
-    </div>
-</div>
 </body>
 </html>
