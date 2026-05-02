@@ -2051,9 +2051,400 @@
     font-size: 0.85rem;
     font-style: italic;
 }
+        /* ═══ AUTH SYSTEM ═══ */
+.auth-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    backdrop-filter: blur(16px);
+    z-index: 99999;
+    align-items: center;
+    justify-content: center;
+}
+.auth-overlay.active { display: flex; }
+
+.auth-modal {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 44px 40px;
+    width: 100%;
+    max-width: 420px;
+    position: relative;
+    box-shadow: 0 40px 100px rgba(0,0,0,0.8);
+    animation: authFadeIn 0.35s ease;
+}
+@keyframes authFadeIn {
+    from { opacity:0; transform: translateY(20px) scale(0.97); }
+    to   { opacity:1; transform: translateY(0) scale(1); }
+}
+.auth-modal::before {
+    content:'';
+    position:absolute;
+    top:0; left:0; right:0;
+    height:1px;
+    background: linear-gradient(90deg, transparent, rgba(196,164,92,0.5), transparent);
+}
+.auth-modal h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2rem;
+    font-style: italic;
+    text-align: center;
+    margin-bottom: 6px;
+    background: var(--grad);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+.auth-subtitle {
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 28px;
+    letter-spacing: 0.04em;
+}
+.auth-field { margin-bottom: 14px; }
+.auth-field label {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+}
+.auth-field input {
+    width: 100%;
+    padding: 13px 16px;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    outline: none;
+    transition: all 0.2s;
+}
+.auth-field input:focus {
+    border-color: rgba(196,164,92,0.5);
+    box-shadow: 0 0 0 3px rgba(196,164,92,0.08);
+}
+.auth-field input::placeholder { color: var(--text-muted); }
+
+.auth-btn {
+    width: 100%;
+    padding: 14px;
+    margin-top: 8px;
+    background: var(--grad-subtle);
+    border: 1px solid rgba(196,164,92,0.35);
+    border-radius: 12px;
+    color: var(--gold2);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.25s;
+}
+.auth-btn:hover {
+    border-color: rgba(196,164,92,0.6);
+    box-shadow: 0 8px 24px rgba(196,164,92,0.15);
+    transform: translateY(-1px);
+}
+.auth-btn:disabled { opacity:0.5; cursor:not-allowed; transform:none; }
+
+.auth-switch {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+}
+.auth-switch span {
+    color: var(--gold);
+    cursor: pointer;
+    font-weight: 600;
+    transition: color 0.2s;
+}
+.auth-switch span:hover { color: var(--gold2); }
+
+.auth-error {
+    background: rgba(220,80,80,0.1);
+    border: 1px solid rgba(220,80,80,0.25);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 0.82rem;
+    color: #f87171;
+    margin-top: 12px;
+    display: none;
+    text-align: center;
+}
+.auth-error.show { display: block; }
+
+.auth-success {
+    background: rgba(46,180,100,0.1);
+    border: 1px solid rgba(46,180,100,0.25);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 0.82rem;
+    color: #4ade80;
+    margin-top: 12px;
+    display: none;
+    text-align: center;
+}
+.auth-success.show { display: block; }
+
+.auth-close {
+    position: absolute;
+    top: 16px; right: 18px;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: color 0.2s;
+    line-height: 1;
+}
+.auth-close:hover { color: var(--text); }
+
+/* Кнопка профиля в шапке */
+.auth-nav-btn {
+    background: var(--gold-dim);
+    border: 1px solid rgba(196,164,92,0.25);
+    color: var(--gold);
+    padding: 7px 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 0.78rem;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+.auth-nav-btn:hover { background: rgba(196,164,92,0.2); }
+
+/* Иконка замка на защищённых вкладках */
+.tab-btn .lock-icon {
+    font-size: 0.7rem;
+    opacity: 0.6;
+    margin-left: 3px;
+}
+
+/* ═══ DAILY GAME ═══ */
+.dg-locked {
+    text-align: center;
+    padding: 60px 20px;
+}
+.dg-locked .lock-big { font-size: 3rem; margin-bottom: 16px; }
+.dg-locked p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    margin-bottom: 24px;
+    line-height: 1.6;
+}
+
+.dg-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+.dg-meta { font-size: 0.8rem; color: var(--text-muted); letter-spacing: 0.04em; }
+.dg-streak { color: var(--gold); font-weight: 600; }
+
+/* Wordle */
+.wordle-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: center;
+    margin: 20px 0;
+}
+.wordle-row {
+    display: flex;
+    gap: 6px;
+}
+.wordle-cell {
+    width: 52px; height: 52px;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    font-weight: 700;
+    font-family: 'DM Sans', sans-serif;
+    text-transform: uppercase;
+    transition: all 0.15s;
+    color: var(--text);
+}
+.wordle-cell.correct { background: rgba(46,180,100,0.25); border-color: #4ade80; color: #4ade80; }
+.wordle-cell.present { background: rgba(234,179,8,0.2); border-color: #eab308; color: #eab308; }
+.wordle-cell.absent  { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.1); color: var(--text-muted); }
+.wordle-cell.active  { border-color: rgba(196,164,92,0.5); }
+
+.wordle-keyboard {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: center;
+    margin-top: 16px;
+}
+.wordle-kb-row { display: flex; gap: 5px; }
+.wk-btn {
+    min-width: 34px; height: 44px;
+    padding: 0 8px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 600;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+.wk-btn:hover { background: var(--surface-hover); }
+.wk-btn.correct { background: rgba(46,180,100,0.25); border-color: #4ade80; color: #4ade80; }
+.wk-btn.present { background: rgba(234,179,8,0.2); border-color: #eab308; color: #eab308; }
+.wk-btn.absent  { background: rgba(255,255,255,0.04); color: var(--text-muted); }
+
+/* Math game */
+.math-display {
+    text-align: center;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 3.5rem;
+    font-style: italic;
+    color: var(--gold);
+    margin: 30px 0 20px;
+    letter-spacing: 0.02em;
+}
+.math-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    max-width: 400px;
+    margin: 0 auto;
+}
+.math-opt {
+    padding: 18px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    color: var(--text);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.6rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+}
+.math-opt:hover { background: var(--gold-dim); border-color: rgba(196,164,92,0.3); }
+.math-opt.correct { background: rgba(46,180,100,0.2); border-color: #4ade80; color: #4ade80; }
+.math-opt.wrong   { background: rgba(220,80,80,0.12); border-color: rgba(220,80,80,0.3); color: #f87171; }
+
+/* Logic game */
+.logic-question {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.5rem;
+    text-align: center;
+    line-height: 1.5;
+    color: var(--text);
+    margin: 20px 0;
+    font-style: italic;
+}
+.logic-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 480px;
+    margin: 0 auto;
+}
+.logic-opt {
+    padding: 14px 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.92rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+}
+.logic-opt:hover { background: var(--gold-dim); border-color: rgba(196,164,92,0.3); }
+.logic-opt.correct { background: rgba(46,180,100,0.2); border-color: #4ade80; color: #4ade80; }
+.logic-opt.wrong   { background: rgba(220,80,80,0.12); border-color: rgba(220,80,80,0.3); color: #f87171; }
+
+/* Результат игры */
+.dg-result {
+    text-align: center;
+    padding: 30px 20px;
+}
+.dg-result .result-emoji { font-size: 3rem; margin-bottom: 12px; }
+.dg-result h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.8rem;
+    margin-bottom: 8px;
+}
+.dg-result p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px; }
+.dg-score-badge {
+    display: inline-block;
+    padding: 8px 24px;
+    background: var(--gold-dim);
+    border: 1px solid rgba(196,164,92,0.3);
+    border-radius: 100px;
+    color: var(--gold2);
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+}
+
+/* Рейтинг */
+.leaderboard {
+    margin-top: 28px;
+    border-top: 1px solid var(--border);
+    padding-top: 20px;
+}
+.lb-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.3rem;
+    color: var(--gold);
+    margin-bottom: 14px;
+    text-align: center;
+}
+.lb-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    margin-bottom: 6px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    font-size: 0.88rem;
+    transition: all 0.2s;
+}
+.lb-row.me { border-color: rgba(196,164,92,0.3); background: var(--gold-dim); }
+.lb-rank { font-weight: 700; color: var(--text-muted); min-width: 24px; }
+.lb-rank.gold   { color: #ffd700; }
+.lb-rank.silver { color: #c0c0c0; }
+.lb-rank.bronze { color: #cd7f32; }
+.lb-name { flex: 1; color: var(--text); font-weight: 500; }
+.lb-score { color: var(--gold); font-weight: 700; }
+.lb-streak { color: var(--text-muted); font-size: 0.78rem; }
+
+@media(max-width:600px) {
+    .auth-modal { padding: 32px 24px; margin: 0 16px; }
+    .wordle-cell { width: 42px; height: 42px; font-size: 1.1rem; }
+    .wk-btn { min-width: 28px; height: 38px; font-size: 0.72rem; }
+}
     </style>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 </head>
 <body data-theme="dark" oncontextmenu="return false;">
 
@@ -2065,7 +2456,9 @@
                 <span class="search-icon">🔍</span>
                 <input type="text" id="tabSearch" class="tab-search-input" placeholder="Поиск вкладки... (Ctrl+K)">
             </div>
+            <button class="auth-nav-btn" id="authNavBtn" onclick="openAuth()">🔑 Войти</button>
             <button class="tab-btn active" data-tab="home">🏠 Главная</button>
+            <button class="tab-btn" data-tab="daily">🧩 Игра дня<span class="lock-icon">🔒</span></button>
             <button class="tab-btn" data-tab="chat">💬 Чат</button>
             <button class="tab-btn" data-tab="planner">📅 Планировщик</button>
             <button class="tab-btn" data-tab="calc">🧮 Калькулятор</button>
@@ -2093,6 +2486,7 @@
                 </div>
                 <div class="divider"></div>
                 <div class="home-grid">
+                    <div class="home-card" data-goto="daily"><span class="icon">🧩</span><div class="title">Игра дня</div><div class="desc">Ежедневный вызов · рейтинг</div></div>
                     <div class="home-card" data-goto="chat"><span class="icon">💬</span><div class="title">Общий чат</div><div class="desc">Общение с посетителями</div></div>
                     <div class="home-card" data-goto="planner"><span class="icon">📅</span><div class="title">Планировщик</div><div class="desc">Календарь и заметки</div></div>
                     <div class="home-card" data-goto="calc"><span class="icon">🧮</span><div class="title">Калькулятор</div><div class="desc">Уравнения и графики</div></div>
@@ -2112,6 +2506,13 @@
                 </div>
             </div>
         </div>
+        <!-- Игра дня -->
+<div class="tab-content" id="tab-daily">
+    <div class="glass-card">
+        <div class="header"><h2>Игра дня</h2><button class="theme-btn" onclick="toggleTheme()">🌓 Тема</button></div>
+        <div id="dailyGameRoot"></div>
+    </div>
+</div>
 
         <!-- Общий чат -->
 <div class="tab-content" id="tab-chat">
@@ -5825,5 +6226,68 @@ function initPlanner() {
             <button class="btn" id="startCheckersGameBtn" style="margin-top:20px;">Начать игру</button>
         </div>
     </div>
+<!-- AUTH MODAL -->
+<div class="auth-overlay" id="authOverlay">
+    <div class="auth-modal" id="authModal">
+        <button class="auth-close" id="authClose">✕</button>
+
+        <!-- Регистрация -->
+        <div id="authRegister">
+            <h2>Регистрация</h2>
+            <p class="auth-subtitle">Создайте аккаунт для доступа ко всем функциям</p>
+            <div class="auth-field">
+                <label>Никнейм (только латиница)</label>
+                <input type="text" id="regNickname" placeholder="cooluser123" maxlength="20" autocomplete="off">
+            </div>
+            <div class="auth-field">
+                <label>Email</label>
+                <input type="email" id="regEmail" placeholder="you@example.com" autocomplete="off">
+            </div>
+            <div class="auth-field">
+                <label>Пароль</label>
+                <input type="password" id="regPassword" placeholder="Минимум 6 символов">
+            </div>
+            <button class="auth-btn" id="regSubmitBtn">Создать аккаунт</button>
+            <div class="auth-error" id="regError"></div>
+            <div class="auth-success" id="regSuccess"></div>
+            <div class="auth-switch">Уже есть аккаунт? <span id="toLoginBtn">Войти</span></div>
+        </div>
+
+        <!-- Вход -->
+        <div id="authLogin" style="display:none;">
+            <h2>Вход</h2>
+            <p class="auth-subtitle">Рады вас видеть снова</p>
+            <div class="auth-field">
+                <label>Email</label>
+                <input type="email" id="loginEmail" placeholder="you@example.com" autocomplete="off">
+            </div>
+            <div class="auth-field">
+                <label>Пароль</label>
+                <input type="password" id="loginPassword" placeholder="Ваш пароль">
+            </div>
+            <button class="auth-btn" id="loginSubmitBtn">Войти</button>
+            <div style="text-align:center; margin-top:10px;">
+                <span style="font-size:0.78rem; color:var(--gold); cursor:pointer;" id="forgotPassBtn">Забыли пароль?</span>
+            </div>
+            <div class="auth-error" id="loginError"></div>
+            <div class="auth-success" id="loginSuccess"></div>
+            <div class="auth-switch">Нет аккаунта? <span id="toRegBtn">Зарегистрироваться</span></div>
+        </div>
+
+        <!-- Сброс пароля -->
+        <div id="authReset" style="display:none;">
+            <h2>Сброс пароля</h2>
+            <p class="auth-subtitle">Отправим ссылку на вашу почту</p>
+            <div class="auth-field">
+                <label>Email</label>
+                <input type="email" id="resetEmail" placeholder="you@example.com">
+            </div>
+            <button class="auth-btn" id="resetSubmitBtn">Отправить ссылку</button>
+            <div class="auth-error" id="resetError"></div>
+            <div class="auth-success" id="resetSuccess"></div>
+            <div class="auth-switch"><span id="backToLoginBtn">← Назад ко входу</span></div>
+        </div>
+    </div>
+</div>
 </body>
 </html>
