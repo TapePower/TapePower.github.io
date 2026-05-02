@@ -3140,6 +3140,7 @@ if (['chat', 'daily'].includes(tabName) && !currentUser) {
                     window._plannerInit = true; }
                 if (tabName === 'support' && !window._supportInit) { initSupport();
                     window._supportInit = true; }
+                if (tabName === 'daily') { initDailyGame(); }
                 if (tabName === 'graph' && graphChart) setTimeout(() => graphChart.resize(), 50);
             if (tabName === 'chat' && !window._chatInit) {
     initChat();
