@@ -3098,10 +3098,11 @@ window.addEventListener('load', initOnlineCounter);
             const tabContents = document.querySelectorAll('.tab-content');
             let currentTab = 'home';
             window.switchTab = function(tabName) {
+                 if (!tabName) return;
                 // Проверка авторизации для защищённых вкладок
 if (['chat', 'daily'].includes(tabName) && !currentUser) {
-    showToast('🔒 Войдите в аккаунт для доступа');
-    openAuth('login');
+    if (typeof showToast === 'function') showToast('🔒 Войдите в аккаунт для доступа');
+    if (typeof openAuth === 'function') openAuth('login');
     return;
 }
                 if (tabName === currentTab) return;
