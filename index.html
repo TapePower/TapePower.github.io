@@ -4104,6 +4104,718 @@ function initChat() {
 
                 recognizeBtn.disabled = true;
             }
+            // ═══════════════════════════════════════════
+// AUTH SYSTEM
+// ═══════════════════════════════════════════
+let currentUser = null;
+let authDb = null;
+let authFirebase = null;
+
+function initAuth() {
+    const firebaseConfig = {
+        apiKey: "AIzaSyDcVfTtrCgF0uaeNeQJeIYITn32tFy9gK0",
+        authDomain: "tapepower-3fa61.firebaseapp.com",
+        databaseURL: "https://tapepower-3fa61-default-rtdb.firebaseio.com"
+    };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    authDb = firebase.database();
+
+    firebase.auth().onAuthStateChanged(async (user) => {
+        if (user) {
+            if (!user.emailVerified) {
+                // не подтверждён — показываем сообщение
+                currentUser = null;
+                updateAuthUI(null);
+                return;
+            }
+            // Загружаем nickname из БД
+            const snap = await authDb.ref('users/' + user.uid + '/nickname').once('value');
+            const nickname = snap.val() || user.email.split('@')[0];
+            currentUser = { uid: user.uid, email: user.email, nickname };
+            updateAuthUI(currentUser);
+        } else {
+            currentUser = null;
+            updateAuthUI(null);
+        }
+    });
+}
+
+function updateAuthUI(user) {
+    const btn = document.getElementById('authNavBtn');
+    if (!btn) return;
+    if (user) {
+        btn.textContent = '👤 ' + user.nickname;
+        btn.onclick = showUserMenu;
+    } else {
+        btn.textContent = '🔑 Войти';
+        btn.onclick = openAuth;
+    }
+    // Обновляем иконки замка
+    document.querySelectorAll('.tab-btn[data-tab="chat"], .tab-btn[data-tab="daily"]').forEach(b => {
+        const lock = b.querySelector('.lock-icon');
+        if (lock) lock.style.display = user ? 'none' : '';
+    });
+}
+
+function showUserMenu() {
+    if (!currentUser) return;
+    const actions = confirm(`Аккаунт: ${currentUser.nickname}\n${currentUser.email}\n\nНажмите OK для выхода из аккаунта`);
+    if (actions) {
+        firebase.auth().signOut().then(() => {
+            currentUser = null;
+            updateAuthUI(null);
+            showToast('Вы вышли из аккаунта');
+        });
+    }
+}
+
+window.openAuth = function(mode = 'login') {
+    document.getElementById('authOverlay').classList.add('active');
+    showAuthScreen(mode);
+};
+
+function closeAuth() {
+    document.getElementById('authOverlay').classList.remove('active');
+    clearAuthErrors();
+}
+
+function showAuthScreen(screen) {
+    document.getElementById('authRegister').style.display = screen === 'register' ? 'block' : 'none';
+    document.getElementById('authLogin').style.display = screen === 'login' ? 'block' : 'none';
+    document.getElementById('authReset').style.display = screen === 'reset' ? 'block' : 'none';
+    clearAuthErrors();
+}
+
+function clearAuthErrors() {
+    ['regError','regSuccess','loginError','loginSuccess','resetError','resetSuccess'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) { el.classList.remove('show'); el.textContent = ''; }
+    });
+}
+
+function showAuthMsg(id, msg, isError = true) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = msg;
+    el.classList.add('show');
+}
+
+// Переключение экранов
+document.getElementById('toLoginBtn').addEventListener('click', () => showAuthScreen('login'));
+document.getElementById('toRegBtn').addEventListener('click', () => showAuthScreen('register'));
+document.getElementById('forgotPassBtn').addEventListener('click', () => showAuthScreen('reset'));
+document.getElementById('backToLoginBtn').addEventListener('click', () => showAuthScreen('login'));
+document.getElementById('authClose').addEventListener('click', closeAuth);
+document.getElementById('authOverlay').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('authOverlay')) closeAuth();
+});
+
+// Валидация никнейма
+function isValidNickname(n) { return /^[a-zA-Z0-9_]{3,20}$/.test(n); }
+
+// Регистрация
+document.getElementById('regSubmitBtn').addEventListener('click', async () => {
+    const nickname = document.getElementById('regNickname').value.trim();
+    const email    = document.getElementById('regEmail').value.trim();
+    const password = document.getElementById('regPassword').value;
+    const btn = document.getElementById('regSubmitBtn');
+
+    if (!isValidNickname(nickname)) {
+        showAuthMsg('regError', 'Никнейм: 3–20 символов, только латиница, цифры и _');
+        return;
+    }
+    if (!email.includes('@')) { showAuthMsg('regError', 'Введите корректный email'); return; }
+    if (password.length < 6) { showAuthMsg('regError', 'Пароль минимум 6 символов'); return; }
+
+    btn.disabled = true;
+    btn.textContent = 'Создание аккаунта...';
+
+    try {
+        // Проверяем уникальность никнейма
+        const nickSnap = await authDb.ref('nicknames/' + nickname.toLowerCase()).once('value');
+        if (nickSnap.exists()) {
+            showAuthMsg('regError', 'Этот никнейм уже занят');
+            btn.disabled = false; btn.textContent = 'Создать аккаунт'; return;
+        }
+
+        const cred = await firebase.auth().createUserWithEmailAndPassword(email, password);
+        const uid = cred.user.uid;
+
+        // Сохраняем данные
+        await authDb.ref('users/' + uid).set({
+            nickname,
+            email,
+            createdAt: Date.now(),
+            totalScore: 0,
+            streak: 0,
+            lastPlayDate: ''
+        });
+        await authDb.ref('nicknames/' + nickname.toLowerCase()).set(uid);
+
+        // Отправка верификационного письма
+        await cred.user.sendEmailVerification();
+
+        showAuthMsg('regSuccess',
+            '✉️ Письмо отправлено на ' + email + '. Подтвердите почту и войдите в аккаунт.', false);
+        btn.textContent = 'Готово!';
+        setTimeout(() => { showAuthScreen('login'); btn.disabled = false; btn.textContent = 'Создать аккаунт'; }, 3500);
+
+    } catch (e) {
+        const msgs = {
+            'auth/email-already-in-use': 'Этот email уже зарегистрирован',
+            'auth/invalid-email': 'Некорректный email',
+            'auth/weak-password': 'Пароль слишком простой',
+            'auth/network-request-failed': 'Ошибка сети'
+        };
+        showAuthMsg('regError', msgs[e.code] || ('Ошибка: ' + e.message));
+        btn.disabled = false; btn.textContent = 'Создать аккаунт';
+    }
+});
+
+// Вход
+document.getElementById('loginSubmitBtn').addEventListener('click', async () => {
+    const email    = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    const btn = document.getElementById('loginSubmitBtn');
+
+    if (!email || !password) { showAuthMsg('loginError', 'Заполните все поля'); return; }
+    btn.disabled = true; btn.textContent = 'Вход...';
+
+    try {
+        const cred = await firebase.auth().signInWithEmailAndPassword(email, password);
+        if (!cred.user.emailVerified) {
+            await firebase.auth().signOut();
+            showAuthMsg('loginError', '📧 Сначала подтвердите email. Проверьте почту.');
+            btn.disabled = false; btn.textContent = 'Войти'; return;
+        }
+        closeAuth();
+        showToast('Добро пожаловать! 👋');
+    } catch (e) {
+        const msgs = {
+            'auth/user-not-found': 'Пользователь не найден',
+            'auth/wrong-password': 'Неверный пароль',
+            'auth/invalid-credential': 'Неверный email или пароль',
+            'auth/too-many-requests': 'Слишком много попыток. Попробуйте позже'
+        };
+        showAuthMsg('loginError', msgs[e.code] || 'Ошибка входа');
+        btn.disabled = false; btn.textContent = 'Войти';
+    }
+});
+
+// Сброс пароля
+document.getElementById('resetSubmitBtn').addEventListener('click', async () => {
+    const email = document.getElementById('resetEmail').value.trim();
+    const btn = document.getElementById('resetSubmitBtn');
+    if (!email) { showAuthMsg('resetError', 'Введите email'); return; }
+    btn.disabled = true; btn.textContent = 'Отправка...';
+    try {
+        await firebase.auth().sendPasswordResetEmail(email);
+        showAuthMsg('resetSuccess', '✉️ Ссылка отправлена на ' + email, false);
+    } catch(e) {
+        showAuthMsg('resetError', 'Email не найден или ошибка сети');
+    }
+    btn.disabled = false; btn.textContent = 'Отправить ссылку';
+});
+
+// Enter в полях
+['loginEmail','loginPassword'].forEach(id => {
+    document.getElementById(id).addEventListener('keydown', e => {
+        if (e.key === 'Enter') document.getElementById('loginSubmitBtn').click();
+    });
+});
+['regNickname','regEmail','regPassword'].forEach(id => {
+    document.getElementById(id).addEventListener('keydown', e => {
+        if (e.key === 'Enter') document.getElementById('regSubmitBtn').click();
+    });
+});
+
+// Защита вкладок
+function requireAuth(tabName, callback) {
+    const protectedTabs = ['chat', 'daily'];
+    if (protectedTabs.includes(tabName) && !currentUser) {
+        openAuth('login');
+        showToast('🔒 Войдите в аккаунт для доступа к этой функции');
+        return false;
+    }
+    return true;
+}
+
+// Toast уведомления
+function showToast(msg, duration = 3000) {
+    let toast = document.getElementById('globalToast');
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'globalToast';
+        toast.style.cssText = `
+            position:fixed; bottom:80px; left:50%; transform:translateX(-50%) translateY(20px);
+            background:var(--bg2); border:1px solid rgba(196,164,92,0.3);
+            color:var(--text); padding:10px 22px; border-radius:100px;
+            font-family:'DM Sans',sans-serif; font-size:0.85rem; font-weight:500;
+            z-index:999999; opacity:0; transition:all 0.3s ease;
+            box-shadow:0 8px 32px rgba(0,0,0,0.4); white-space:nowrap;
+            pointer-events:none;
+        `;
+        document.body.appendChild(toast);
+    }
+    toast.textContent = msg;
+    toast.style.opacity = '1';
+    toast.style.transform = 'translateX(-50%) translateY(0)';
+    clearTimeout(toast._timer);
+    toast._timer = setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(-50%) translateY(20px)';
+    }, duration);
+}
+
+// ═══════════════════════════════════════════
+// DAILY GAME SYSTEM
+// ═══════════════════════════════════════════
+function initDailyGame() {
+    const root = document.getElementById('dailyGameRoot');
+
+    if (!currentUser) {
+        root.innerHTML = `
+            <div class="dg-locked">
+                <div class="lock-big">🔒</div>
+                <p>Ежедневные игры доступны только авторизованным пользователям.<br>
+                Войдите или создайте аккаунт — это бесплатно!</p>
+                <button class="btn" onclick="openAuth('login')" style="width:auto; padding:12px 32px;">
+                    Войти / Зарегистрироваться
+                </button>
+            </div>`;
+        return;
+    }
+
+    const todayStr = new Date().toISOString().split('T')[0]; // "2025-05-12"
+    // Тип игры чередуется по дням: 0=wordle, 1=math, 2=logic
+    const dayNum = Math.floor(Date.now() / 86400000);
+    const gameType = dayNum % 3; // 0,1,2
+
+    // Проверяем — играл ли сегодня
+    authDb.ref('users/' + currentUser.uid + '/lastPlayDate').once('value').then(snap => {
+        const lastPlay = snap.val();
+        if (lastPlay === todayStr) {
+            // Уже играл — показываем результат и рейтинг
+            authDb.ref('users/' + currentUser.uid).once('value').then(usnap => {
+                const ud = usnap.val() || {};
+                showDailyResult(root, ud.lastScore || 0, ud.streak || 0, todayStr, true);
+            });
+            return;
+        }
+        // Запускаем игру
+        startDailyGame(root, gameType, todayStr);
+    });
+}
+
+function startDailyGame(root, gameType, todayStr) {
+    const types = ['🔤 Угадай слово', '🔢 Математика', '🧠 Логика'];
+    const nextTypes = ['математика', 'логика', 'угадай слово'];
+    root.innerHTML = `
+        <div class="dg-header">
+            <div>
+                <div class="dg-meta">ИГРА ДНЯ · ${new Date().toLocaleDateString('ru-RU', {day:'numeric',month:'long'})}</div>
+                <div style="font-family:'Cormorant Garamond',serif; font-size:1.4rem; color:var(--text); margin-top:4px;">${types[gameType]}</div>
+            </div>
+            <div style="text-align:right;">
+                <div class="dg-meta">Игрок</div>
+                <div class="dg-streak">👤 ${currentUser.nickname}</div>
+            </div>
+        </div>
+        <div id="dgGameArea"></div>
+    `;
+
+    const area = document.getElementById('dgGameArea');
+
+    if (gameType === 0) startWordle(area, todayStr);
+    else if (gameType === 1) startMathGame(area, todayStr);
+    else startLogicGame(area, todayStr);
+}
+
+// ── WORDLE ──
+const WORDLE_WORDS = [
+    'ОБЛАКО','ВЕТЕР','ЗЕМЛЯ','ОГОНЬ','МОРЕ','ГОРА','ЗВЕЗДА','РЕКА','ЛЕСОК',
+    'ПТИЦА','ВОЛНА','ДОЖДЬ','СНЕГ','ГОРОД','ЗАМОК','КНИГА','ВРЕМЯ','СВЕТ',
+    'МЕЧТА','ТАЙНА','СИЛА','СЛОВО','ОБРАЗ','СУДЬБА','ПОЛЬЗА','РАЗУМ','НОЧЬ',
+    'ВЕСНА','ЛЕТО','ОСЕНЬ','ЗИМА','ПОЛЕ','НЕБО','ВЕЧЕР','УТРО','ЗАКАТ',
+    'КЛЮЧ','МОСТ','ПУТЬ','СЛЕД','ЦВЕТ','ЗВУК','ВКУС','ЗАПАХ','ФОРМА'
+];
+
+function getDailyWord(dateStr) {
+    let hash = 0;
+    for (let c of dateStr) hash = ((hash << 5) - hash) + c.charCodeAt(0);
+    hash = Math.abs(hash);
+    return WORDLE_WORDS[hash % WORDLE_WORDS.length];
+}
+
+function startWordle(area, todayStr) {
+    const secret = getDailyWord(todayStr);
+    const maxAttempts = 6;
+    let attempts = [];
+    let currentGuess = '';
+    let gameOver = false;
+
+    function render() {
+        area.innerHTML = `
+            <p style="text-align:center; color:var(--text-muted); font-size:0.82rem; margin-bottom:6px;">
+                Угадайте слово из ${secret.length} букв · ${maxAttempts} попыток
+            </p>
+            <div class="wordle-grid" id="wordleGrid"></div>
+            <div class="wordle-keyboard" id="wordleKb"></div>
+            ${!gameOver ? `<p style="text-align:center; color:var(--text-muted); font-size:0.78rem; margin-top:12px;">Используйте клавиатуру ниже или физическую</p>` : ''}
+        `;
+        renderGrid();
+        renderKeyboard();
+    }
+
+    function renderGrid() {
+        const grid = document.getElementById('wordleGrid');
+        if (!grid) return;
+        grid.innerHTML = '';
+        for (let i = 0; i < maxAttempts; i++) {
+            const row = document.createElement('div');
+            row.className = 'wordle-row';
+            for (let j = 0; j < secret.length; j++) {
+                const cell = document.createElement('div');
+                cell.className = 'wordle-cell';
+                if (i < attempts.length) {
+                    const { guess, result } = attempts[i];
+                    cell.textContent = guess[j] || '';
+                    cell.classList.add(result[j]);
+                } else if (i === attempts.length && !gameOver) {
+                    cell.textContent = currentGuess[j] || '';
+                    if (j === currentGuess.length) cell.classList.add('active');
+                }
+                row.appendChild(cell);
+            }
+            grid.appendChild(row);
+        }
+    }
+
+    const kbLayout = [
+        'ЙЦУКЕНГШЩЗХЪ',
+        'ФЫВАПРОЛДЖЭ',
+        '✓ЯЧСМИТЬБЮ⌫'
+    ];
+
+    const kbState = {};
+
+    function renderKeyboard() {
+        const kb = document.getElementById('wordleKb');
+        if (!kb) return;
+        kb.innerHTML = '';
+        kbLayout.forEach(row => {
+            const rowEl = document.createElement('div');
+            rowEl.className = 'wordle-kb-row';
+            [...row].forEach(ch => {
+                const btn = document.createElement('button');
+                btn.className = 'wk-btn';
+                btn.textContent = ch;
+                if (ch === '✓') btn.style.minWidth = '52px';
+                if (ch === '⌫') btn.style.minWidth = '46px';
+                if (kbState[ch]) btn.classList.add(kbState[ch]);
+                btn.addEventListener('click', () => handleKey(ch));
+                rowEl.appendChild(btn);
+            });
+            kb.appendChild(rowEl);
+        });
+    }
+
+    function handleKey(key) {
+        if (gameOver) return;
+        if (key === '⌫') {
+            currentGuess = currentGuess.slice(0, -1);
+        } else if (key === '✓') {
+            submitGuess();
+            return;
+        } else if (currentGuess.length < secret.length) {
+            currentGuess += key;
+        }
+        renderGrid();
+    }
+
+    function submitGuess() {
+        if (currentGuess.length < secret.length) {
+            showToast('Слово должно быть ' + secret.length + ' букв');
+            return;
+        }
+        const result = evaluateGuess(currentGuess, secret);
+        attempts.push({ guess: currentGuess, result });
+
+        // Обновляем состояние клавиатуры
+        currentGuess.split('').forEach((ch, i) => {
+            const cur = kbState[ch];
+            if (result[i] === 'correct') kbState[ch] = 'correct';
+            else if (result[i] === 'present' && cur !== 'correct') kbState[ch] = 'present';
+            else if (!cur) kbState[ch] = 'absent';
+        });
+
+        const won = result.every(r => r === 'correct');
+        currentGuess = '';
+
+        if (won) {
+            gameOver = true;
+            const score = Math.max(10, 60 - (attempts.length - 1) * 10);
+            render();
+            saveDailyScore(score, attempts.length + ' попытки', todayStr, () => {
+                setTimeout(() => showDailyResult(area.parentElement.parentElement, score, 0, todayStr, false), 800);
+            });
+        } else if (attempts.length >= maxAttempts) {
+            gameOver = true;
+            render();
+            area.innerHTML += `<p style="text-align:center; color:#f87171; margin-top:12px;">Слово было: <strong>${secret}</strong></p>`;
+            saveDailyScore(0, 'не угадал', todayStr, () => {
+                setTimeout(() => showDailyResult(area.parentElement.parentElement, 0, 0, todayStr, false), 1500);
+            });
+        } else {
+            render();
+        }
+    }
+
+    function evaluateGuess(guess, secret) {
+        const result = Array(secret.length).fill('absent');
+        const secretArr = secret.split('');
+        const guessArr = guess.split('');
+        const used = Array(secret.length).fill(false);
+        // Correct pass
+        for (let i = 0; i < secret.length; i++) {
+            if (guessArr[i] === secretArr[i]) { result[i] = 'correct'; used[i] = true; }
+        }
+        // Present pass
+        for (let i = 0; i < secret.length; i++) {
+            if (result[i] === 'correct') continue;
+            for (let j = 0; j < secret.length; j++) {
+                if (!used[j] && guessArr[i] === secretArr[j]) {
+                    result[i] = 'present'; used[j] = true; break;
+                }
+            }
+        }
+        return result;
+    }
+
+    // Физическая клавиатура
+    const ruMap = {'й':'Й','ц':'Ц','у':'У','к':'К','е':'Е','н':'Н','г':'Г','ш':'Ш','щ':'Щ','з':'З','х':'Х','ъ':'Ъ','ф':'Ф','ы':'Ы','в':'В','а':'А','п':'П','р':'Р','о':'О','л':'Л','д':'Д','ж':'Ж','э':'Э','я':'Я','ч':'Ч','с':'С','м':'М','и':'И','т':'Т','ь':'Ь','б':'Б','ю':'Ю'};
+    function onKeyDown(e) {
+        if (!document.getElementById('wordleGrid')) { window.removeEventListener('keydown', onKeyDown); return; }
+        if (e.key === 'Backspace') handleKey('⌫');
+        else if (e.key === 'Enter') handleKey('✓');
+        else { const ch = ruMap[e.key.toLowerCase()]; if (ch) handleKey(ch); }
+    }
+    window.addEventListener('keydown', onKeyDown);
+
+    render();
+}
+
+// ── MATH GAME ──
+function startMathGame(area, todayStr) {
+    // Генерируем 5 задач на основе даты
+    const seed = todayStr.replace(/-/g, '');
+    let rng = parseInt(seed) % 9999 + 1;
+    function rand(min, max) { rng = (rng * 1664525 + 1013904223) & 0xffffffff; return min + Math.abs(rng) % (max - min + 1); }
+
+    const questions = [];
+    for (let i = 0; i < 5; i++) {
+        const type = rand(0, 2);
+        let q, answer;
+        if (type === 0) {
+            const a = rand(10, 99), b = rand(10, 99);
+            q = `${a} + ${b} = ?`; answer = a + b;
+        } else if (type === 1) {
+            const a = rand(20, 99), b = rand(10, a);
+            q = `${a} − ${b} = ?`; answer = a - b;
+        } else {
+            const a = rand(2, 12), b = rand(2, 12);
+            q = `${a} × ${b} = ?`; answer = a * b;
+        }
+        const wrong1 = answer + rand(1, 9) * (rand(0,1) ? 1 : -1);
+        const wrong2 = answer + rand(10, 20) * (rand(0,1) ? 1 : -1);
+        const wrong3 = answer + rand(2, 7);
+        const opts = [answer, Math.abs(wrong1), Math.abs(wrong2), Math.abs(wrong3)].sort(() => Math.random()-0.5);
+        questions.push({ q, answer, opts });
+    }
+
+    let current = 0, score = 0, answered = false;
+
+    function render() {
+        if (current >= questions.length) {
+            const finalScore = Math.round((score / questions.length) * 100);
+            saveDailyScore(finalScore, `${score}/${questions.length} правильно`, todayStr, () => {
+                showDailyResult(area.parentElement.parentElement, finalScore, 0, todayStr, false);
+            });
+            return;
+        }
+        const q = questions[current];
+        area.innerHTML = `
+            <div style="text-align:center; color:var(--text-muted); font-size:0.82rem; margin-bottom:4px;">
+                Вопрос ${current+1} из ${questions.length} · Счёт: ${score}
+            </div>
+            <div class="math-display">${q.q}</div>
+            <div class="math-options" id="mathOpts"></div>
+        `;
+        const opts = document.getElementById('mathOpts');
+        q.opts.forEach(opt => {
+            const btn = document.createElement('div');
+            btn.className = 'math-opt';
+            btn.textContent = opt;
+            btn.addEventListener('click', () => {
+                if (answered) return;
+                answered = true;
+                const isCorrect = opt === q.answer;
+                if (isCorrect) { btn.classList.add('correct'); score++; }
+                else {
+                    btn.classList.add('wrong');
+                    opts.querySelectorAll('.math-opt').forEach(b => {
+                        if (parseInt(b.textContent) === q.answer) b.classList.add('correct');
+                    });
+                }
+                setTimeout(() => { current++; answered = false; render(); }, 1000);
+            });
+            opts.appendChild(btn);
+        });
+    }
+    render();
+}
+
+// ── LOGIC GAME ──
+const LOGIC_QUESTIONS = [
+    { q: 'Если все кошки — животные, а Мурка — кошка, то Мурка — ?', opts: ['Животное', 'Птица', 'Рыба', 'Растение'], a: 0 },
+    { q: 'Продолжите ряд: 2, 4, 8, 16, ...', opts: ['24', '32', '20', '18'], a: 1 },
+    { q: 'У Ани 3 яблока, у Бори вдвое больше. Сколько у них вместе?', opts: ['6', '9', '12', '8'], a: 1 },
+    { q: 'Какое слово лишнее: волк, лиса, медведь, голубь, заяц?', opts: ['Волк', 'Лиса', 'Голубь', 'Заяц'], a: 2 },
+    { q: 'Если Иван старше Петра, а Пётр старше Сидора, то кто самый молодой?', opts: ['Иван', 'Пётр', 'Сидор', 'Все одного возраста'], a: 2 },
+    { q: 'Продолжите: Понедельник, Среда, Пятница, ...', opts: ['Суббота', 'Воскресенье', 'Вторник', 'Четверг'], a: 1 },
+    { q: 'В семье 3 сына, у каждого по 1 сестре. Сколько детей в семье?', opts: ['6', '4', '3', '7'], a: 1 },
+    { q: 'Что тяжелее: 1 кг железа или 1 кг ваты?', opts: ['Железо', 'Вата', 'Одинаково', 'Зависит от объёма'], a: 2 },
+    { q: 'Продолжите: 1, 1, 2, 3, 5, 8, ...', opts: ['10', '11', '13', '16'], a: 2 },
+    { q: 'Если красный стоит до синего, а синий после зелёного — какой цвет первый?', opts: ['Красный', 'Синий', 'Зелёный', 'Невозможно определить'], a: 2 },
+    { q: 'Какую букву надо добавить? С_ОЛ, СТ_Л, КР_СЛО', opts: ['А', 'О', 'У', 'И'], a: 2 },
+    { q: 'Если зеркало отражает буквы, что получится из «АНА»?', opts: ['АНА', 'АNA', 'ЯNЯ', 'АМА'], a: 0 },
+    { q: 'Три курицы несут три яйца за три дня. За 9 дней 9 куриц снесут...', opts: ['9 яиц', '27 яиц', '18 яиц', '81 яйцо'], a: 1 },
+    { q: 'Продолжите: ♦♦♣ ♦♦♣ ♦♦...', opts: ['♣♦', '♣♣', '♦♣', '♦♦'], a: 2 },
+    { q: 'Сколько месяцев в году имеют 28 дней?', opts: ['1', '2', '12', '6'], a: 2 },
+];
+
+function getDailyLogicQ(dateStr) {
+    let hash = 0;
+    for (let c of dateStr) hash = ((hash << 5) - hash) + c.charCodeAt(0);
+    return LOGIC_QUESTIONS[Math.abs(hash) % LOGIC_QUESTIONS.length];
+}
+
+function startLogicGame(area, todayStr) {
+    const q = getDailyLogicQ(todayStr);
+    let answered = false;
+
+    area.innerHTML = `
+        <div class="logic-question">${q.q}</div>
+        <div class="logic-options" id="logicOpts"></div>
+    `;
+
+    const opts = document.getElementById('logicOpts');
+    q.opts.forEach((opt, i) => {
+        const btn = document.createElement('div');
+        btn.className = 'logic-opt';
+        btn.textContent = opt;
+        btn.addEventListener('click', () => {
+            if (answered) return;
+            answered = true;
+            const isCorrect = i === q.a;
+            if (isCorrect) { btn.classList.add('correct'); }
+            else {
+                btn.classList.add('wrong');
+                opts.querySelectorAll('.logic-opt')[q.a].classList.add('correct');
+            }
+            const score = isCorrect ? 100 : 0;
+            setTimeout(() => {
+                saveDailyScore(score, isCorrect ? 'правильно' : 'неверно', todayStr, () => {
+                    showDailyResult(area.parentElement.parentElement, score, 0, todayStr, false);
+                });
+            }, 1200);
+        });
+        opts.appendChild(btn);
+    });
+}
+
+// ── Сохранение результата ──
+function saveDailyScore(score, detail, todayStr, callback) {
+    if (!currentUser) return;
+    const userRef = authDb.ref('users/' + currentUser.uid);
+
+    userRef.once('value').then(snap => {
+        const ud = snap.val() || {};
+        const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+        const newStreak = ud.lastPlayDate === yesterday ? (ud.streak || 0) + 1 : 1;
+        const newTotal  = (ud.totalScore || 0) + score;
+
+        userRef.update({
+            lastPlayDate: todayStr,
+            lastScore: score,
+            lastDetail: detail,
+            streak: newStreak,
+            totalScore: newTotal
+        }).then(() => {
+            // Глобальный рейтинг
+            authDb.ref('leaderboard/' + currentUser.uid).set({
+                nickname: currentUser.nickname,
+                totalScore: newTotal,
+                streak: newStreak,
+                lastPlayed: todayStr
+            }).then(() => { if (callback) callback(); });
+        });
+    });
+}
+
+// ── Показ результата + рейтинг ──
+function showDailyResult(container, score, streak, todayStr, alreadyPlayed) {
+    const emoji = score >= 80 ? '🏆' : score >= 50 ? '⭐' : score > 0 ? '👍' : '💪';
+    const msg   = score >= 80 ? 'Отлично!' : score >= 50 ? 'Хорошо!' : score > 0 ? 'Неплохо!' : 'В следующий раз повезёт!';
+
+    container.innerHTML = `
+        <div class="dg-result">
+            <div class="result-emoji">${emoji}</div>
+            <h3>${msg}</h3>
+            <p>${alreadyPlayed ? 'Вы уже сыграли сегодня. Возвращайтесь завтра!' : 'Результат сохранён!'}</p>
+            <div class="dg-score-badge">+${score} очков</div>
+        </div>
+        <div class="leaderboard">
+            <div class="lb-title">🏅 Глобальный рейтинг</div>
+            <div id="lbList"><div style="text-align:center; color:var(--text-muted); padding:20px; font-size:0.85rem;">Загрузка...</div></div>
+        </div>
+    `;
+
+    loadLeaderboard();
+}
+
+function loadLeaderboard() {
+    authDb.ref('leaderboard').orderByChild('totalScore').limitToLast(20).once('value').then(snap => {
+        const lbEl = document.getElementById('lbList');
+        if (!lbEl) return;
+        const data = snap.val();
+        if (!data) { lbEl.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding:20px;">Рейтинг пуст</div>'; return; }
+
+        const entries = Object.entries(data)
+            .map(([uid, v]) => ({ uid, ...v }))
+            .sort((a, b) => b.totalScore - a.totalScore);
+
+        const rankIcons = ['🥇','🥈','🥉'];
+        lbEl.innerHTML = '';
+        entries.forEach((e, i) => {
+            const isMe = currentUser && e.uid === currentUser.uid;
+            const row = document.createElement('div');
+            row.className = 'lb-row' + (isMe ? ' me' : '');
+            row.innerHTML = `
+                <span class="lb-rank ${i===0?'gold':i===1?'silver':i===2?'bronze':''}">${i < 3 ? rankIcons[i] : '#'+(i+1)}</span>
+                <span class="lb-name">${e.nickname || 'Игрок'}${isMe ? ' <span style="color:var(--gold);font-size:0.72rem;">(вы)</span>' : ''}</span>
+                <span class="lb-streak">🔥 ${e.streak || 0}</span>
+                <span class="lb-score">${e.totalScore || 0} очк.</span>
+            `;
+            lbEl.appendChild(row);
+        });
+    });
+}
+
+// Инициализация auth при загрузке
+window.addEventListener('load', () => {
+    initAuth();
+});
 
             // Викторина
             const countries = [
