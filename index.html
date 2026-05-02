@@ -2051,9 +2051,46 @@
     font-size: 0.85rem;
     font-style: italic;
 }
+        .auth-nav-btn {
+    background: var(--gold-dim) !important;
+    color: var(--gold2) !important;
+    border: 1px solid rgba(196,164,92,0.25) !important;
+}
+.auth-nav-btn.logged-in {
+    background: rgba(110,168,138,0.12) !important;
+    color: #6ea88a !important;
+    border-color: rgba(110,168,138,0.25) !important;
+}
+        .auth-inp {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.88rem;
+    padding: 11px 14px;
+    outline: none;
+    margin-bottom: 10px;
+    transition: border-color 0.2s;
+    display: block;
+    -webkit-user-select: text;
+    user-select: text;
+}
+.auth-inp:focus { border-color: rgba(196,164,92,0.5); box-shadow: 0 0 0 3px rgba(196,164,92,0.08); }
+.auth-inp::placeholder { color: var(--text-muted); }
+.auth-error {
+    font-size: 0.78rem;
+    color: #f87171;
+    min-height: 18px;
+    margin-top: 2px;
+    text-align: center;
+    letter-spacing: 0.02em;
+}
     </style>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     
 </head>
 <body data-theme="dark" oncontextmenu="return false;">
@@ -2066,7 +2103,9 @@
                 <span class="search-icon">🔍</span>
                 <input type="text" id="tabSearch" class="tab-search-input" placeholder="Поиск вкладки... (Ctrl+K)">
             </div>
+            <button class="tab-btn auth-nav-btn" id="authNavBtn" onclick="openAuthModal()">👤 Войти</button>
             <button class="tab-btn active" data-tab="home">🏠 Главная</button>
+            <button class="tab-btn" data-tab="dailygame">🧩 Игра дня</button>
             <button class="tab-btn" data-tab="chat">💬 Чат</button>
             <button class="tab-btn" data-tab="planner">📅 Планировщик</button>
             <button class="tab-btn" data-tab="calc">🧮 Калькулятор</button>
@@ -2094,6 +2133,7 @@
                 </div>
                 <div class="divider"></div>
                 <div class="home-grid">
+                    <div class="home-card" data-goto="dailygame"><span class="icon">🧩</span><div class="title">Игра дня</div><div class="desc">Раз в день · Рейтинг</div></div>
                     <div class="home-card" data-goto="chat"><span class="icon">💬</span><div class="title">Общий чат</div><div class="desc">Общение с посетителями</div></div>
                     <div class="home-card" data-goto="planner"><span class="icon">📅</span><div class="title">Планировщик</div><div class="desc">Календарь и заметки</div></div>
                     <div class="home-card" data-goto="calc"><span class="icon">🧮</span><div class="title">Калькулятор</div><div class="desc">Уравнения и графики</div></div>
@@ -2141,6 +2181,45 @@
             </div>
         </div>
     </div>
+</div>
+        <!-- Игра дня -->
+<div class="tab-content" id="tab-dailygame">
+  <div class="glass-card">
+    <div class="header"><h2>Игра дня</h2><button class="theme-btn" onclick="toggleTheme()">🌓 Тема</button></div>
+
+    <!-- Нет авторизации -->
+    <div id="dg-noauth" style="text-align:center; padding:40px 20px; display:none;">
+      <div style="font-size:3rem; margin-bottom:16px;">🔐</div>
+      <p style="color:var(--text-muted); margin-bottom:20px; font-size:0.95rem;">Для участия в игре дня необходима авторизация</p>
+      <button class="btn" style="width:auto; margin:0;" onclick="openAuthModal()">Войти / Зарегистрироваться</button>
+    </div>
+
+    <!-- Уже играл сегодня -->
+    <div id="dg-played" style="text-align:center; padding:40px 20px; display:none;">
+      <div style="font-size:3rem; margin-bottom:16px;">✅</div>
+      <p style="color:var(--gold); font-size:1.1rem; font-weight:600; margin-bottom:8px;">Вы уже сыграли сегодня!</p>
+      <p style="color:var(--text-muted); font-size:0.88rem; margin-bottom:24px;" id="dg-result-text"></p>
+      <button class="btn" style="width:auto; margin:0;" onclick="switchTab('dailygame')">Посмотреть рейтинг ↓</button>
+    </div>
+
+    <!-- Игровое поле -->
+    <div id="dg-game" style="display:none;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:10px;">
+        <div style="font-family:'Cormorant Garamond',serif; font-size:1.1rem; color:var(--text-muted);" id="dg-type-label"></div>
+        <div style="font-size:0.8rem; color:var(--text-muted);" id="dg-date-label"></div>
+      </div>
+      <div id="dg-content"></div>
+    </div>
+
+    <!-- Рейтинг -->
+    <div style="margin-top:36px;">
+      <div class="divider"></div>
+      <h3 style="margin-bottom:20px; font-family:'Cormorant Garamond',serif; font-size:1.5rem; background:var(--grad); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;">🏆 Рейтинг игроков</h3>
+      <div id="dg-leaderboard">
+        <div style="color:var(--text-muted); font-size:0.88rem;">Загрузка...</div>
+      </div>
+    </div>
+  </div>
 </div>
         <!-- Календарь и Заметки -->
 <div class="tab-content" id="tab-planner">
@@ -2735,10 +2814,16 @@ window.addEventListener('load', initOnlineCounter);
                 if (tabName === 'support' && !window._supportInit) { initSupport();
                     window._supportInit = true; }
                 if (tabName === 'graph' && graphChart) setTimeout(() => graphChart.resize(), 50);
-            if (tabName === 'chat' && !window._chatInit) {
-    initChat();
-    window._chatInit = true;
-};
+if (tabName === 'chat') {
+    if (!window._currentUser) {
+        openAuthModal();
+        return;
+    }
+    if (!window._chatInit) { initChat(); window._chatInit = true; }
+}
+if (tabName === 'dailygame') {
+    if (!window._dgInit) { initDailyGame(); window._dgInit = true; }
+}
             }
                 
             tabBtns.forEach(btn => btn.addEventListener('click', () => switchTab(btn.getAttribute('data-tab'))));
@@ -5826,5 +5911,849 @@ function initPlanner() {
             <button class="btn" id="startCheckersGameBtn" style="margin-top:20px;">Начать игру</button>
         </div>
     </div>
+<!-- ═══════════ AUTH MODAL ═══════════ -->
+<div class="mobile-modal-overlay" id="authModal" style="z-index:10000;">
+  <div class="mobile-modal" style="max-width:400px; width:92%;">
+
+    <!-- ЭКРАН: ВЫБОР -->
+    <div id="authScreenChoice">
+      <h3 style="margin-bottom:8px;">Добро пожаловать</h3>
+      <p style="margin-bottom:24px;">Войдите или создайте аккаунт</p>
+      <div class="btn-row">
+        <button class="m-btn copy-btn" onclick="showAuthScreen('login')">Войти</button>
+        <button class="m-btn copy-btn" onclick="showAuthScreen('register')">Регистрация</button>
+        <button class="m-btn ok-btn" onclick="closeAuthModal()">Отмена</button>
+      </div>
+    </div>
+
+    <!-- ЭКРАН: РЕГИСТРАЦИЯ -->
+    <div id="authScreenRegister" style="display:none;">
+      <h3 style="margin-bottom:16px;">Регистрация</h3>
+      <input class="auth-inp" id="regUsername" type="text" placeholder="Никнейм (только англ., мин. 3 символа)" maxlength="20" autocomplete="off">
+      <input class="auth-inp" id="regEmail" type="email" placeholder="Email" autocomplete="off">
+      <input class="auth-inp" id="regPassword" type="password" placeholder="Пароль (мин. 6 символов)" autocomplete="new-password">
+      <input class="auth-inp" id="regPassword2" type="password" placeholder="Повторите пароль" autocomplete="new-password">
+      <div class="auth-error" id="regError"></div>
+      <div class="btn-row" style="margin-top:16px;">
+        <button class="m-btn copy-btn" id="regSubmitBtn" onclick="doRegister()">Создать аккаунт</button>
+        <button class="m-btn ok-btn" onclick="showAuthScreen('choice')">Назад</button>
+      </div>
+    </div>
+
+    <!-- ЭКРАН: ПОДТВЕРЖДЕНИЕ EMAIL -->
+    <div id="authScreenVerify" style="display:none;">
+      <h3 style="margin-bottom:12px;">Подтвердите email</h3>
+      <p style="margin-bottom:20px; font-size:0.88rem; color:var(--text-muted);">
+        Мы отправили письмо с подтверждением на вашу почту.<br>
+        После перехода по ссылке нажмите кнопку ниже.
+      </p>
+      <div class="auth-error" id="verifyError" style="color:#6ea88a;"></div>
+      <div class="btn-row" style="margin-top:16px; flex-wrap:wrap;">
+        <button class="m-btn copy-btn" id="verifyCheckBtn" onclick="checkEmailVerified()">Я подтвердил ✓</button>
+        <button class="m-btn ok-btn" onclick="resendVerification()">Отправить снова</button>
+        <button class="m-btn close-btn" onclick="doLogout(); showAuthScreen('choice')">Выйти</button>
+      </div>
+    </div>
+
+    <!-- ЭКРАН: ЛОГИН -->
+    <div id="authScreenLogin" style="display:none;">
+      <h3 style="margin-bottom:16px;">Вход</h3>
+      <input class="auth-inp" id="loginEmail" type="email" placeholder="Email" autocomplete="email">
+      <input class="auth-inp" id="loginPassword" type="password" placeholder="Пароль" autocomplete="current-password">
+      <div class="auth-error" id="loginError"></div>
+      <div style="text-align:right; margin-top:4px;">
+        <span onclick="doResetPassword()" style="font-size:0.75rem; color:var(--gold); cursor:pointer; letter-spacing:0.03em;">Забыл пароль?</span>
+      </div>
+      <div class="btn-row" style="margin-top:16px;">
+        <button class="m-btn copy-btn" id="loginSubmitBtn" onclick="doLogin()">Войти</button>
+        <button class="m-btn ok-btn" onclick="showAuthScreen('choice')">Назад</button>
+      </div>
+    </div>
+
+    <!-- ЭКРАН: ПРОФИЛЬ -->
+    <div id="authScreenProfile" style="display:none;">
+      <div style="text-align:center; margin-bottom:16px;">
+        <div style="font-size:2.5rem; margin-bottom:8px;">👤</div>
+        <div style="font-family:'Cormorant Garamond',serif; font-size:1.4rem; background:var(--grad); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;" id="profileUsername"></div>
+        <div style="font-size:0.78rem; color:var(--text-muted); margin-top:4px;" id="profileEmail"></div>
+      </div>
+      <div style="background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:14px; margin-bottom:16px; font-size:0.85rem;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+          <span style="color:var(--text-muted);">Игр сыграно:</span>
+          <span id="profileGamesPlayed" style="color:var(--gold); font-weight:600;">0</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+          <span style="color:var(--text-muted);">Побед:</span>
+          <span id="profileWins" style="color:#6ea88a; font-weight:600;">0</span>
+        </div>
+        <div style="display:flex; justify-content:space-between;">
+          <span style="color:var(--text-muted);">Лучшая серия:</span>
+          <span id="profileStreak" style="color:var(--gold2); font-weight:600;">0</span>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="m-btn close-btn" onclick="doLogout()">Выйти из аккаунта</button>
+        <button class="m-btn ok-btn" onclick="closeAuthModal()">Закрыть</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+<script>
+// ═══════════════════════════════════════════
+// AUTH SYSTEM
+// ═══════════════════════════════════════════
+const firebaseConfig = {
+    apiKey: "AIzaSyDcVfTtrCgF0uaeNeQJeIYITn32tFy9gK0",
+    databaseURL: "https://tapepower-3fa61-default-rtdb.firebaseio.com"
+};
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db   = firebase.database();
+
+window._currentUser = null;
+window._currentUserData = null;
+
+// Слушаем состояние авторизации
+auth.onAuthStateChanged(async (user) => {
+    if (user) {
+        if (!user.emailVerified) {
+            window._currentUser = null;
+            showAuthScreen('verify');
+            document.getElementById('authModal').style.display = 'flex';
+            return;
+        }
+        window._currentUser = user;
+        // Подгружаем данные профиля
+        const snap = await db.ref('users/' + user.uid).once('value');
+        window._currentUserData = snap.val() || {};
+        updateAuthBtn(true);
+        // Если модал открыт — показать профиль
+        if (document.getElementById('authModal').style.display === 'flex') {
+            showAuthScreen('profile');
+        }
+        // Если ждала вкладка чата
+        if (window._pendingChat) {
+            window._pendingChat = false;
+            switchTab('chat');
+        }
+    } else {
+        window._currentUser = null;
+        window._currentUserData = null;
+        updateAuthBtn(false);
+    }
+    // Обновить игру дня если вкладка активна
+    if (window._dgInit) refreshDailyGameState();
+});
+
+function updateAuthBtn(loggedIn) {
+    const btn = document.getElementById('authNavBtn');
+    if (!btn) return;
+    if (loggedIn) {
+        const name = window._currentUserData?.username || window._currentUser?.email?.split('@')[0] || 'Профиль';
+        btn.textContent = '👤 ' + name;
+        btn.classList.add('logged-in');
+    } else {
+        btn.textContent = '👤 Войти';
+        btn.classList.remove('logged-in');
+    }
+}
+
+// ── Модальные окна ──
+window.openAuthModal = function() {
+    const modal = document.getElementById('authModal');
+    modal.style.display = 'flex';
+    if (window._currentUser && window._currentUser.emailVerified) {
+        showAuthScreen('profile');
+        fillProfile();
+    } else {
+        showAuthScreen('choice');
+    }
+};
+
+window.closeAuthModal = function() {
+    document.getElementById('authModal').style.display = 'none';
+};
+
+window.showAuthScreen = function(name) {
+    ['choice','register','verify','login','profile'].forEach(s => {
+        document.getElementById('authScreen' + s.charAt(0).toUpperCase() + s.slice(1)).style.display = 'none';
+    });
+    document.getElementById('authScreen' + name.charAt(0).toUpperCase() + name.slice(1)).style.display = 'block';
+    // Сбросить ошибки
+    ['regError','loginError','verifyError'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = '';
+    });
+};
+
+function fillProfile() {
+    const u = window._currentUser;
+    const d = window._currentUserData || {};
+    document.getElementById('profileUsername').textContent = d.username || 'Пользователь';
+    document.getElementById('profileEmail').textContent = u?.email || '';
+    document.getElementById('profileGamesPlayed').textContent = d.gamesPlayed || 0;
+    document.getElementById('profileWins').textContent = d.wins || 0;
+    document.getElementById('profileStreak').textContent = d.bestStreak || 0;
+}
+
+// ── Регистрация ──
+window.doRegister = async function() {
+    const username = document.getElementById('regUsername').value.trim();
+    const email    = document.getElementById('regEmail').value.trim();
+    const pass     = document.getElementById('regPassword').value;
+    const pass2    = document.getElementById('regPassword2').value;
+    const errEl    = document.getElementById('regError');
+    const btn      = document.getElementById('regSubmitBtn');
+
+    errEl.textContent = '';
+
+    if (!/^[a-zA-Z0-9_]{3,20}$/.test(username)) {
+        errEl.textContent = 'Никнейм: только латиница, цифры, _, от 3 до 20 символов';
+        return;
+    }
+    if (!email.includes('@')) { errEl.textContent = 'Введите корректный email'; return; }
+    if (pass.length < 6)      { errEl.textContent = 'Пароль минимум 6 символов'; return; }
+    if (pass !== pass2)       { errEl.textContent = 'Пароли не совпадают'; return; }
+
+    btn.textContent = 'Создание...';
+    btn.disabled = true;
+
+    try {
+        // Проверяем уникальность никнейма
+        const usernameSnap = await db.ref('usernames/' + username.toLowerCase()).once('value');
+        if (usernameSnap.exists()) {
+            errEl.textContent = 'Этот никнейм уже занят';
+            btn.textContent = 'Создать аккаунт'; btn.disabled = false;
+            return;
+        }
+
+        const cred = await auth.createUserWithEmailAndPassword(email, pass);
+        const uid  = cred.user.uid;
+
+        // Обновить displayName
+        await cred.user.updateProfile({ displayName: username });
+
+        // Сохранить в базе
+        await db.ref('users/' + uid).set({
+            username,
+            email,
+            createdAt: Date.now(),
+            gamesPlayed: 0,
+            wins: 0,
+            bestStreak: 0,
+            currentStreak: 0
+        });
+        await db.ref('usernames/' + username.toLowerCase()).set(uid);
+
+        // Отправить письмо верификации
+        await cred.user.sendEmailVerification();
+
+        showAuthScreen('verify');
+    } catch(e) {
+        errEl.textContent = authErrorMsg(e.code);
+    }
+    btn.textContent = 'Создать аккаунт'; btn.disabled = false;
+};
+
+// ── Проверка верификации ──
+window.checkEmailVerified = async function() {
+    const errEl = document.getElementById('verifyError');
+    errEl.style.color = '#f87171';
+    try {
+        await auth.currentUser.reload();
+        if (auth.currentUser.emailVerified) {
+            errEl.style.color = '#6ea88a';
+            errEl.textContent = '✓ Почта подтверждена! Входим...';
+            setTimeout(() => {
+                window._currentUser = auth.currentUser;
+                closeAuthModal();
+            }, 1200);
+        } else {
+            errEl.textContent = 'Письмо ещё не подтверждено. Проверьте почту.';
+        }
+    } catch(e) { errEl.textContent = 'Ошибка: ' + e.message; }
+};
+
+window.resendVerification = async function() {
+    const errEl = document.getElementById('verifyError');
+    try {
+        await auth.currentUser.sendEmailVerification();
+        errEl.style.color = '#6ea88a';
+        errEl.textContent = '✓ Письмо отправлено повторно';
+    } catch(e) { errEl.textContent = 'Ошибка отправки: ' + e.message; }
+};
+
+// ── Вход ──
+window.doLogin = async function() {
+    const email  = document.getElementById('loginEmail').value.trim();
+    const pass   = document.getElementById('loginPassword').value;
+    const errEl  = document.getElementById('loginError');
+    const btn    = document.getElementById('loginSubmitBtn');
+    errEl.textContent = '';
+
+    if (!email || !pass) { errEl.textContent = 'Заполните все поля'; return; }
+
+    btn.textContent = 'Вход...'; btn.disabled = true;
+    try {
+        await auth.signInWithEmailAndPassword(email, pass);
+        closeAuthModal();
+    } catch(e) {
+        errEl.textContent = authErrorMsg(e.code);
+    }
+    btn.textContent = 'Войти'; btn.disabled = false;
+};
+
+// ── Сброс пароля ──
+window.doResetPassword = async function() {
+    const email = document.getElementById('loginEmail').value.trim();
+    const errEl = document.getElementById('loginError');
+    if (!email) { errEl.textContent = 'Введите email для сброса пароля'; return; }
+    try {
+        await auth.sendPasswordResetEmail(email);
+        errEl.style.color = '#6ea88a';
+        errEl.textContent = '✓ Письмо для сброса пароля отправлено';
+    } catch(e) { errEl.textContent = authErrorMsg(e.code); }
+};
+
+// ── Выход ──
+window.doLogout = async function() {
+    await auth.signOut();
+    closeAuthModal();
+    // Если на защищённой вкладке — на главную
+    if (['chat'].includes(window.currentTab)) switchTab('home');
+};
+
+function authErrorMsg(code) {
+    const map = {
+        'auth/email-already-in-use': 'Этот email уже зарегистрирован',
+        'auth/invalid-email':         'Некорректный email',
+        'auth/weak-password':         'Слишком слабый пароль',
+        'auth/user-not-found':        'Пользователь не найден',
+        'auth/wrong-password':        'Неверный пароль',
+        'auth/invalid-credential':    'Неверный email или пароль',
+        'auth/too-many-requests':     'Слишком много попыток. Подождите немного',
+        'auth/network-request-failed':'Ошибка сети. Проверьте соединение',
+    };
+    return map[code] || 'Ошибка: ' + code;
+}
+
+// ── Профиль из кнопки навигации ──
+document.getElementById('authNavBtn').addEventListener('click', openAuthModal);
+
+// ═══════════════════════════════════════════
+// DAILY GAME
+// ═══════════════════════════════════════════
+const DG_GAMES = [
+    // Тип 0: Угадай слово (Wordle-lite, 5 букв, 6 попыток)
+    {
+        type: 'word',
+        label: '📝 Угадай слово',
+        words: ['ЗАМОК','ВЕТЕР','КНИГА','ВИЛКА','БЕРЕГ','ЛАМПА','КОШКА','ДВЕРЬ','СТОЛ','ГОРА',
+                'МОРЕ','РЫБА','НЕБО','ЛИСТ','ОГОНЬ','ВОДА','ЗЕМЛЯ','МЫШЬ','ВОЛК','УТРО',
+                'НОЧЬ','ДЕНЬ','МЕСЯЦ','ЗВЕЗДА','СОЛНЦЕ','ЛУНА','СНЕГ','ДОЖДЬ','ВЕТКА','ЦВЕТОК']
+    },
+    // Тип 1: Математика
+    {
+        type: 'math',
+        label: '🔢 Математический вызов',
+        generate: (seed) => {
+            const rng = seededRng(seed);
+            const ops = ['+','-','×'];
+            const op = ops[Math.floor(rng() * 3)];
+            let a, b, answer;
+            if (op === '+') { a = Math.floor(rng()*90)+10; b = Math.floor(rng()*90)+10; answer = a+b; }
+            else if (op === '-') { a = Math.floor(rng()*90)+50; b = Math.floor(rng()*50)+1; answer = a-b; }
+            else { a = Math.floor(rng()*12)+2; b = Math.floor(rng()*12)+2; answer = a*b; }
+            return { question: `${a} ${op} ${b} = ?`, answer: String(answer) };
+        }
+    },
+    // Тип 2: Логика
+    {
+        type: 'logic',
+        label: '🧠 Логическая задача',
+        questions: [
+            { q:'Чем больше берёшь, тем больше становится. Что это?', a:'яма', hints:['это место','выкапывают'] },
+            { q:'Не огонь, а жжёт. Не солнце, а греет. Не вода, а течёт. Что это?', a:'кровь', hints:['внутри нас','красная'] },
+            { q:'Всегда впереди и никогда не догнать. Что это?', a:'будущее', hints:['время','завтра'] },
+            { q:'Есть у человека, нет у робота. Есть у кошки, нет у камня. Что это?', a:'жизнь', hints:['живое','биология'] },
+            { q:'Чем больше сохнет, тем больше мокнет. Что это?', a:'полотенце', hints:['в ванной','вытираются'] },
+            { q:'Без окон, без дверей, полна горница людей. Что это?', a:'огурец', hints:['овощ','зелёный'] },
+            { q:'Днём спит, ночью летит и людей пугает. Что это?', a:'летучая мышь', hints:['животное','пещера'] },
+            { q:'Два кольца, два конца, посередине гвоздик. Что это?', a:'ножницы', hints:['режут','инструмент'] },
+            { q:'Зимой и летом одним цветом. Что это?', a:'ёлка', hints:['дерево','хвойное'] },
+            { q:'Сто одёжек и все без застёжек. Что это?', a:'капуста', hints:['овощ','листья'] },
+        ]
+    }
+];
+
+function seededRng(seed) {
+    let s = seed;
+    return function() {
+        s = (s * 1664525 + 1013904223) & 0xffffffff;
+        return (s >>> 0) / 0xffffffff;
+    };
+}
+
+function todayKey() {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function todayGameType() {
+    // Тип меняется каждый день по порядку
+    const d = new Date();
+    const dayNum = Math.floor(d.getTime() / 86400000);
+    return dayNum % 3;
+}
+
+function todaySeed() {
+    const d = new Date();
+    return d.getFullYear() * 10000 + (d.getMonth()+1) * 100 + d.getDate();
+}
+
+window.initDailyGame = function() {
+    refreshDailyGameState();
+    loadLeaderboard();
+};
+
+async function refreshDailyGameState() {
+    const noauth = document.getElementById('dg-noauth');
+    const played  = document.getElementById('dg-played');
+    const game    = document.getElementById('dg-game');
+
+    noauth.style.display = 'none';
+    played.style.display  = 'none';
+    game.style.display    = 'none';
+
+    if (!window._currentUser) {
+        noauth.style.display = 'block';
+        return;
+    }
+
+    const uid    = window._currentUser.uid;
+    const tKey   = todayKey();
+    const snap   = await db.ref(`dailyResults/${tKey}/${uid}`).once('value');
+
+    if (snap.exists()) {
+        // Уже играл
+        const res = snap.val();
+        played.style.display = 'block';
+        document.getElementById('dg-result-text').textContent =
+            res.won ? `Победа! Счёт: ${res.score} очков` : 'К сожалению, не угадали. Попробуйте завтра!';
+        loadLeaderboard();
+        return;
+    }
+
+    // Показать игру
+    game.style.display = 'block';
+    const typeIdx = todayGameType();
+    const gameData = DG_GAMES[typeIdx];
+    document.getElementById('dg-type-label').textContent = gameData.label;
+    document.getElementById('dg-date-label').textContent = tKey;
+    renderDailyGameContent(typeIdx);
+}
+
+function renderDailyGameContent(typeIdx) {
+    const content = document.getElementById('dg-content');
+    content.innerHTML = '';
+    const seed = todaySeed();
+
+    if (typeIdx === 0) renderWordGame(content, seed);
+    else if (typeIdx === 1) renderMathGame(content, seed);
+    else renderLogicGame(content, seed);
+}
+
+// ── Wordle-lite ──
+function renderWordGame(container, seed) {
+    const rng = seededRng(seed);
+    const words = DG_GAMES[0].words;
+    const target = words[Math.floor(rng() * words.length)];
+    const TRIES = 6, LEN = target.length;
+    let currentRow = 0, currentGuess = '';
+    let gameOver = false;
+
+    container.innerHTML = `
+        <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:16px;">
+            Угадай слово из <b>${LEN}</b> букв за 6 попыток.<br>
+            🟩 — буква на месте &nbsp; 🟨 — есть в слове &nbsp; ⬜ — нет в слове
+        </p>
+        <div id="wl-grid" style="display:flex; flex-direction:column; gap:6px; align-items:center; margin-bottom:20px;"></div>
+        <div id="wl-keyboard" style="display:flex; flex-direction:column; gap:5px; align-items:center; margin-bottom:16px;"></div>
+        <div id="wl-msg" style="text-align:center; font-size:0.9rem; color:var(--gold); min-height:24px; margin-bottom:12px;"></div>
+        <div id="wl-submit-area" style="text-align:center;"></div>
+    `;
+
+    // Сетка
+    const grid = document.getElementById('wl-grid');
+    const rows = [];
+    for (let r = 0; r < TRIES; r++) {
+        const row = document.createElement('div');
+        row.style.cssText = 'display:flex; gap:6px;';
+        const cells = [];
+        for (let c = 0; c < LEN; c++) {
+            const cell = document.createElement('div');
+            cell.style.cssText = `
+                width:50px; height:50px; border:2px solid var(--border); border-radius:8px;
+                display:flex; align-items:center; justify-content:center;
+                font-size:1.3rem; font-weight:700; font-family:'DM Sans',sans-serif;
+                color:var(--text); transition: all 0.2s; background: var(--surface);
+            `;
+            row.appendChild(cell);
+            cells.push(cell);
+        }
+        grid.appendChild(row);
+        rows.push(cells);
+    }
+
+    // Клавиатура
+    const kbRows = ['ЙЦУКЕНГШЩЗХЪ','ФЫВАПРОЛДЖЭ','ЯЧСМИТЬБЮ'];
+    const keyMap = {};
+    const kbEl = document.getElementById('wl-keyboard');
+    kbRows.forEach(rowStr => {
+        const rowEl = document.createElement('div');
+        rowEl.style.cssText = 'display:flex; gap:4px; flex-wrap:wrap; justify-content:center;';
+        rowStr.split('').forEach(letter => {
+            const btn = document.createElement('button');
+            btn.textContent = letter;
+            btn.style.cssText = `
+                width:34px; height:36px; border-radius:6px; border:1px solid var(--border);
+                background:var(--surface); color:var(--text); font-size:0.75rem; font-weight:600;
+                cursor:pointer; font-family:'DM Sans',sans-serif; transition:all 0.15s;
+            `;
+            btn.addEventListener('click', () => { if (!gameOver) addLetter(letter); });
+            keyMap[letter] = btn;
+            rowEl.appendChild(btn);
+        });
+        // Удалить и Enter
+        if (rowStr === 'ЯЧСМИТЬБЮ') {
+            const del = document.createElement('button');
+            del.textContent = '⌫';
+            del.style.cssText = `width:44px; height:36px; border-radius:6px; border:1px solid var(--border); background:var(--surface); color:var(--text); font-size:0.85rem; cursor:pointer; font-family:'DM Sans',sans-serif;`;
+            del.addEventListener('click', () => { if (!gameOver) deleteLetter(); });
+            rowEl.appendChild(del);
+        }
+        kbEl.appendChild(rowEl);
+    });
+
+    // Кнопка Enter
+    const enterBtn = document.createElement('button');
+    enterBtn.textContent = 'ПРОВЕРИТЬ';
+    enterBtn.className = 'btn';
+    enterBtn.style.cssText = 'width:auto; margin:0; padding:10px 28px; font-size:0.8rem;';
+    enterBtn.addEventListener('click', () => { if (!gameOver) submitGuess(); });
+    document.getElementById('wl-submit-area').appendChild(enterBtn);
+
+    function addLetter(l) {
+        if (currentGuess.length < LEN) {
+            currentGuess += l;
+            updateCurrentRow();
+        }
+    }
+    function deleteLetter() {
+        if (currentGuess.length > 0) {
+            currentGuess = currentGuess.slice(0, -1);
+            updateCurrentRow();
+        }
+    }
+    function updateCurrentRow() {
+        for (let c = 0; c < LEN; c++) {
+            rows[currentRow][c].textContent = currentGuess[c] || '';
+            rows[currentRow][c].style.borderColor = currentGuess[c] ? 'rgba(196,164,92,0.4)' : 'var(--border)';
+        }
+    }
+    function submitGuess() {
+        const msg = document.getElementById('wl-msg');
+        if (currentGuess.length < LEN) { msg.textContent = `Введите слово из ${LEN} букв`; return; }
+        msg.textContent = '';
+
+        // Подсветка
+        const targetArr = target.split('');
+        const guessArr  = currentGuess.split('');
+        const result    = Array(LEN).fill('absent');
+        const usedTarget = Array(LEN).fill(false);
+        const usedGuess  = Array(LEN).fill(false);
+
+        // Точные совпадения
+        for (let i = 0; i < LEN; i++) {
+            if (guessArr[i] === targetArr[i]) {
+                result[i] = 'correct'; usedTarget[i] = true; usedGuess[i] = true;
+            }
+        }
+        // Присутствует
+        for (let i = 0; i < LEN; i++) {
+            if (usedGuess[i]) continue;
+            for (let j = 0; j < LEN; j++) {
+                if (!usedTarget[j] && guessArr[i] === targetArr[j]) {
+                    result[i] = 'present'; usedTarget[j] = true; break;
+                }
+            }
+        }
+
+        const colorMap = {
+            correct: { bg:'rgba(46,180,100,0.3)', border:'rgba(46,180,100,0.6)', color:'#4ade80' },
+            present: { bg:'rgba(234,179,8,0.25)', border:'rgba(234,179,8,0.5)',  color:'#fbbf24' },
+            absent:  { bg:'var(--surface)',        border:'rgba(255,255,255,0.08)', color:'var(--text-muted)' }
+        };
+
+        result.forEach((r, i) => {
+            const c = colorMap[r];
+            const cell = rows[currentRow][i];
+            cell.style.background    = c.bg;
+            cell.style.borderColor   = c.border;
+            cell.style.color         = c.color;
+            // Обновить клавиатуру
+            const key = keyMap[guessArr[i]];
+            if (key) {
+                if (r === 'correct') { key.style.background = 'rgba(46,180,100,0.4)'; key.style.color = '#4ade80'; }
+                else if (r === 'present' && key.style.background !== 'rgba(46,180,100,0.4)') { key.style.background = 'rgba(234,179,8,0.3)'; key.style.color = '#fbbf24'; }
+                else if (r === 'absent') { key.style.opacity = '0.4'; }
+            }
+        });
+
+        if (currentGuess === target) {
+            gameOver = true;
+            const score = Math.max(10, 60 - currentRow * 10);
+            msg.textContent = '🎉 Верно! Слово угадано!';
+            msg.style.color = '#4ade80';
+            saveDailyResult(true, score);
+            return;
+        }
+
+        currentRow++;
+        currentGuess = '';
+        if (currentRow >= TRIES) {
+            gameOver = true;
+            msg.textContent = `Слово было: ${target}`;
+            msg.style.color = '#f87171';
+            saveDailyResult(false, 0);
+        }
+    }
+
+    // Поддержка клавиатуры
+    const keyHandler = (e) => {
+        if (gameOver) return;
+        if (document.getElementById('tab-dailygame')?.classList.contains('active')) {
+            const key = e.key.toUpperCase();
+            if (key === 'BACKSPACE') deleteLetter();
+            else if (key === 'ENTER') submitGuess();
+            else if (/^[А-ЯЁ]$/.test(key)) addLetter(key);
+        }
+    };
+    document.addEventListener('keydown', keyHandler);
+}
+
+// ── Математика ──
+function renderMathGame(container, seed) {
+    const gameInfo = DG_GAMES[1].generate(seed);
+    let answered = false;
+
+    container.innerHTML = `
+        <div style="text-align:center; padding:20px 0;">
+            <div style="font-family:'Cormorant Garamond',serif; font-size:2.5rem; color:var(--text); margin-bottom:28px;">${gameInfo.question}</div>
+            <input id="math-answer" type="number" placeholder="Ваш ответ..."
+                style="width:200px; text-align:center; font-size:1.3rem; padding:12px; border-radius:12px;
+                       border:1px solid var(--border); background:var(--surface); color:var(--text); outline:none;
+                       font-family:'DM Sans',sans-serif;">
+            <div id="math-msg" style="margin:16px 0; font-size:0.95rem; min-height:24px; color:var(--gold);"></div>
+            <button class="btn" id="math-submit" style="width:auto; margin:0; padding:12px 32px;">Проверить</button>
+        </div>
+    `;
+
+    const inp = document.getElementById('math-answer');
+    const btn = document.getElementById('math-submit');
+    const msg = document.getElementById('math-msg');
+
+    inp.addEventListener('keydown', e => { if (e.key === 'Enter' && !answered) check(); });
+    btn.addEventListener('click', () => { if (!answered) check(); });
+    inp.focus();
+
+    function check() {
+        const val = inp.value.trim();
+        if (!val) { msg.textContent = 'Введите ответ'; return; }
+        answered = true;
+        btn.disabled = true;
+        if (val === gameInfo.answer) {
+            msg.style.color = '#4ade80';
+            msg.textContent = '🎉 Правильно! Отличная работа!';
+            saveDailyResult(true, 50);
+        } else {
+            msg.style.color = '#f87171';
+            msg.textContent = `❌ Неверно. Правильный ответ: ${gameInfo.answer}`;
+            saveDailyResult(false, 0);
+        }
+    }
+}
+
+// ── Логика ──
+function renderLogicGame(container, seed) {
+    const rng = seededRng(seed);
+    const questions = DG_GAMES[2].questions;
+    const q = questions[Math.floor(rng() * questions.length)];
+    let attempts = 0, solved = false;
+
+    container.innerHTML = `
+        <div style="text-align:center; padding:10px 0 20px;">
+            <div style="font-family:'Cormorant Garamond',serif; font-size:1.45rem; font-style:italic;
+                        color:var(--text); margin-bottom:28px; line-height:1.5;">"${q.q}"</div>
+            <div id="logic-hint" style="font-size:0.8rem; color:var(--text-muted); margin-bottom:14px; min-height:20px;"></div>
+            <input id="logic-answer" type="text" placeholder="Ваш ответ..."
+                style="width:280px; text-align:center; font-size:1rem; padding:12px; border-radius:12px;
+                       border:1px solid var(--border); background:var(--surface); color:var(--text); outline:none;
+                       font-family:'DM Sans',sans-serif; -webkit-user-select:text; user-select:text;">
+            <div id="logic-msg" style="margin:14px 0; font-size:0.9rem; min-height:24px; color:var(--gold);"></div>
+            <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+                <button class="btn" id="logic-submit" style="width:auto; margin:0; padding:11px 28px;">Проверить</button>
+                <button class="btn" id="logic-hint-btn" style="width:auto; margin:0; padding:11px 20px; opacity:0.7;">💡 Подсказка</button>
+            </div>
+        </div>
+    `;
+
+    const inp     = document.getElementById('logic-answer');
+    const btn     = document.getElementById('logic-submit');
+    const hintBtn = document.getElementById('logic-hint-btn');
+    const msg     = document.getElementById('logic-msg');
+    const hintEl  = document.getElementById('logic-hint');
+
+    inp.addEventListener('keydown', e => { if (e.key === 'Enter' && !solved) check(); });
+    btn.addEventListener('click', () => { if (!solved) check(); });
+    hintBtn.addEventListener('click', () => {
+        if (attempts < q.hints.length) {
+            hintEl.textContent = '💡 Подсказка: ' + q.hints[attempts];
+            attempts++;
+            if (attempts >= q.hints.length) hintBtn.disabled = true;
+        }
+    });
+    inp.focus();
+
+    function check() {
+        const val = inp.value.trim().toLowerCase();
+        if (!val) { msg.textContent = 'Введите ответ'; return; }
+        const correct = q.a.toLowerCase();
+        if (val === correct || correct.includes(val) || val.includes(correct)) {
+            solved = true;
+            msg.style.color = '#4ade80';
+            msg.textContent = '🎉 Правильно!';
+            btn.disabled = true;
+            const score = Math.max(10, 40 - attempts * 10);
+            saveDailyResult(true, score);
+        } else {
+            attempts++;
+            msg.style.color = '#f87171';
+            msg.textContent = `❌ Неверно. Попытка ${attempts}`;
+            if (attempts >= 3) {
+                solved = true;
+                msg.textContent = `Ответ: ${q.a}`;
+                btn.disabled = true;
+                saveDailyResult(false, 0);
+            }
+        }
+    }
+}
+
+// ── Сохранение результата ──
+async function saveDailyResult(won, score) {
+    if (!window._currentUser) return;
+    const uid   = window._currentUser.uid;
+    const tKey  = todayKey();
+    const uData = window._currentUserData || {};
+
+    await db.ref(`dailyResults/${tKey}/${uid}`).set({
+        username: uData.username || 'Аноним',
+        won, score,
+        timestamp: Date.now(),
+        gameType: todayGameType()
+    });
+
+    // Обновить статистику пользователя
+    const newGames  = (uData.gamesPlayed || 0) + 1;
+    const newWins   = (uData.wins || 0) + (won ? 1 : 0);
+    const streak    = won ? (uData.currentStreak || 0) + 1 : 0;
+    const bestStreak = Math.max(uData.bestStreak || 0, streak);
+
+    await db.ref('users/' + uid).update({
+        gamesPlayed: newGames,
+        wins: newWins,
+        currentStreak: streak,
+        bestStreak
+    });
+
+    window._currentUserData = { ...uData, gamesPlayed: newGames, wins: newWins, currentStreak: streak, bestStreak };
+
+    // Через 2 секунды показать итог
+    setTimeout(() => refreshDailyGameState(), 2000);
+    loadLeaderboard();
+}
+
+// ── Рейтинг ──
+async function loadLeaderboard() {
+    const lb = document.getElementById('dg-leaderboard');
+    if (!lb) return;
+    const tKey = todayKey();
+    try {
+        const snap = await db.ref(`dailyResults/${tKey}`).orderByChild('score').limitToLast(20).once('value');
+        const data = snap.val();
+        if (!data) {
+            lb.innerHTML = '<div style="color:var(--text-muted); font-size:0.85rem;">Сегодня никто ещё не играл</div>';
+            return;
+        }
+        const entries = Object.values(data).filter(e => e.won).sort((a,b) => b.score - a.score);
+        const allPlayed = Object.values(data).filter(e => !e.won);
+
+        let html = `
+            <div style="overflow-x:auto;">
+            <table style="width:100%; border-collapse:collapse; font-size:0.85rem; font-family:'DM Sans',sans-serif;">
+                <thead>
+                    <tr style="border-bottom:1px solid var(--border);">
+                        <th style="padding:8px 12px; text-align:left; color:var(--text-muted); font-weight:500;">#</th>
+                        <th style="padding:8px 12px; text-align:left; color:var(--text-muted); font-weight:500;">Игрок</th>
+                        <th style="padding:8px 12px; text-align:center; color:var(--text-muted); font-weight:500;">Очки</th>
+                        <th style="padding:8px 12px; text-align:center; color:var(--text-muted); font-weight:500;">Результат</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+
+        const all = [...entries, ...allPlayed].slice(0, 20);
+        all.forEach((e, i) => {
+            const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i+1}`;
+            const isMe = window._currentUser && e.username === (window._currentUserData?.username || '');
+            html += `
+                <tr style="border-bottom:1px solid var(--border); ${isMe ? 'background:var(--gold-dim);' : ''}">
+                    <td style="padding:9px 12px; color:var(--gold); font-weight:600;">${medal}</td>
+                    <td style="padding:9px 12px; color:${isMe ? 'var(--gold2)' : 'var(--text)'}; font-weight:${isMe ? '600' : '400'};">
+                        ${e.username || 'Аноним'} ${isMe ? '← вы' : ''}
+                    </td>
+                    <td style="padding:9px 12px; text-align:center; color:var(--gold); font-weight:600;">${e.score || 0}</td>
+                    <td style="padding:9px 12px; text-align:center;">${e.won ? '✅' : '❌'}</td>
+                </tr>
+            `;
+        });
+
+        html += '</tbody></table></div>';
+        html += `<div style="font-size:0.78rem; color:var(--text-muted); margin-top:12px; text-align:right;">
+                    Сыграло сегодня: ${Object.keys(data).length} чел. · Дата: ${tKey}
+                 </div>`;
+        lb.innerHTML = html;
+    } catch(e) {
+        lb.innerHTML = '<div style="color:var(--text-muted);">Не удалось загрузить рейтинг</div>';
+    }
+}
+
+// Защита чата — переопределяем switchTab
+const _origSwitchTab = window.switchTab;
+window.switchTab = function(tabName) {
+    if (tabName === 'chat' && !window._currentUser) {
+        openAuthModal();
+        window._pendingChat = true;
+        return;
+    }
+    _origSwitchTab(tabName);
+    if (tabName === 'dailygame' && !window._dgInit) {
+        initDailyGame();
+        window._dgInit = true;
+    }
+};
+</script>
 </body>
 </html>
