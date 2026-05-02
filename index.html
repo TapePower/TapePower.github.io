@@ -5940,21 +5940,27 @@ function initPlanner() {
       </div>
     </div>
 
-    <!-- ЭКРАН: ПОДТВЕРЖДЕНИЕ EMAIL -->
-    <div id="authScreenVerify" style="display:none;">
-      <h3 style="margin-bottom:12px;">Подтвердите email</h3>
-      <p style="margin-bottom:20px; font-size:0.88rem; color:var(--text-muted);">
-        Мы отправили письмо с подтверждением на вашу почту.<br>
-        После перехода по ссылке нажмите кнопку ниже.
-      </p>
-      <div class="auth-error" id="verifyError" style="color:#6ea88a;"></div>
-      <div class="btn-row" style="margin-top:16px; flex-wrap:wrap;">
-        <button class="m-btn copy-btn" id="verifyCheckBtn" onclick="checkEmailVerified()">Я подтвердил ✓</button>
-        <button class="m-btn ok-btn" onclick="resendVerification()">Отправить снова</button>
-        <button class="m-btn close-btn" onclick="doLogout(); showAuthScreen('choice')">Выйти</button>
-      </div>
-    </div>
+<!-- ЭКРАН: ПОДТВЕРЖДЕНИЕ EMAIL -->
+<div id="authScreenVerify" style="display:none;">
+  <h3 style="margin-bottom:12px;">Подтвердите email</h3>
+  <p style="margin-bottom:8px; font-size:0.88rem; color:var(--text-muted);">
+    Мы отправили письмо с подтверждением на вашу почту.<br>
+    После перехода по ссылке нажмите кнопку ниже.
+  </p>
 
+  <div style="background:rgba(196,164,92,0.08); border:1px solid rgba(196,164,92,0.2); border-radius:10px; padding:12px 14px; margin-bottom:16px; font-size:0.82rem; line-height:1.7;">
+    <span style="color:var(--gold); font-weight:600;">⚠️ Не видите письмо?</span><br>
+    Проверьте папку <b style="color:var(--text);">«Спам»</b> или <b style="color:var(--text);">«Нежелательная почта»</b> — письмо часто попадает туда.<br>
+    Найдите его и нажмите <b style="color:var(--text);">«Не спам»</b> — в следующий раз придёт сразу в inbox.
+  </div>
+
+  <div class="auth-error" id="verifyError" style="color:#6ea88a;"></div>
+  <div class="btn-row" style="margin-top:16px; flex-wrap:wrap;">
+    <button class="m-btn copy-btn" id="verifyCheckBtn" onclick="checkEmailVerified()">Я подтвердил ✓</button>
+    <button class="m-btn ok-btn" onclick="resendVerification()">Отправить снова</button>
+    <button class="m-btn close-btn" onclick="doLogout(); showAuthScreen('choice')">Выйти</button>
+  </div>
+</div>
     <!-- ЭКРАН: ЛОГИН -->
     <div id="authScreenLogin" style="display:none;">
       <h3 style="margin-bottom:16px;">Вход</h3>
