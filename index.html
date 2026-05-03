@@ -4591,7 +4591,7 @@ async function searchMusic() {
             const text = await res.text();
             const data = JSON.parse(text);
             if (!data.results || data.results.length === 0) {
-                resultsDiv.innerHTML = '<div style="color:var(--text-muted);">Ничего не найдено.</div>';
+                resultsDiv.innerHTML = '<div style="color:var(--text-muted);">Ничего не найдено. Попробуйте выключить или включить VPN.</div>';
                 return;
             }
             let html = '';
@@ -4631,7 +4631,7 @@ async function searchBooks() {
         if (!text || text.trim() === '') throw new Error('Пустой ответ');
         const data = JSON.parse(text);
         if (!data.items || data.items.length === 0) {
-            resultsDiv.innerHTML = '<div style="color:var(--text-muted);">Ничего не найдено.</div>';
+            resultsDiv.innerHTML = '<div style="color:var(--text-muted);">Ничего не найдено. Попробуйте выключить или включить VPN.</div>';
             return;
         }
         let html = '';
@@ -4680,7 +4680,7 @@ async function searchFilms() {
         if (!text || text.trim() === '') throw new Error('Пустой ответ');
         const data = JSON.parse(text);
         if (!data.results || data.results.length === 0) {
-            resultsDiv.innerHTML = '<div style="color:var(--text-muted);">Ничего не найдено.</div>';
+            resultsDiv.innerHTML = '<div style="color:var(--text-muted);">Ничего не найдено. Попробуйте выключить или включить VPN.</div>';
             return;
         }
         let html = '';
