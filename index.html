@@ -2169,16 +2169,12 @@
             <div class="chat-messages" id="chatMessagesArea">
                 <div class="chat-empty">✨ Подключаемся к Firebase...</div>
             </div>
-            <div class="chat-input-area">
-                <div class="chat-name-row">
-                    <input type="text" id="chatNameInput" placeholder="Ваше имя..." maxlength="25" autocomplete="off">
-                    <button id="chatSaveNameBtn">💾 Сохранить</button>
-                </div>
-                <div class="chat-message-row">
-                    <input type="text" id="chatMessageInput" placeholder="Сообщение..." maxlength="500" autocomplete="off">
-                    <button id="chatSendBtn">➤</button>
-                </div>
-            </div>
+<div class="chat-input-area">
+    <div class="chat-message-row">
+        <input type="text" id="chatMessageInput" placeholder="Сообщение..." maxlength="500" autocomplete="off">
+        <button id="chatSendBtn">➤</button>
+    </div>
+</div>
         </div>
     </div>
 </div>
@@ -3133,15 +3129,13 @@ function initChat() {
     const database = firebase.database();
 
     const messagesArea = document.getElementById('chatMessagesArea');
-    const nameInput = document.getElementById('chatNameInput');
     const messageInput = document.getElementById('chatMessageInput');
     const sendBtn = document.getElementById('chatSendBtn');
-    const saveNameBtn = document.getElementById('chatSaveNameBtn');
     const currentUserNameDisplay = document.getElementById('chatCurrentUserNameDisplay');
     const connectionStatus = document.getElementById('chatConnectionStatus');
 
     const MAX_MESSAGES = 150;
-    let currentUserName = localStorage.getItem('globalChatName') || 'Гость';
+    let currentUserName = (window._currentUserData?.username) || localStorage.getItem('globalChatName') || 'Гость';
     let messages = [];
 
     function formatTime(ts) {
@@ -3231,38 +3225,11 @@ function initChat() {
         messageInput.focus();
     }
 
-    function saveName() {
-        let newName = nameInput.value.trim();
-        if (!newName) { alert('Имя не может быть пустым.'); return; }
-        if (newName.length > 25) newName = newName.substring(0, 25);
-        const oldName = currentUserName;
-        currentUserName = newName;
-        localStorage.setItem('globalChatName', currentUserName);
-        currentUserNameDisplay.textContent = currentUserName;
-        nameInput.value = currentUserName;
-        if (oldName !== currentUserName && oldName !== 'Гость') {
-            const renameMsg = {
-                id: 'm_' + Date.now() + '_' + Math.random().toString(36).substr(2, 7),
-                sender: 'Система',
-                text: `${oldName} сменил имя на ${currentUserName}`,
-                timestamp: Date.now(),
-                type: 'system'
-            };
-            messagesRef.push(renameMsg);
-        }
-    }
-
-    sendBtn.addEventListener('click', sendMessage);
+sendBtn.addEventListener('click', sendMessage);
     messageInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') { e.preventDefault(); sendMessage(); }
     });
-    saveNameBtn.addEventListener('click', saveName);
-    nameInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') { e.preventDefault(); saveName(); }
-    });
-
     currentUserNameDisplay.textContent = currentUserName;
-    nameInput.value = currentUserName === 'Гость' ? '' : currentUserName;
     messageInput.focus();
 }
 
