@@ -3209,10 +3209,6 @@ function initChat() {
     function sendMessage() {
         const text = messageInput.value.trim();
         if (!text) return;
-        if (!currentUserName || currentUserName === 'Гость') {
-            alert('Пожалуйста, укажите имя перед отправкой.');
-            return;
-        }
         const msg = {
             id: 'm_' + Date.now() + '_' + Math.random().toString(36).substr(2, 7),
             sender: currentUserName,
