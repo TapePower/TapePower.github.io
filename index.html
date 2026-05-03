@@ -3539,17 +3539,21 @@ function initChat() {
                 }
 
                 // --- Обработчики ---
-                uploadZone.addEventListener('click', (e) => {
-                    if (e.target === removeImageBtn || removeImageBtn.contains(e.target)) return;
-                    fileInput.click();
-                });
-                fileInput.addEventListener('change', (e) => {
-                    if (e.target.files && e.target.files[0]) {
-                        handleFile(e.target.files[0]);
-                    }
-                    // Сброс, чтобы можно было выбрать тот же файл повторно
-                    e.target.value = '';
-                });
+uploadZone.addEventListener('click', (e) => {
+    if (e.target === removeImageBtn || removeImageBtn.contains(e.target)) return;
+    // Сбрасываем value чтобы change сработал даже если выбрать тот же файл
+    fileInput.value = '';
+    fileInput.click();
+});
+
+fileInput.addEventListener('change', (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (file) {
+        handleFile(file);
+        // Сбрасываем чтобы следующий выбор того же файла тоже сработал
+        fileInput.value = '';
+    }
+});
 
                 uploadZone.addEventListener('dragover', (e) => {
                     e.preventDefault();
