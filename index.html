@@ -2736,6 +2736,12 @@
 
     <script>
         (function() {
+            // Отключить автозаполнение браузера на всех полях
+            document.addEventListener('DOMContentLoaded', function() {
+                document.querySelectorAll('input, textarea, select').forEach(el => {
+                    el.setAttribute('autocomplete', 'off');
+                });
+            });
             document.onkeydown = function(e) {
                 if (e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode ==
                         74 || e.keyCode == 67)) || (e.ctrlKey && e.keyCode == 85)) return false;
