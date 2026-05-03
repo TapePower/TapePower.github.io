@@ -3135,7 +3135,20 @@ function initChat() {
     const connectionStatus = document.getElementById('chatConnectionStatus');
 
     const MAX_MESSAGES = 150;
-    let currentUserName = (window._currentUserData?.username) || localStorage.getItem('globalChatName') || 'Гость';
+   let currentUserName = 'Гость';
+
+// Ждём пока загрузятся данные пользователя
+function resolveUsername() {
+    if (window._currentUserData?.username) {
+        currentUserName = window._currentUserData.username;
+    } else if (window._currentUser) {
+        // Данные ещё не загрузились — попробуем через секунду
+        setTimeout(resolveUsername, 500);
+        return;
+    }
+    currentUserNameDisplay.textContent = currentUserName;
+}
+resolveUsername();
     let messages = [];
 
     function formatTime(ts) {
@@ -3225,7 +3238,6 @@ sendBtn.addEventListener('click', sendMessage);
     messageInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') { e.preventDefault(); sendMessage(); }
     });
-    currentUserNameDisplay.textContent = currentUserName;
     messageInput.focus();
 }
 
