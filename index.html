@@ -197,11 +197,6 @@
 .tab-search-input:focus {
     width: 180px;
 }
-/* Скрытие нерелевантных вкладок */
-.tab-btn.hidden-by-search {
-    display: none !important;
-}
-
         /* ─── GLASS CARD ─── */
         .glass-card {
             background: var(--surface);
@@ -2099,10 +2094,6 @@
         <div class="site-wordmark">Unified Service — All tools in one place</div>
 
         <div class="tab-nav">
-            <div class="tab-search-wrapper">
-                <span class="search-icon">🔍</span>
-                <input type="text" id="tabSearch" class="tab-search-input" placeholder="Поиск вкладки... (Ctrl+K)">
-            </div>
             <button class="tab-btn auth-nav-btn" id="authNavBtn" onclick="openAuthModal()">👤 Войти</button>
             <button class="tab-btn active" data-tab="home">🏠 Главная</button>
             <button class="tab-btn" data-tab="dailygame">🧩 Игра дня</button>
@@ -2836,51 +2827,7 @@ if (tabName === 'dailygame') {
             tabBtns.forEach(btn => btn.addEventListener('click', () => switchTab(btn.getAttribute('data-tab'))));
             document.querySelectorAll('.home-card').forEach(card => card.addEventListener('click', () => switchTab(
                 card.getAttribute('data-goto'))));
-                            // Поиск по вкладкам
-const tabSearch = document.getElementById('tabSearch');
-if (tabSearch) {
-    tabSearch.addEventListener('input', function() {
-        const query = this.value.trim().toLowerCase();
-        const buttons = document.querySelectorAll('.tab-btn');
-        let firstVisible = null;
 
-        buttons.forEach(btn => {
-            const text = btn.textContent.toLowerCase();
-            const match = query === '' || text.includes(query);
-            btn.classList.toggle('hidden-by-search', !match);
-            if (match && !firstVisible) firstVisible = btn;
-        });
-
-        // Если нажали Enter — активировать первую совпадающую вкладку
-        if (query && firstVisible) {
-            tabSearch.setAttribute('data-first', firstVisible.getAttribute('data-tab'));
-        } else {
-            tabSearch.removeAttribute('data-first');
-        }
-    });
-
-    tabSearch.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            const target = this.getAttribute('data-first');
-            if (target) {
-                switchTab(target);
-                this.value = '';
-                this.dispatchEvent(new Event('input')); // обновить видимость
-                this.blur();
-            }
-        }
-    });
-
-    // Горячая клавиша Ctrl+K – фокус на поиск
-    document.addEventListener('keydown', function(e) {
-        if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-            e.preventDefault();
-            tabSearch.focus();
-            tabSearch.select();
-        }
-    });
-}
 
             // Калькулятор
             let chart = null;
