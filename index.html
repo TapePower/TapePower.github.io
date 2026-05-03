@@ -4581,9 +4581,9 @@ function initCheckers() {
                                 currentAudio === audio) currentAudio = null; });
                         });
                     });
-                } catch (e) {
-                    resultsDiv.innerHTML = '<div style="color:var(--text-muted);">Ошибка загрузки. Если страница открыта локально (file://), попробуйте разместить её на хостинге.</div>';
-                }
+} catch (e) {
+    resultsDiv.innerHTML = '<div style="color:var(--text-muted);">Ошибка загрузки: ' + e.message + '</div>';
+}
             }
 
             // Книги
@@ -4620,9 +4620,9 @@ function initCheckers() {
                     </div>`;
                     });
                     resultsDiv.innerHTML = html;
-        } catch (e) {
-            resultsDiv.innerHTML = '<div style="color:var(--text-muted);">Ошибка загрузки. Если страница открыта локально (file://), попробуйте разместить её на хостинге.</div>';
-        }
+} catch (e) {
+    resultsDiv.innerHTML = '<div style="color:var(--text-muted);">Ошибка загрузки: ' + e.message + '</div>';
+}
             }
 
             // Фильмы
@@ -4662,9 +4662,9 @@ function initCheckers() {
                     </div>`;
                     });
                     resultsDiv.innerHTML = html;
-        } catch (e) {
-            resultsDiv.innerHTML = '<div style="color:var(--text-muted);">Ошибка загрузки. Если страница открыта локально (file://), попробуйте разместить её на хостинге.</div>';
-        }
+} catch (e) {
+    resultsDiv.innerHTML = '<div style="color:var(--text-muted);">Ошибка загрузки: ' + e.message + '</div>';
+}
             }
 
             // Поддержка
