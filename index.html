@@ -6320,7 +6320,7 @@ function todaySeed() {
 
 window.initDailyGame = function() {
     refreshDailyGameState();
-    loadLeaderboard();
+    loadLeaderboard(); // ← рейтинг грузится сразу, даже без авторизации
 };
 
 async function refreshDailyGameState() {
@@ -6657,7 +6657,6 @@ function renderLogicGame(container, seed) {
     }
 }
 
-// ── Сохранение результата ──
 async function saveDailyResult(won, score) {
     if (!window._currentUser) return;
     const uid   = window._currentUser.uid;
@@ -6671,10 +6670,23 @@ async function saveDailyResult(won, score) {
         gameType: todayGameType()
     });
 
+    // Обновить общий рейтинг за всё время
+    const totalRef = db.ref('leaderboard/' + uid);
+    const totalSnap = await totalRef.once('value');
+    const total = totalSnap.val() || { username: uData.username, totalScore: 0, wins: 0, gamesPlayed: 0 };
+
+    await totalRef.set({
+        username: uData.username || 'Аноним',
+        totalScore: (total.totalScore || 0) + score,
+        wins: (total.wins || 0) + (won ? 1 : 0),
+        gamesPlayed: (total.gamesPlayed || 0) + 1,
+        lastPlayed: Date.now()
+    });
+
     // Обновить статистику пользователя
-    const newGames  = (uData.gamesPlayed || 0) + 1;
-    const newWins   = (uData.wins || 0) + (won ? 1 : 0);
-    const streak    = won ? (uData.currentStreak || 0) + 1 : 0;
+    const newGames   = (uData.gamesPlayed || 0) + 1;
+    const newWins    = (uData.wins || 0) + (won ? 1 : 0);
+    const streak     = won ? (uData.currentStreak || 0) + 1 : 0;
     const bestStreak = Math.max(uData.bestStreak || 0, streak);
 
     await db.ref('users/' + uid).update({
@@ -6686,66 +6698,80 @@ async function saveDailyResult(won, score) {
 
     window._currentUserData = { ...uData, gamesPlayed: newGames, wins: newWins, currentStreak: streak, bestStreak };
 
-    // Через 2 секунды показать итог
     setTimeout(() => refreshDailyGameState(), 2000);
     loadLeaderboard();
 }
 
-// ── Рейтинг ──
 async function loadLeaderboard() {
     const lb = document.getElementById('dg-leaderboard');
     if (!lb) return;
-    const tKey = todayKey();
+
+    lb.innerHTML = '<div style="color:var(--text-muted); font-size:0.85rem;">Загрузка...</div>';
+
     try {
-        const snap = await db.ref(`dailyResults/${tKey}`).orderByChild('score').limitToLast(20).once('value');
+        const snap = await db.ref('leaderboard').orderByChild('totalScore').limitToLast(50).once('value');
         const data = snap.val();
+
         if (!data) {
-            lb.innerHTML = '<div style="color:var(--text-muted); font-size:0.85rem;">Сегодня никто ещё не играл</div>';
+            lb.innerHTML = '<div style="color:var(--text-muted); font-size:0.85rem; text-align:center; padding:20px 0;">Никто ещё не играл. Будь первым! 🏆</div>';
             return;
         }
-        const entries = Object.values(data).filter(e => e.won).sort((a,b) => b.score - a.score);
-        const allPlayed = Object.values(data).filter(e => !e.won);
+
+        const entries = Object.values(data).sort((a, b) => b.totalScore - a.totalScore);
 
         let html = `
             <div style="overflow-x:auto;">
             <table style="width:100%; border-collapse:collapse; font-size:0.85rem; font-family:'DM Sans',sans-serif;">
                 <thead>
                     <tr style="border-bottom:1px solid var(--border);">
-                        <th style="padding:8px 12px; text-align:left; color:var(--text-muted); font-weight:500;">#</th>
-                        <th style="padding:8px 12px; text-align:left; color:var(--text-muted); font-weight:500;">Игрок</th>
-                        <th style="padding:8px 12px; text-align:center; color:var(--text-muted); font-weight:500;">Очки</th>
-                        <th style="padding:8px 12px; text-align:center; color:var(--text-muted); font-weight:500;">Результат</th>
+                        <th style="padding:10px 12px; text-align:left; color:var(--text-muted); font-weight:500;">#</th>
+                        <th style="padding:10px 12px; text-align:left; color:var(--text-muted); font-weight:500;">Игрок</th>
+                        <th style="padding:10px 12px; text-align:center; color:var(--text-muted); font-weight:500;">Очки</th>
+                        <th style="padding:10px 12px; text-align:center; color:var(--text-muted); font-weight:500;">Победы</th>
+                        <th style="padding:10px 12px; text-align:center; color:var(--text-muted); font-weight:500;">Игр</th>
                     </tr>
                 </thead>
                 <tbody>
         `;
 
-        const all = [...entries, ...allPlayed].slice(0, 20);
-        all.forEach((e, i) => {
-            const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i+1}`;
-            const isMe = window._currentUser && e.username === (window._currentUserData?.username || '');
+        entries.forEach((e, i) => {
+            const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}`;
+            const isMe = window._currentUser &&
+                window._currentUserData?.username &&
+                e.username === window._currentUserData.username;
+            const winRate = e.gamesPlayed > 0
+                ? Math.round((e.wins / e.gamesPlayed) * 100)
+                : 0;
+
             html += `
-                <tr style="border-bottom:1px solid var(--border); ${isMe ? 'background:var(--gold-dim);' : ''}">
-                    <td style="padding:9px 12px; color:var(--gold); font-weight:600;">${medal}</td>
-                    <td style="padding:9px 12px; color:${isMe ? 'var(--gold2)' : 'var(--text)'}; font-weight:${isMe ? '600' : '400'};">
-                        ${e.username || 'Аноним'} ${isMe ? '← вы' : ''}
+                <tr style="border-bottom:1px solid var(--border); ${isMe ? 'background:var(--gold-dim);' : ''}
+                           transition: background 0.2s;">
+                    <td style="padding:10px 12px; color:var(--gold); font-weight:600; font-size:${i < 3 ? '1.1rem' : '0.85rem'};">${medal}</td>
+                    <td style="padding:10px 12px; color:${isMe ? 'var(--gold2)' : 'var(--text)'}; font-weight:${isMe ? '600' : '400'};">
+                        ${e.username || 'Аноним'} ${isMe ? '<span style="font-size:0.72rem; color:var(--gold); opacity:0.8;">← вы</span>' : ''}
                     </td>
-                    <td style="padding:9px 12px; text-align:center; color:var(--gold); font-weight:600;">${e.score || 0}</td>
-                    <td style="padding:9px 12px; text-align:center;">${e.won ? '✅' : '❌'}</td>
+                    <td style="padding:10px 12px; text-align:center; color:var(--gold); font-weight:700;">${e.totalScore || 0}</td>
+                    <td style="padding:10px 12px; text-align:center; color:#6ea88a; font-weight:600;">${e.wins || 0}
+                        <span style="font-size:0.7rem; color:var(--text-muted);">(${winRate}%)</span>
+                    </td>
+                    <td style="padding:10px 12px; text-align:center; color:var(--text-muted);">${e.gamesPlayed || 0}</td>
                 </tr>
             `;
         });
 
-        html += '</tbody></table></div>';
-        html += `<div style="font-size:0.78rem; color:var(--text-muted); margin-top:12px; text-align:right;">
-                    Сыграло сегодня: ${Object.keys(data).length} чел. · Дата: ${tKey}
-                 </div>`;
+        html += `</tbody></table></div>
+            <div style="font-size:0.75rem; color:var(--text-muted); margin-top:12px;
+                        display:flex; justify-content:space-between; flex-wrap:wrap; gap:6px;">
+                <span>Всего игроков: ${entries.length}</span>
+                <span>Обновлено: ${new Date().toLocaleTimeString('ru-RU', {hour:'2-digit', minute:'2-digit'})}</span>
+            </div>`;
+
         lb.innerHTML = html;
+
     } catch(e) {
         lb.innerHTML = '<div style="color:var(--text-muted);">Не удалось загрузить рейтинг</div>';
     }
 }
-
 // Защита чата — переопределяем switchTab
 const _origSwitchTab = window.switchTab;
 window.switchTab = function(tabName) {
