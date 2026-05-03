@@ -2684,7 +2684,8 @@
         <div class="tab-content" id="tab-support">
             <div class="glass-card">
                 <div class="header"><h2>Написать в поддержку</h2><button class="theme-btn" onclick="toggleTheme()">🌓 Тема</button></div>
-                <form id="supportForm" action="https://formspree.io/f/xzdywgae" method="POST">
+                <form id="supportForm" action="https://formspree.io/f/xzdywgae" method="POST" autocomplete="off">
+                    <input autocomplete="false" name="hidden" type="text" style="display:none;">
                     <input type="text" name="name" placeholder="Ваше имя" required>
                     <input type="email" name="email" placeholder="Ваш email" required style="margin-top:12px;">
                     <textarea name="message" rows="5" placeholder="Ваше сообщение" required style="margin-top:12px;"></textarea>
