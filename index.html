@@ -4535,56 +4535,82 @@ function initCheckers() {
                 document.getElementById('musicSearch').addEventListener('keydown', (e) => { if (e.key === 'Enter')
                         searchMusic(); });
             }
-            async function searchMusic() {
-                const query = document.getElementById('musicSearch').value.trim();
-                if (!query) return;
-                const resultsDiv = document.getElementById('musicResults');
-                resultsDiv.innerHTML = '<div style="color:var(--text-muted);font-size:0.9rem;">Загрузка...</div>';
-                try {
-                    const res = await fetch(
-                        `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&limit=10&media=music`);
-                    const data = await res.json();
-                    if (!data.results || data.results.length === 0) {
-                        resultsDiv.innerHTML = '<div style="color:var(--text-muted);">Ничего не найдено.</div>';
-                        return;
-                    }
-                    let html = '';
-                    data.results.forEach(track => {
-                        html += `<div class="result-card">
-                        <img src="${track.artworkUrl100}" alt="${track.trackName}">
-                        <div class="result-info">
-                            <h4>${track.trackName}</h4>
-                            <p>${track.artistName} · ${track.collectionName || 'Сингл'}</p>
-                        </div>
-                        <button class="play-btn" data-preview="${track.previewUrl || ''}">▶</button>
-                    </div>`;
-                    });
-                    resultsDiv.innerHTML = html;
-                    document.querySelectorAll('.play-btn').forEach(btn => {
-                        btn.addEventListener('click', () => {
-                            const url = btn.dataset.preview;
-                            if (!url) { alert('Нет превью для этого трека'); return; }
-                            if (currentAudio && currentAudio.src === url) {
-                                if (currentAudio.paused) currentAudio.play();
-                                else currentAudio.pause();
-                                return;
-                            }
-                            if (currentAudio) { currentAudio.pause();
-                                currentAudio = null; }
-                            const audio = new Audio(url);
-                            audio.play();
-                            currentAudio = audio;
-                            btn.textContent = '⏸';
-                            audio.addEventListener('ended', () => { btn.textContent = '▶';
-                                currentAudio = null; });
-                            audio.addEventListener('pause', () => { btn.textContent = '▶'; if (
-                                currentAudio === audio) currentAudio = null; });
-                        });
-                    });
-} catch (e) {
-    resultsDiv.innerHTML = '<div style="color:var(--text-muted);">Ошибка загрузки: ' + e.message + '</div>';
-}
+async function searchMusic() {
+    const query = document.getElementById('musicSearch').value.trim();
+    if (!query) return;
+    const resultsDiv = document.getElementById('musicResults');
+    resultsDiv.innerHTML = '<div style="color:var(--text-muted);font-size:0.9rem;">Загрузка...</div>';
+    try {
+        const res = await fetch(
+            `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&limit=10&media=music&entity=song`,
+            { method: 'GET', headers: { 'Accept': 'application/json' } }
+        );
+        const text = await res.text();
+        if (!text || text.trim() === '') throw new Error('Пустой ответ от сервера');
+        const data = JSON.parse(text);
+        if (!data.results || data.results.length === 0) {
+            resultsDiv.innerHTML = '<div style="color:var(--text-muted);">Ничего не найдено.</div>';
+            return;
+        }
+        let html = '';
+        data.results.forEach(track => {
+            html += `<div class="result-card">
+                <img src="${track.artworkUrl100}" alt="${track.trackName}" onerror="this.style.display='none'">
+                <div class="result-info">
+                    <h4>${track.trackName}</h4>
+                    <p>${track.artistName} · ${track.collectionName || 'Сингл'}</p>
+                </div>
+                <button class="play-btn" data-preview="${track.previewUrl || ''}">▶</button>
+            </div>`;
+        });
+        resultsDiv.innerHTML = html;
+        document.querySelectorAll('.play-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const url = btn.dataset.preview;
+                if (!url) { alert('Нет превью для этого трека'); return; }
+                if (currentAudio && currentAudio.src === url) {
+                    if (currentAudio.paused) currentAudio.play();
+                    else currentAudio.pause();
+                    return;
+                }
+                if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+                const audio = new Audio(url);
+                audio.play();
+                currentAudio = audio;
+                btn.textContent = '⏸';
+                audio.addEventListener('ended', () => { btn.textContent = '▶'; currentAudio = null; });
+                audio.addEventListener('pause', () => { btn.textContent = '▶'; if (currentAudio === audio) currentAudio = null; });
+            });
+        });
+    } catch (e) {
+        // Попытка через прокси если прямой запрос не сработал
+        try {
+            const res = await fetch(
+                `https://corsproxy.io/?${encodeURIComponent(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&limit=10&media=music`)}`
+            );
+            const text = await res.text();
+            const data = JSON.parse(text);
+            if (!data.results || data.results.length === 0) {
+                resultsDiv.innerHTML = '<div style="color:var(--text-muted);">Ничего не найдено.</div>';
+                return;
             }
+            let html = '';
+            data.results.forEach(track => {
+                html += `<div class="result-card">
+                    <img src="${track.artworkUrl100}" alt="${track.trackName}" onerror="this.style.display='none'">
+                    <div class="result-info">
+                        <h4>${track.trackName}</h4>
+                        <p>${track.artistName} · ${track.collectionName || 'Сингл'}</p>
+                    </div>
+                    <button class="play-btn" data-preview="${track.previewUrl || ''}">▶</button>
+                </div>`;
+            });
+            resultsDiv.innerHTML = html;
+        } catch(e2) {
+            resultsDiv.innerHTML = '<div style="color:var(--text-muted);">Сервис временно недоступен. Попробуйте позже.</div>';
+        }
+    }
+}
 
             // Книги
             function initBooks() {
@@ -4592,38 +4618,47 @@ function initCheckers() {
                 document.getElementById('bookSearch').addEventListener('keydown', (e) => { if (e.key === 'Enter')
                         searchBooks(); });
             }
-            async function searchBooks() {
-                const query = document.getElementById('bookSearch').value.trim();
-                if (!query) return;
-                const resultsDiv = document.getElementById('booksResults');
-                resultsDiv.innerHTML = '<div style="color:var(--text-muted);font-size:0.9rem;">Загрузка...</div>';
-                try {
-                    const res = await fetch(
-                        `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&maxResults=10`);
-                    const data = await res.json();
-                    if (!data.items || data.items.length === 0) {
-                        resultsDiv.innerHTML = '<div style="color:var(--text-muted);">Ничего не найдено.</div>';
-                        return;
-                    }
-                    let html = '';
-                    data.items.forEach(item => {
-                        const info = item.volumeInfo;
-                        const thumbnail = info.imageLinks?.thumbnail || '';
-                        html += `<div class="result-card">
-                        ${thumbnail ? `<img src="${thumbnail}" alt="${info.title}">` : '<div style="width:72px;height:72px;background:var(--surface);border-radius:10px;flex-shrink:0;"></div>'}
-                        <div class="result-info">
-                            <h4>${info.title}</h4>
-                            <p>${info.authors ? info.authors.join(', ') : 'Автор неизвестен'} · ${info.publishedDate || ''}</p>
-                            <p style="font-size:0.78rem;">${info.description ? info.description.substring(0, 150) + '...' : ''}</p>
-                        </div>
-                        ${info.infoLink ? `<a href="${info.infoLink}" target="_blank" style="color:var(--gold); text-decoration:none; font-size:0.8rem; letter-spacing:0.05em; flex-shrink:0;">→</a>` : ''}
-                    </div>`;
-                    });
-                    resultsDiv.innerHTML = html;
-} catch (e) {
-    resultsDiv.innerHTML = '<div style="color:var(--text-muted);">Ошибка загрузки: ' + e.message + '</div>';
+async function searchBooks() {
+    const query = document.getElementById('bookSearch').value.trim();
+    if (!query) return;
+    const resultsDiv = document.getElementById('booksResults');
+    resultsDiv.innerHTML = '<div style="color:var(--text-muted);font-size:0.9rem;">Загрузка...</div>';
+    try {
+        const res = await fetch(
+            `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&maxResults=10&langRestrict=ru`
+        );
+        const text = await res.text();
+        if (!text || text.trim() === '') throw new Error('Пустой ответ');
+        const data = JSON.parse(text);
+        if (!data.items || data.items.length === 0) {
+            resultsDiv.innerHTML = '<div style="color:var(--text-muted);">Ничего не найдено.</div>';
+            return;
+        }
+        let html = '';
+        data.items.forEach(item => {
+            const info = item.volumeInfo;
+            const thumbnail = info.imageLinks?.thumbnail?.replace('http://', 'https://') || '';
+            html += `<div class="result-card">
+                ${thumbnail
+                    ? `<img src="${thumbnail}" alt="${info.title}" onerror="this.style.display='none'">`
+                    : '<div style="width:72px;height:72px;background:var(--surface);border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.5rem;">📚</div>'
+                }
+                <div class="result-info">
+                    <h4>${info.title}</h4>
+                    <p>${info.authors ? info.authors.join(', ') : 'Автор неизвестен'} · ${info.publishedDate || ''}</p>
+                    <p style="font-size:0.78rem;">${info.description ? info.description.substring(0, 150) + '...' : ''}</p>
+                </div>
+                ${info.infoLink
+                    ? `<a href="${info.infoLink}" target="_blank" style="color:var(--gold);text-decoration:none;font-size:0.8rem;letter-spacing:0.05em;flex-shrink:0;">→</a>`
+                    : ''
+                }
+            </div>`;
+        });
+        resultsDiv.innerHTML = html;
+    } catch (e) {
+        resultsDiv.innerHTML = '<div style="color:var(--text-muted);">Сервис временно недоступен. Попробуйте позже.</div>';
+    }
 }
-            }
 
             // Фильмы
             function initFilms() {
@@ -4631,41 +4666,46 @@ function initCheckers() {
                 document.getElementById('filmSearch').addEventListener('keydown', (e) => { if (e.key === 'Enter')
                         searchFilms(); });
             }
-            async function searchFilms() {
-                const query = document.getElementById('filmSearch').value.trim();
-                if (!query) return;
-                const resultsDiv = document.getElementById('filmsResults');
-                resultsDiv.innerHTML = '<div style="color:var(--text-muted);font-size:0.9rem;">Загрузка...</div>';
-                const apiKey = '2dca580c2a14b55200e784d157207b4d';
-                const url =
-                    `https://api.themoviedb.org/3/search/movie?api_key=${apiKey}&language=ru-RU&query=${encodeURIComponent(query)}`;
-                try {
-                    const response = await fetch(url);
-                    const data = await response.json();
-                    if (!data.results || data.results.length === 0) {
-                        resultsDiv.innerHTML = '<div style="color:var(--text-muted);">Ничего не найдено.</div>';
-                        return;
-                    }
-                    let html = '';
-                    data.results.forEach(movie => {
-                        const poster = movie.poster_path ?
-                            `https://image.tmdb.org/t/p/w200${movie.poster_path}` :
-                            '';
-                        const year = movie.release_date ? movie.release_date.split('-')[0] : '—';
-                        html += `<div class="result-card">
-                        ${poster ? `<img src="${poster}" alt="${movie.title}">` : '<div style="width:72px;height:72px;background:var(--surface);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--text-muted);">🎬</div>'}
-                        <div class="result-info">
-                            <h4>${movie.title}</h4>
-                            <p>${year} · ★ ${movie.vote_average || '—'}</p>
-                            <p style="font-size:0.78rem;">${movie.overview ? movie.overview.substring(0, 200) + '...' : 'Описание отсутствует'}</p>
-                        </div>
-                    </div>`;
-                    });
-                    resultsDiv.innerHTML = html;
-} catch (e) {
-    resultsDiv.innerHTML = '<div style="color:var(--text-muted);">Ошибка загрузки: ' + e.message + '</div>';
+async function searchFilms() {
+    const query = document.getElementById('filmSearch').value.trim();
+    if (!query) return;
+    const resultsDiv = document.getElementById('filmsResults');
+    resultsDiv.innerHTML = '<div style="color:var(--text-muted);font-size:0.9rem;">Загрузка...</div>';
+    const apiKey = '2dca580c2a14b55200e784d157207b4d';
+    try {
+        const res = await fetch(
+            `https://api.themoviedb.org/3/search/movie?api_key=${apiKey}&language=ru-RU&query=${encodeURIComponent(query)}&include_adult=false`
+        );
+        const text = await res.text();
+        if (!text || text.trim() === '') throw new Error('Пустой ответ');
+        const data = JSON.parse(text);
+        if (!data.results || data.results.length === 0) {
+            resultsDiv.innerHTML = '<div style="color:var(--text-muted);">Ничего не найдено.</div>';
+            return;
+        }
+        let html = '';
+        data.results.forEach(movie => {
+            const poster = movie.poster_path
+                ? `https://image.tmdb.org/t/p/w200${movie.poster_path}`
+                : '';
+            const year = movie.release_date ? movie.release_date.split('-')[0] : '—';
+            html += `<div class="result-card">
+                ${poster
+                    ? `<img src="${poster}" alt="${movie.title}" onerror="this.style.display='none'">`
+                    : '<div style="width:72px;height:72px;background:var(--surface);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.5rem;">🎬</div>'
+                }
+                <div class="result-info">
+                    <h4>${movie.title}</h4>
+                    <p>${year} · ★ ${movie.vote_average ? movie.vote_average.toFixed(1) : '—'}</p>
+                    <p style="font-size:0.78rem;">${movie.overview ? movie.overview.substring(0, 200) + '...' : 'Описание отсутствует'}</p>
+                </div>
+            </div>`;
+        });
+        resultsDiv.innerHTML = html;
+    } catch (e) {
+        resultsDiv.innerHTML = '<div style="color:var(--text-muted);">Сервис временно недоступен. Попробуйте позже.</div>';
+    }
 }
-            }
 
             // Поддержка
             function initSupport() {
