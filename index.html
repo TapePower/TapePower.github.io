@@ -2224,14 +2224,14 @@
             <div class="glass-card">
                 <div class="header"><h1>Калькулятор</h1><button class="theme-btn" onclick="toggleTheme()">🌓 Тема</button></div>
                 <div class="subtab-nav">
-                    <button class="subtab-btn" data-subtab="converter">🔄 Конвертация</button>
+                    <button class="subtab-btn active" data-subtab="converter">🔄 Конвертация</button>
                     <button class="subtab-btn" data-subtab="finance">💰 Финансы</button>
                     <button class="subtab-btn" data-subtab="expression">🔢 Выражения</button>
-                    <button class="subtab-btn active" data-subtab="quadratic">📈 Квадратные уравнения</button>
+                    <button class="subtab-btn" data-subtab="quadratic">📈 Квадратные уравнения</button>
                     <button class="subtab-btn" data-subtab="graph">📉 График</button>
                     
                 </div>
-                <div class="subtab-content active" id="subtab-quadratic">
+                <div class="subtab-content" id="subtab-quadratic">
                     <div class="container">
                         <div class="left-side">
                             <div class="input-group">
@@ -2283,7 +2283,7 @@
                     <div class="chart-wrap" style="height:400px; margin-top:28px;"><canvas id="graphCanvas"></canvas></div>
                 </div>
                 <!-- Конвертер величин -->
-<div class="subtab-content" id="subtab-converter">
+<div class="subtab-content active" id="subtab-converter">
     <div class="converter-wrapper">
         <!-- Категории -->
         <div class="category-scroll" id="convCategoryButtons">
