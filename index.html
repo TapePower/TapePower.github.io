@@ -2224,10 +2224,12 @@
             <div class="glass-card">
                 <div class="header"><h1>Калькулятор</h1><button class="theme-btn" onclick="toggleTheme()">🌓 Тема</button></div>
                 <div class="subtab-nav">
-                    <button class="subtab-btn active" data-subtab="quadratic">📈 Квадратные уравнения</button>
-                    <button class="subtab-btn" data-subtab="expression">🔢 Выражения</button>
-                    <button class="subtab-btn" data-subtab="graph">📉 График</button>
                     <button class="subtab-btn" data-subtab="converter">🔄 Конвертация</button>
+                    <button class="subtab-btn" data-subtab="finance">💰 Финансы</button>
+                    <button class="subtab-btn" data-subtab="expression">🔢 Выражения</button>
+                    <button class="subtab-btn active" data-subtab="quadratic">📈 Квадратные уравнения</button>
+                    <button class="subtab-btn" data-subtab="graph">📉 График</button>
+                    
                 </div>
                 <div class="subtab-content active" id="subtab-quadratic">
                     <div class="container">
@@ -2329,6 +2331,96 @@
             <div class="error-msg" id="convErrorMsg"></div>
             <div class="numeral-info" id="convNumeralInfo" style="display:none;"></div>
         </div>
+    </div>
+</div>
+
+                <div class="subtab-content" id="subtab-finance">
+    <div style="display:flex; flex-direction:column; gap:24px;">
+
+        <!-- Переключатель -->
+        <div style="display:flex; gap:8px; background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:5px;">
+            <button id="finDepositBtn" onclick="switchFinMode('deposit')"
+                style="flex:1; padding:9px; border-radius:8px; border:none; cursor:pointer; font-family:'DM Sans',sans-serif; font-size:0.85rem; font-weight:600; transition:all 0.2s; background:var(--gold-dim); color:var(--gold2); border:1px solid rgba(196,164,92,0.3);">
+                🏦 Вклад
+            </button>
+            <button id="finCreditBtn" onclick="switchFinMode('credit')"
+                style="flex:1; padding:9px; border-radius:8px; border:none; cursor:pointer; font-family:'DM Sans',sans-serif; font-size:0.85rem; font-weight:600; transition:all 0.2s; background:transparent; color:var(--text-muted);">
+                💳 Кредит
+            </button>
+        </div>
+
+        <!-- Форма -->
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
+            <div>
+                <label style="font-size:0.78rem; color:var(--text-muted); display:block; margin-bottom:6px; letter-spacing:0.04em; text-transform:uppercase;" id="finAmountLabel">Сумма вклада, ₽</label>
+                <input type="number" id="finAmount" placeholder="100 000" min="0" step="1000"
+                    style="width:100%; padding:12px 14px; background:var(--surface); border:1px solid var(--border); border-radius:10px; color:var(--text); font-family:'DM Sans',sans-serif; font-size:1rem; outline:none; transition:border-color 0.2s;"
+                    onfocus="this.style.borderColor='rgba(196,164,92,0.5)'" onblur="this.style.borderColor='var(--border)'">
+            </div>
+            <div>
+                <label style="font-size:0.78rem; color:var(--text-muted); display:block; margin-bottom:6px; letter-spacing:0.04em; text-transform:uppercase;">Годовая ставка, %</label>
+                <input type="number" id="finRate" placeholder="12" min="0" max="100" step="0.1"
+                    style="width:100%; padding:12px 14px; background:var(--surface); border:1px solid var(--border); border-radius:10px; color:var(--text); font-family:'DM Sans',sans-serif; font-size:1rem; outline:none; transition:border-color 0.2s;"
+                    onfocus="this.style.borderColor='rgba(196,164,92,0.5)'" onblur="this.style.borderColor='var(--border)'">
+            </div>
+            <div>
+                <label style="font-size:0.78rem; color:var(--text-muted); display:block; margin-bottom:6px; letter-spacing:0.04em; text-transform:uppercase;">Срок, месяцев</label>
+                <input type="number" id="finMonths" placeholder="12" min="1" max="360" step="1"
+                    style="width:100%; padding:12px 14px; background:var(--surface); border:1px solid var(--border); border-radius:10px; color:var(--text); font-family:'DM Sans',sans-serif; font-size:1rem; outline:none; transition:border-color 0.2s;"
+                    onfocus="this.style.borderColor='rgba(196,164,92,0.5)'" onblur="this.style.borderColor='var(--border)'">
+            </div>
+            <div id="finExtraWrap">
+                <label style="font-size:0.78rem; color:var(--text-muted); display:block; margin-bottom:6px; letter-spacing:0.04em; text-transform:uppercase;" id="finExtraLabel">Капитализация</label>
+                <select id="finCapitalize"
+                    style="width:100%; padding:12px 14px; background:var(--surface); border:1px solid var(--border); border-radius:10px; color:var(--text); font-family:'DM Sans',sans-serif; font-size:0.9rem; outline:none;">
+                    <option value="monthly">Ежемесячная</option>
+                    <option value="quarterly">Ежеквартальная</option>
+                    <option value="yearly">Ежегодная</option>
+                    <option value="none">Без капитализации</option>
+                </select>
+            </div>
+        </div>
+
+        <button class="btn" onclick="calcFinance()" style="margin-top:0;">Рассчитать</button>
+
+        <!-- Результат -->
+        <div id="finResult" style="display:none;">
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:12px; margin-bottom:20px;">
+                <div style="background:var(--gold-dim); border:1px solid rgba(196,164,92,0.2); border-radius:14px; padding:18px; text-align:center;">
+                    <div style="font-size:0.72rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:8px;" id="finCard1Label">Итоговая сумма</div>
+                    <div style="font-family:'Cormorant Garamond',serif; font-size:1.6rem; color:var(--gold); font-weight:700;" id="finTotal"></div>
+                </div>
+                <div style="background:rgba(110,168,138,0.08); border:1px solid rgba(110,168,138,0.2); border-radius:14px; padding:18px; text-align:center;">
+                    <div style="font-size:0.72rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:8px;" id="finCard2Label">Доход</div>
+                    <div style="font-family:'Cormorant Garamond',serif; font-size:1.6rem; color:#6ea88a; font-weight:700;" id="finProfit"></div>
+                </div>
+                <div style="background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:18px; text-align:center;" id="finCard3Wrap">
+                    <div style="font-size:0.72rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:8px;" id="finCard3Label">Платёж/мес</div>
+                    <div style="font-family:'Cormorant Garamond',serif; font-size:1.6rem; color:var(--text); font-weight:700;" id="finMonthly"></div>
+                </div>
+            </div>
+
+            <!-- График -->
+            <div style="height:260px; margin-bottom:20px;">
+                <canvas id="finChart"></canvas>
+            </div>
+
+            <!-- Таблица по месяцам -->
+            <div style="max-height:280px; overflow-y:auto; border-radius:12px; border:1px solid var(--border);">
+                <table style="width:100%; border-collapse:collapse; font-size:0.82rem; font-family:'DM Sans',sans-serif;">
+                    <thead style="position:sticky; top:0; background:var(--bg2); z-index:1;">
+                        <tr>
+                            <th style="padding:10px 14px; text-align:left; color:var(--text-muted); font-weight:500; border-bottom:1px solid var(--border);">Месяц</th>
+                            <th style="padding:10px 14px; text-align:right; color:var(--text-muted); font-weight:500; border-bottom:1px solid var(--border);" id="finColA">Баланс</th>
+                            <th style="padding:10px 14px; text-align:right; color:var(--text-muted); font-weight:500; border-bottom:1px solid var(--border);" id="finColB">Начислено</th>
+                            <th style="padding:10px 14px; text-align:right; color:var(--text-muted); font-weight:500; border-bottom:1px solid var(--border);" id="finColC">Итого</th>
+                        </tr>
+                    </thead>
+                    <tbody id="finTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
     </div>
 </div>
             </div>
@@ -5837,6 +5929,273 @@ function initPlanner() {
     renderCalendar();
     renderNotes();
 }
+        // ─── ФИНАНСОВЫЙ КАЛЬКУЛЯТОР ───
+let finMode = 'deposit';
+let finChartInstance = null;
+
+window.switchFinMode = function(mode) {
+    finMode = mode;
+    const depBtn = document.getElementById('finDepositBtn');
+    const creBtn = document.getElementById('finCreditBtn');
+    const amtLabel = document.getElementById('finAmountLabel');
+    const extraLabel = document.getElementById('finExtraLabel');
+    const capSel = document.getElementById('finCapitalize');
+    const finResult = document.getElementById('finResult');
+
+    finResult.style.display = 'none';
+
+    if (mode === 'deposit') {
+        depBtn.style.background = 'var(--gold-dim)';
+        depBtn.style.color = 'var(--gold2)';
+        depBtn.style.border = '1px solid rgba(196,164,92,0.3)';
+        creBtn.style.background = 'transparent';
+        creBtn.style.color = 'var(--text-muted)';
+        creBtn.style.border = 'none';
+        amtLabel.textContent = 'Сумма вклада, ₽';
+        extraLabel.textContent = 'Капитализация';
+        capSel.style.display = '';
+        document.getElementById('finExtraWrap').style.display = '';
+    } else {
+        creBtn.style.background = 'var(--gold-dim)';
+        creBtn.style.color = 'var(--gold2)';
+        creBtn.style.border = '1px solid rgba(196,164,92,0.3)';
+        depBtn.style.background = 'transparent';
+        depBtn.style.color = 'var(--text-muted)';
+        depBtn.style.border = 'none';
+        amtLabel.textContent = 'Сумма кредита, ₽';
+        extraLabel.textContent = 'Тип платежа';
+        // Меняем select на тип платежа
+        capSel.innerHTML = `
+            <option value="annuity">Аннуитетный (равные платежи)</option>
+            <option value="differential">Дифференцированный</option>
+        `;
+        document.getElementById('finExtraWrap').style.display = '';
+    }
+};
+
+window.calcFinance = function() {
+    const amount = parseFloat(document.getElementById('finAmount').value);
+    const rate   = parseFloat(document.getElementById('finRate').value);
+    const months = parseInt(document.getElementById('finMonths').value);
+    const extra  = document.getElementById('finCapitalize').value;
+
+    if (isNaN(amount) || isNaN(rate) || isNaN(months) || amount <= 0 || rate <= 0 || months <= 0) {
+        alert('Заполните все поля корректными значениями');
+        return;
+    }
+
+    const fmt = n => n.toLocaleString('ru-RU', { maximumFractionDigits: 2 }) + ' ₽';
+
+    const resultEl   = document.getElementById('finResult');
+    const totalEl    = document.getElementById('finTotal');
+    const profitEl   = document.getElementById('finProfit');
+    const monthlyEl  = document.getElementById('finMonthly');
+    const tbodyEl    = document.getElementById('finTableBody');
+    const card2Label = document.getElementById('finCard2Label');
+    const card3Label = document.getElementById('finCard3Label');
+    const colA       = document.getElementById('finColA');
+    const colB       = document.getElementById('finColB');
+    const colC       = document.getElementById('finColC');
+
+    resultEl.style.display = 'block';
+    tbodyEl.innerHTML = '';
+
+    const chartLabels = [];
+    const chartData1  = []; // основной долг / баланс
+    const chartData2  = []; // проценты накопленные
+
+    if (finMode === 'deposit') {
+        // ── ВКЛАД ──
+        card2Label.textContent = 'Доход';
+        card3Label.textContent = 'Эффективная ставка';
+        colA.textContent = 'Месяц';
+        colB.textContent = 'Начислено %';
+        colC.textContent = 'Баланс';
+
+        document.getElementById('finCard1Label').textContent = 'Итоговая сумма';
+        document.getElementById('finCard3Wrap').style.display = '';
+
+        let balance = amount;
+        let totalInterest = 0;
+        const monthlyRate = rate / 100 / 12;
+        const quarterlyRate = rate / 100 / 4;
+        const yearlyRate = rate / 100;
+
+        for (let m = 1; m <= months; m++) {
+            let interest = 0;
+            if (extra === 'monthly') {
+                interest = balance * monthlyRate;
+                balance += interest;
+            } else if (extra === 'quarterly') {
+                if (m % 3 === 0) { interest = balance * quarterlyRate; balance += interest; }
+            } else if (extra === 'yearly') {
+                if (m % 12 === 0) { interest = balance * yearlyRate; balance += interest; }
+            } else {
+                // без капитализации — простые проценты
+                interest = amount * monthlyRate;
+                balance = amount + amount * monthlyRate * m;
+            }
+            totalInterest += interest;
+            chartLabels.push(`${m} мес`);
+            chartData1.push(+amount.toFixed(2));
+            chartData2.push(+totalInterest.toFixed(2));
+
+            if (m <= 24 || m % 3 === 0 || m === months) {
+                tbodyEl.innerHTML += `
+                    <tr style="border-bottom:1px solid var(--border);">
+                        <td style="padding:9px 14px; color:var(--text-muted);">${m}</td>
+                        <td style="padding:9px 14px; text-align:right; color:#6ea88a;">+${fmt(interest)}</td>
+                        <td style="padding:9px 14px; text-align:right; color:var(--gold); font-weight:600;">${fmt(balance)}</td>
+                    </tr>`;
+            }
+        }
+
+        const effectiveRate = ((balance / amount - 1) / (months / 12) * 100).toFixed(2);
+        totalEl.textContent   = fmt(balance);
+        profitEl.textContent  = fmt(balance - amount);
+        monthlyEl.textContent = effectiveRate + '%';
+
+    } else {
+        // ── КРЕДИТ ──
+        card2Label.textContent = 'Переплата';
+        card3Label.textContent = extra === 'annuity' ? 'Платёж/мес' : 'Первый платёж';
+        colA.textContent = 'Месяц';
+        colB.textContent = 'Проценты';
+        colC.textContent = 'Остаток долга';
+
+        document.getElementById('finCard1Label').textContent = 'Итого выплат';
+        document.getElementById('finCard3Wrap').style.display = '';
+
+        const monthlyRate = rate / 100 / 12;
+        let totalPaid = 0;
+        let balance = amount;
+
+        if (extra === 'annuity') {
+            // Аннуитетный платёж
+            const payment = amount * monthlyRate / (1 - Math.pow(1 + monthlyRate, -months));
+            monthlyEl.textContent = fmt(payment);
+
+            for (let m = 1; m <= months; m++) {
+                const interestPart = balance * monthlyRate;
+                const principalPart = payment - interestPart;
+                balance -= principalPart;
+                if (balance < 0) balance = 0;
+                totalPaid += payment;
+
+                chartLabels.push(`${m} мес`);
+                chartData1.push(+Math.max(0, balance).toFixed(2));
+                chartData2.push(+(totalPaid - amount).toFixed(2));
+
+                if (m <= 24 || m % 3 === 0 || m === months) {
+                    tbodyEl.innerHTML += `
+                        <tr style="border-bottom:1px solid var(--border);">
+                            <td style="padding:9px 14px; color:var(--text-muted);">${m}</td>
+                            <td style="padding:9px 14px; text-align:right; color:#e05c5c;">+${fmt(interestPart)}</td>
+                            <td style="padding:9px 14px; text-align:right; color:var(--gold); font-weight:600;">${fmt(Math.max(0, balance))}</td>
+                        </tr>`;
+                }
+            }
+        } else {
+            // Дифференцированный
+            const principalPart = amount / months;
+            let firstPayment = 0;
+
+            for (let m = 1; m <= months; m++) {
+                const interestPart = balance * monthlyRate;
+                const payment = principalPart + interestPart;
+                if (m === 1) firstPayment = payment;
+                balance -= principalPart;
+                if (balance < 0) balance = 0;
+                totalPaid += payment;
+
+                chartLabels.push(`${m} мес`);
+                chartData1.push(+Math.max(0, balance).toFixed(2));
+                chartData2.push(+(totalPaid - amount).toFixed(2));
+
+                if (m <= 24 || m % 3 === 0 || m === months) {
+                    tbodyEl.innerHTML += `
+                        <tr style="border-bottom:1px solid var(--border);">
+                            <td style="padding:9px 14px; color:var(--text-muted);">${m}</td>
+                            <td style="padding:9px 14px; text-align:right; color:#e05c5c;">+${fmt(interestPart)}</td>
+                            <td style="padding:9px 14px; text-align:right; color:var(--gold); font-weight:600;">${fmt(Math.max(0, balance))}</td>
+                        </tr>`;
+                }
+            }
+            monthlyEl.textContent = fmt(firstPayment);
+        }
+
+        totalEl.textContent  = fmt(totalPaid);
+        profitEl.textContent = fmt(totalPaid - amount);
+    }
+
+    // ── График ──
+    const ctx = document.getElementById('finChart').getContext('2d');
+    if (finChartInstance) finChartInstance.destroy();
+
+    // Прореживаем точки если месяцев много
+    const step = Math.ceil(months / 24);
+    const filteredLabels = chartLabels.filter((_, i) => i % step === 0 || i === months - 1);
+    const filteredData1  = chartData1.filter((_, i) => i % step === 0 || i === months - 1);
+    const filteredData2  = chartData2.filter((_, i) => i % step === 0 || i === months - 1);
+
+    finChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: filteredLabels,
+            datasets: [
+                {
+                    label: finMode === 'deposit' ? 'Основная сумма' : 'Остаток долга',
+                    data: filteredData1,
+                    borderColor: 'rgba(196,164,92,0.8)',
+                    backgroundColor: 'rgba(196,164,92,0.08)',
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    tension: 0.4,
+                    fill: true
+                },
+                {
+                    label: finMode === 'deposit' ? 'Накопленные %' : 'Переплата',
+                    data: filteredData2,
+                    borderColor: finMode === 'deposit' ? 'rgba(110,168,138,0.8)' : 'rgba(224,92,92,0.8)',
+                    backgroundColor: finMode === 'deposit' ? 'rgba(110,168,138,0.06)' : 'rgba(224,92,92,0.06)',
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    tension: 0.4,
+                    fill: true
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            scales: {
+                x: {
+                    ticks: { color: 'rgba(232,228,220,0.3)', font: { size: 10 }, maxTicksLimit: 12 },
+                    grid: { color: 'rgba(255,255,255,0.04)' }
+                },
+                y: {
+                    ticks: {
+                        color: 'rgba(232,228,220,0.3)',
+                        font: { size: 10 },
+                        callback: v => v.toLocaleString('ru-RU') + ' ₽'
+                    },
+                    grid: { color: 'rgba(255,255,255,0.04)' }
+                }
+            },
+            plugins: {
+                legend: {
+                    labels: { color: 'rgba(232,228,220,0.6)', font: { size: 11 }, boxWidth: 12 }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: ctx => ctx.dataset.label + ': ' + ctx.parsed.y.toLocaleString('ru-RU') + ' ₽'
+                    }
+                }
+            }
+        }
+    });
+};
         })();
     </script>
 
