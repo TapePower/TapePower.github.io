@@ -5944,18 +5944,24 @@ window.switchFinMode = function(mode) {
 
     finResult.style.display = 'none';
 
-    if (mode === 'deposit') {
-        depBtn.style.background = 'var(--gold-dim)';
-        depBtn.style.color = 'var(--gold2)';
-        depBtn.style.border = '1px solid rgba(196,164,92,0.3)';
-        creBtn.style.background = 'transparent';
-        creBtn.style.color = 'var(--text-muted)';
-        creBtn.style.border = 'none';
-        amtLabel.textContent = 'Сумма вклада, ₽';
-        extraLabel.textContent = 'Капитализация';
-        capSel.style.display = '';
-        document.getElementById('finExtraWrap').style.display = '';
-    } else {
+if (mode === 'deposit') {
+    depBtn.style.background = 'var(--gold-dim)';
+    depBtn.style.color = 'var(--gold2)';
+    depBtn.style.border = '1px solid rgba(196,164,92,0.3)';
+    creBtn.style.background = 'transparent';
+    creBtn.style.color = 'var(--text-muted)';
+    creBtn.style.border = 'none';
+    amtLabel.textContent = 'Сумма вклада, ₽';
+    extraLabel.textContent = 'Капитализация';
+    capSel.innerHTML = `
+        <option value="monthly">Ежемесячная</option>
+        <option value="quarterly">Ежеквартальная</option>
+        <option value="yearly">Ежегодная</option>
+        <option value="none">Без капитализации</option>
+    `;
+    capSel.style.display = '';
+    document.getElementById('finExtraWrap').style.display = '';
+} else {
         creBtn.style.background = 'var(--gold-dim)';
         creBtn.style.color = 'var(--gold2)';
         creBtn.style.border = '1px solid rgba(196,164,92,0.3)';
