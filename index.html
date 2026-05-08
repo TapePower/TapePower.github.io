@@ -2046,6 +2046,58 @@
     text-align: center;
     letter-spacing: 0.02em;
 }
+  /* ── МОРСКОЙ БОЙ ── */
+.bs-cell {
+    width: 38px; height: 38px;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.15s;
+    background: rgba(0,80,160,0.15);
+    position: relative;
+    user-select: none;
+}
+.bs-cell:hover { background: rgba(196,164,92,0.15); border-color: rgba(196,164,92,0.3); }
+.bs-cell.ship { background: rgba(196,164,92,0.2); border-color: rgba(196,164,92,0.4); }
+.bs-cell.ship-preview { background: rgba(196,164,92,0.15); border-color: rgba(196,164,92,0.3); }
+.bs-cell.ship-preview-bad { background: rgba(224,92,92,0.2); border-color: rgba(224,92,92,0.4); }
+.bs-cell.hit { background: rgba(224,92,92,0.35); border-color: rgba(224,92,92,0.6); cursor: default; }
+.bs-cell.miss { background: rgba(100,150,200,0.2); border-color: rgba(100,150,200,0.3); cursor: default; }
+.bs-cell.sunk { background: rgba(224,92,92,0.5); border-color: rgba(224,92,92,0.8); cursor: default; }
+.bs-cell.no-hover:hover { background: rgba(0,80,160,0.15); border-color: rgba(255,255,255,0.08); cursor: default; }
+.bs-ship-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 12px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; cursor: pointer; transition: all 0.2s;
+    font-size: 0.82rem; color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+}
+.bs-ship-item:hover { border-color: rgba(196,164,92,0.3); color: var(--gold); }
+.bs-ship-item.selected { background: var(--gold-dim); border-color: rgba(196,164,92,0.5); color: var(--gold2); }
+.bs-ship-item.placed { opacity: 0.4; pointer-events: none; text-decoration: line-through; }
+.bs-ship-preview-cells { display: flex; gap: 2px; }
+.bs-ship-preview-cell { width: 12px; height: 12px; border-radius: 2px; background: var(--gold); opacity: 0.7; }
+.bs-place-cell {
+    width: 40px; height: 40px;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s;
+    background: rgba(0,80,160,0.12);
+}
+.bs-place-cell:hover { background: rgba(196,164,92,0.12); }
+.bs-place-cell.ship { background: rgba(196,164,92,0.25); border-color: rgba(196,164,92,0.5); }
+.bs-place-cell.preview-ok { background: rgba(110,168,138,0.2); border-color: rgba(110,168,138,0.4); }
+.bs-place-cell.preview-bad { background: rgba(224,92,92,0.2); border-color: rgba(224,92,92,0.4); }
+@media(max-width:600px) {
+    .bs-cell { width:30px; height:30px; font-size:0.8rem; }
+    .bs-place-cell { width:30px; height:30px; }
+    #bs-enemy-grid, #bs-my-grid { grid-template-columns: repeat(10,30px) !important; }
+    #bs-place-grid { grid-template-columns: repeat(10,30px) !important; }
+}
     </style>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
@@ -2597,6 +2649,7 @@
             <button class="subtab-btn" data-subtab="checkers">⚪️⚫️ Шашки</button>
             <button class="subtab-btn" data-subtab="snake">🐍 Змейка</button>
             <button class="subtab-btn" data-subtab="game2048">🔢 2048</button>
+            <button class="subtab-btn" data-subtab="battleship">🚢 Морской бой</button>
         </div>
 
         <!-- Крестики-нолики -->
@@ -2681,6 +2734,127 @@
                 </div>
             </div>
         </div>
+    <!-- Морской бой -->
+<div class="subtab-content" id="subtab-battleship">
+  <div id="bs-menu">
+    <div style="text-align:center; padding:20px 0 32px;">
+      <div style="font-family:'Cormorant Garamond',serif; font-size:1.2rem; color:var(--text-muted); margin-bottom:32px; letter-spacing:0.04em;">Выберите режим игры</div>
+      <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:16px; max-width:640px; margin:0 auto;">
+        <div class="home-card" id="bs-btn-local" style="padding:32px 20px;">
+          <span class="icon">👥</span>
+          <div class="title">На одном устройстве</div>
+          <div class="desc">Горячий стул · 2 игрока</div>
+        </div>
+        <div class="home-card" id="bs-btn-create" style="padding:32px 20px;">
+          <span class="icon">🌐</span>
+          <div class="title">Создать комнату</div>
+          <div class="desc">Онлайн · поделись кодом</div>
+        </div>
+        <div class="home-card" id="bs-btn-join" style="padding:32px 20px;">
+          <span class="icon">🔗</span>
+          <div class="title">Войти в комнату</div>
+          <div class="desc">Онлайн · введи код</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ВВОД КОДА КОМНАТЫ -->
+  <div id="bs-join-screen" style="display:none; text-align:center; padding:32px 0;">
+    <h3 style="font-family:'Cormorant Garamond',serif; font-size:1.6rem; margin-bottom:24px; background:var(--grad); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;">Войти в комнату</h3>
+    <input id="bs-room-code-input" type="text" placeholder="Введите код комнаты (4 буквы)" maxlength="4"
+      style="width:200px; text-align:center; font-size:1.5rem; letter-spacing:0.3em; text-transform:uppercase; padding:14px; border-radius:12px; border:1px solid var(--border); background:var(--surface); color:var(--gold); font-family:'DM Sans',sans-serif; outline:none; margin-bottom:16px; display:block; margin-left:auto; margin-right:auto;">
+    <div id="bs-join-error" style="color:#f87171; font-size:0.85rem; margin-bottom:16px; min-height:20px;"></div>
+    <div style="display:flex; gap:10px; justify-content:center;">
+      <button class="btn" id="bs-join-confirm" style="width:auto; margin:0; padding:12px 28px;">Войти</button>
+      <button class="btn" id="bs-join-back" style="width:auto; margin:0; padding:12px 20px; opacity:0.6;">Назад</button>
+    </div>
+  </div>
+
+  <!-- ОЖИДАНИЕ ВТОРОГО ИГРОКА -->
+  <div id="bs-waiting-screen" style="display:none; text-align:center; padding:40px 0;">
+    <div style="font-size:3rem; margin-bottom:16px;">⏳</div>
+    <h3 style="font-family:'Cormorant Garamond',serif; font-size:1.6rem; margin-bottom:12px; background:var(--grad); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;">Комната создана!</h3>
+    <p style="color:var(--text-muted); margin-bottom:8px; font-size:0.9rem;">Поделитесь кодом с другом:</p>
+    <div id="bs-room-code-display" style="font-family:'Cormorant Garamond',serif; font-size:3.5rem; color:var(--gold); letter-spacing:0.3em; margin:16px 0; font-weight:700;"></div>
+    <button onclick="bsCopyCode()" class="btn" style="width:auto; margin:0 auto 24px; padding:10px 24px; display:block;">📋 Скопировать код</button>
+    <div style="color:var(--text-muted); font-size:0.85rem; animation: pulse-dot 1.5s ease infinite;">Ожидание второго игрока...</div>
+    <button class="btn" id="bs-waiting-back" style="width:auto; margin:24px auto 0; padding:10px 20px; display:block; opacity:0.6;">Отмена</button>
+  </div>
+
+  <!-- РАССТАНОВКА КОРАБЛЕЙ -->
+  <div id="bs-placement-screen" style="display:none;">
+    <div style="text-align:center; margin-bottom:20px;">
+      <h3 style="font-family:'Cormorant Garamond',serif; font-size:1.6rem; background:var(--grad); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;" id="bs-placement-title">Игрок 1 — Расставьте корабли</h3>
+      <p style="color:var(--text-muted); font-size:0.85rem; margin-top:6px;">Кликните на корабль → кликните на поле. <b style="color:var(--text);">R</b> — повернуть</p>
+    </div>
+    <div style="display:flex; gap:24px; flex-wrap:wrap; justify-content:center; align-items:flex-start;">
+      <div>
+        <div id="bs-place-grid" style="display:grid; grid-template-columns:repeat(10,40px); gap:3px; margin:0 auto;"></div>
+      </div>
+      <div style="min-width:200px;">
+        <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:12px; text-transform:uppercase; letter-spacing:0.06em;">Корабли для расстановки</div>
+        <div id="bs-ships-list" style="display:flex; flex-direction:column; gap:8px;"></div>
+        <div style="margin-top:20px; display:flex; flex-direction:column; gap:8px;">
+          <button class="btn" id="bs-random-place" style="margin:0; padding:11px;">🎲 Случайно</button>
+          <button class="btn" id="bs-clear-place" style="margin:0; padding:11px; opacity:0.7;">🗑️ Очистить</button>
+          <button class="btn" id="bs-confirm-place" style="margin:0; padding:11px;" disabled>✅ Готово</button>
+        </div>
+        <div id="bs-placement-status" style="margin-top:12px; font-size:0.8rem; color:var(--text-muted); text-align:center;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ЭКРАН ПЕРЕДАЧИ УСТРОЙСТВА -->
+  <div id="bs-handover-screen" style="display:none; text-align:center; padding:40px 20px;">
+    <div style="font-size:3rem; margin-bottom:16px;">🙈</div>
+    <h3 style="font-family:'Cormorant Garamond',serif; font-size:1.8rem; margin-bottom:12px; background:var(--grad); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;" id="bs-handover-title">Передайте устройство</h3>
+    <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:28px;" id="bs-handover-desc"></p>
+    <button class="btn" id="bs-handover-btn" style="width:auto; margin:0 auto; padding:14px 36px; display:block;">Я готов 👁️</button>
+  </div>
+
+  <!-- ИГРОВОЕ ПОЛЕ -->
+  <div id="bs-game-screen" style="display:none;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
+      <div style="font-family:'Cormorant Garamond',serif; font-size:1.2rem; color:var(--gold);" id="bs-game-status">Ваш ход</div>
+      <div style="font-size:0.8rem; color:var(--text-muted);" id="bs-game-info"></div>
+      <button class="btn" id="bs-give-up" style="width:auto; margin:0; padding:8px 16px; font-size:0.75rem; opacity:0.7;">🏳️ Сдаться</button>
+    </div>
+    <div style="display:flex; gap:20px; flex-wrap:wrap; justify-content:center;">
+      <div style="text-align:center;">
+        <div style="font-size:0.78rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:8px;" id="bs-enemy-label">Поле противника</div>
+        <div id="bs-enemy-grid" style="display:grid; grid-template-columns:repeat(10,38px); gap:2px;"></div>
+      </div>
+      <div style="text-align:center;">
+        <div style="font-size:0.78rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:8px;" id="bs-my-label">Ваше поле</div>
+        <div id="bs-my-grid" style="display:grid; grid-template-columns:repeat(10,38px); gap:2px;"></div>
+      </div>
+    </div>
+    <div style="display:flex; gap:16px; margin-top:20px; flex-wrap:wrap; justify-content:center;">
+      <div style="background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:10px 20px; text-align:center;">
+        <div style="font-size:0.7rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em;">Попаданий</div>
+        <div style="font-size:1.4rem; color:#6ea88a; font-weight:700;" id="bs-hits-count">0</div>
+      </div>
+      <div style="background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:10px 20px; text-align:center;">
+        <div style="font-size:0.7rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em;">Промахов</div>
+        <div style="font-size:1.4rem; color:#e05c5c; font-weight:700;" id="bs-miss-count">0</div>
+      </div>
+      <div style="background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:10px 20px; text-align:center;">
+        <div style="font-size:0.7rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em;">Потоплено</div>
+        <div style="font-size:1.4rem; color:var(--gold); font-weight:700;" id="bs-sunk-count">0</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ЭКРАН ПОБЕДЫ -->
+  <div id="bs-win-screen" style="display:none; text-align:center; padding:40px 20px;">
+    <div style="font-size:4rem; margin-bottom:16px;" id="bs-win-emoji">🏆</div>
+    <h3 style="font-family:'Cormorant Garamond',serif; font-size:2rem; margin-bottom:12px; background:var(--grad); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;" id="bs-win-title">Победа!</h3>
+    <p style="color:var(--text-muted); margin-bottom:28px;" id="bs-win-desc"></p>
+    <button class="btn" id="bs-play-again" style="width:auto; margin:0 auto; padding:14px 36px; display:block;">Играть снова</button>
+  </div>
+</div>
+    
     </div>
 </div>
         <!-- Цитаты -->
@@ -6202,6 +6376,629 @@ window.calcFinance = function() {
         }
     });
 };
+        // --- Морской бой ---
+function initBattleship() {
+    const db = firebase.database(); // Firebase уже инициализирован для чата и счётчика
+
+    const SHIPS_CONFIG = [
+        { size: 4, count: 1, name: 'Линкор' },
+        { size: 3, count: 2, name: 'Крейсер' },
+        { size: 2, count: 3, name: 'Эсминец' },
+        { size: 1, count: 4, name: 'Катер' },
+    ];
+    const TOTAL_SHIPS = 10;
+    const SIZE = 10;
+
+    let bsMode = null;
+    let bsRoomCode = null;
+    let bsRoomRef = null;
+    let bsMyRole = null;
+    let bsPhase = 'menu';
+    let bsLocalPlayer = 1;
+    let bsBoards = { player1: [], player2: [] };
+    let bsShots  = { player1: [], player2: [] };
+    let bsCurrentTurn = 'player1';
+    let bsSelectedShip = null;
+    let bsOrientation = 'h';
+    let bsPlacedShips = { player1: [], player2: [] };
+    let bsShipsList = [];
+    let bsHits = 0, bsMisses = 0, bsSunk = 0;
+
+    function showScreen(id) {
+        ['bs-menu','bs-join-screen','bs-waiting-screen','bs-placement-screen',
+         'bs-handover-screen','bs-game-screen','bs-win-screen'].forEach(s => {
+            const el = document.getElementById(s);
+            if (el) el.style.display = 'none';
+        });
+        const target = document.getElementById(id);
+        if (target) target.style.display = '';
+    }
+
+    function genRoomCode() {
+        const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+        let code = '';
+        for (let i = 0; i < 4; i++) code += chars[Math.floor(Math.random() * chars.length)];
+        return code;
+    }
+
+    function emptyBoard() {
+        return Array(SIZE).fill(null).map(() => Array(SIZE).fill(0));
+    }
+
+    function canPlace(board, r, c, size, dir) {
+        for (let i = 0; i < size; i++) {
+            const row = dir === 'h' ? r : r + i;
+            const col = dir === 'h' ? c + i : c;
+            if (row < 0 || row >= SIZE || col < 0 || col >= SIZE) return false;
+            for (let dr = -1; dr <= 1; dr++) {
+                for (let dc = -1; dc <= 1; dc++) {
+                    const nr = row + dr, nc = col + dc;
+                    if (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE && board[nr][nc] === 1) return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    function placeShip(board, r, c, size, dir) {
+        for (let i = 0; i < size; i++) {
+            const row = dir === 'h' ? r : r + i;
+            const col = dir === 'h' ? c + i : c;
+            board[row][col] = 1;
+        }
+    }
+
+    function randomBoard() {
+        const board = emptyBoard();
+        const ships = [];
+        for (const cfg of SHIPS_CONFIG) {
+            for (let k = 0; k < cfg.count; k++) {
+                let placed = false;
+                let attempts = 0;
+                while (!placed && attempts < 1000) {
+                    attempts++;
+                    const dir = Math.random() < 0.5 ? 'h' : 'v';
+                    const r = Math.floor(Math.random() * SIZE);
+                    const c = Math.floor(Math.random() * SIZE);
+                    if (canPlace(board, r, c, cfg.size, dir)) {
+                        placeShip(board, r, c, cfg.size, dir);
+                        ships.push({ r, c, size: cfg.size, dir, name: cfg.name });
+                        placed = true;
+                    }
+                }
+            }
+        }
+        return { board, ships };
+    }
+
+    function renderPlacementGrid(playerKey) {
+        const grid = document.getElementById('bs-place-grid');
+        grid.innerHTML = '';
+        const board = bsBoards[playerKey];
+
+        for (let r = 0; r < SIZE; r++) {
+            for (let c = 0; c < SIZE; c++) {
+                const cell = document.createElement('div');
+                cell.className = 'bs-place-cell' + (board[r][c] === 1 ? ' ship' : '');
+                cell.dataset.r = r; cell.dataset.c = c;
+
+                cell.addEventListener('mouseenter', () => {
+                    if (!bsSelectedShip) return;
+                    clearPreview();
+                    showPreview(board, r, c, bsSelectedShip.size, bsOrientation);
+                });
+                cell.addEventListener('mouseleave', () => { clearPreview(); });
+                cell.addEventListener('click', () => {
+                    if (!bsSelectedShip) return;
+                    if (canPlace(board, r, c, bsSelectedShip.size, bsOrientation)) {
+                        placeShip(board, r, c, bsSelectedShip.size, bsOrientation);
+                        bsPlacedShips[playerKey].push({
+                            r, c, size: bsSelectedShip.size,
+                            dir: bsOrientation, name: bsSelectedShip.name
+                        });
+                        markShipItemPlaced(bsSelectedShip.id);
+                        bsSelectedShip = null;
+                        renderPlacementGrid(playerKey);
+                        checkPlacementComplete(playerKey);
+                    }
+                });
+                grid.appendChild(cell);
+            }
+        }
+    }
+
+    function showPreview(board, r, c, size, dir) {
+        const ok = canPlace(board, r, c, size, dir);
+        const cells = document.querySelectorAll('.bs-place-cell');
+        for (let i = 0; i < size; i++) {
+            const pr = dir === 'h' ? r : r + i;
+            const pc = dir === 'h' ? c + i : c;
+            if (pr >= 0 && pr < SIZE && pc >= 0 && pc < SIZE) {
+                const idx = pr * SIZE + pc;
+                if (cells[idx]) {
+                    cells[idx].classList.add(ok ? 'preview-ok' : 'preview-bad');
+                }
+            }
+        }
+    }
+
+    function clearPreview() {
+        document.querySelectorAll('.bs-place-cell').forEach(c => {
+            c.classList.remove('preview-ok', 'preview-bad');
+        });
+    }
+
+    function renderShipsList(playerKey) {
+        const list = document.getElementById('bs-ships-list');
+        list.innerHTML = '';
+        bsShipsList = [];
+        let id = 0;
+        for (const cfg of SHIPS_CONFIG) {
+            for (let k = 0; k < cfg.count; k++) {
+                const shipId = id++;
+                const item = document.createElement('div');
+                item.className = 'bs-ship-item';
+                item.dataset.id = shipId;
+
+                const preview = document.createElement('div');
+                preview.className = 'bs-ship-preview-cells';
+                for (let i = 0; i < cfg.size; i++) {
+                    const sq = document.createElement('div');
+                    sq.className = 'bs-ship-preview-cell';
+                    preview.appendChild(sq);
+                }
+
+                item.appendChild(preview);
+                item.appendChild(document.createTextNode(`${cfg.name} (${cfg.size})`));
+
+                item.addEventListener('click', () => {
+                    document.querySelectorAll('.bs-ship-item').forEach(i => i.classList.remove('selected'));
+                    item.classList.add('selected');
+                    bsSelectedShip = { id: shipId, size: cfg.size, name: cfg.name };
+                });
+
+                list.appendChild(item);
+                bsShipsList.push({ id: shipId, el: item, size: cfg.size });
+            }
+        }
+    }
+
+    function markShipItemPlaced(id) {
+        const ship = bsShipsList.find(s => s.id === id);
+        if (ship) { ship.el.classList.remove('selected'); ship.el.classList.add('placed'); }
+    }
+
+    function checkPlacementComplete(playerKey) {
+        const placed = bsPlacedShips[playerKey].length;
+        const total = SHIPS_CONFIG.reduce((s, c) => s + c.count, 0);
+        const btn = document.getElementById('bs-confirm-place');
+        const status = document.getElementById('bs-placement-status');
+        btn.disabled = placed < total;
+        status.textContent = `Расставлено: ${placed} / ${total}`;
+    }
+
+    function doRandomPlace(playerKey) {
+        const { board, ships } = randomBoard();
+        bsBoards[playerKey] = board;
+        bsPlacedShips[playerKey] = ships;
+        bsSelectedShip = null;
+        renderShipsList(playerKey);
+        ships.forEach((_, i) => {
+            if (bsShipsList[i]) bsShipsList[i].el.classList.add('placed');
+        });
+        renderPlacementGrid(playerKey);
+        checkPlacementComplete(playerKey);
+    }
+
+    function doClearPlace(playerKey) {
+        bsBoards[playerKey] = emptyBoard();
+        bsPlacedShips[playerKey] = [];
+        bsSelectedShip = null;
+        renderShipsList(playerKey);
+        renderPlacementGrid(playerKey);
+        checkPlacementComplete(playerKey);
+    }
+
+    document.addEventListener('keydown', e => {
+        if (e.key === 'r' || e.key === 'R' || e.key === 'к' || e.key === 'К') {
+            bsOrientation = bsOrientation === 'h' ? 'v' : 'h';
+        }
+    });
+
+    function renderGameBoards(myKey, enemyKey) {
+        renderMyBoard(myKey);
+        renderEnemyBoard(enemyKey);
+    }
+
+    function renderMyBoard(myKey) {
+        const grid = document.getElementById('bs-my-grid');
+        grid.innerHTML = '';
+        const board = bsBoards[myKey];
+        const shots = bsShots[myKey === 'player1' ? 'player2' : 'player1'] || [];
+
+        for (let r = 0; r < SIZE; r++) {
+            for (let c = 0; c < SIZE; c++) {
+                const cell = document.createElement('div');
+                cell.className = 'bs-cell no-hover';
+                const shotKey = `${r}_${c}`;
+                const isShip = board[r][c] === 1;
+                const wasShot = shots.includes(shotKey);
+
+                if (wasShot && isShip) { cell.classList.add('hit'); cell.textContent = '💥'; }
+                else if (wasShot) { cell.classList.add('miss'); cell.textContent = '•'; }
+                else if (isShip) { cell.classList.add('ship'); }
+
+                grid.appendChild(cell);
+            }
+        }
+    }
+
+    function renderEnemyBoard(enemyKey, myTurn) {
+        const grid = document.getElementById('bs-enemy-grid');
+        grid.innerHTML = '';
+        const board = bsBoards[enemyKey];
+        const myKey = enemyKey === 'player1' ? 'player2' : 'player1';
+        const shots = bsShots[myKey] || [];
+
+        for (let r = 0; r < SIZE; r++) {
+            for (let c = 0; c < SIZE; c++) {
+                const cell = document.createElement('div');
+                cell.className = 'bs-cell';
+                const shotKey = `${r}_${c}`;
+                const isShip = board[r][c] === 1;
+                const wasShot = shots.includes(shotKey);
+
+                if (wasShot && isShip) { cell.classList.add('hit'); cell.textContent = '💥'; cell.classList.add('no-hover'); }
+                else if (wasShot) { cell.classList.add('miss'); cell.textContent = '•'; cell.classList.add('no-hover'); }
+                else if (myTurn) {
+                    cell.addEventListener('click', () => handleShot(r, c, enemyKey, myKey));
+                } else {
+                    cell.classList.add('no-hover');
+                }
+
+                grid.appendChild(cell);
+            }
+        }
+    }
+
+    function isSunk(board, shots, ship) {
+        for (let i = 0; i < ship.size; i++) {
+            const r = ship.dir === 'h' ? ship.r : ship.r + i;
+            const c = ship.dir === 'h' ? ship.c + i : ship.c;
+            if (!shots.includes(`${r}_${c}`)) return false;
+        }
+        return true;
+    }
+
+    function countSunk(enemyKey, myKey) {
+        const shots = bsShots[myKey];
+        const ships = bsPlacedShips[enemyKey];
+        return ships.filter(s => isSunk(bsBoards[enemyKey], shots, s)).length;
+    }
+
+    function handleShot(r, c, enemyKey, myKey) {
+        const shotKey = `${r}_${c}`;
+        if (!bsShots[myKey]) bsShots[myKey] = [];
+        if (bsShots[myKey].includes(shotKey)) return;
+
+        bsShots[myKey].push(shotKey);
+        const isHit = bsBoards[enemyKey][r][c] === 1;
+        if (isHit) { bsHits++; document.getElementById('bs-hits-count').textContent = bsHits; }
+        else { bsMisses++; document.getElementById('bs-miss-count').textContent = bsMisses; }
+
+        const sunk = countSunk(enemyKey, myKey);
+        bsSunk = sunk;
+        document.getElementById('bs-sunk-count').textContent = sunk;
+
+        if (sunk >= TOTAL_SHIPS) {
+            if (bsMode === 'local') {
+                showWin(`Игрок ${myKey === 'player1' ? 1 : 2} победил!`, '🏆');
+            } else {
+                showWin('Вы победили!', '🏆');
+                if (bsRoomRef) bsRoomRef.child('winner').set(bsMyRole);
+            }
+            return;
+        }
+
+        if (bsMode === 'local') {
+            const nextPlayer = myKey === 'player1' ? 'player2' : 'player1';
+            bsCurrentTurn = nextPlayer;
+            if (!isHit) {
+                showHandover(
+                    `Передайте устройство Игроку ${nextPlayer === 'player1' ? 1 : 2}`,
+                    'Закройте глаза пока соперник передаёт устройство',
+                    () => startLocalTurn(nextPlayer)
+                );
+            } else {
+                bsHits = 0; bsMisses = 0;
+                renderGameBoards(myKey, enemyKey);
+                document.getElementById('bs-game-status').textContent =
+                    `Игрок ${myKey === 'player1' ? 1 : 2} — Попал! Ходите снова`;
+            }
+        } else {
+            bsRoomRef.child('shots').child(bsMyRole).set(bsShots[myKey]);
+            if (!isHit) {
+                bsRoomRef.child('turn').set(bsMyRole === 'player1' ? 'player2' : 'player1');
+            }
+        }
+    }
+
+    function startLocalTurn(playerKey) {
+        bsHits = 0; bsMisses = 0; bsSunk = 0;
+        const enemyKey = playerKey === 'player1' ? 'player2' : 'player1';
+        renderGameBoards(playerKey, enemyKey);
+
+        const hits = (bsShots[playerKey] || []).filter(k => {
+            const [r, c] = k.split('_').map(Number);
+            return bsBoards[enemyKey][r][c] === 1;
+        }).length;
+        const misses = (bsShots[playerKey] || []).length - hits;
+        document.getElementById('bs-hits-count').textContent = hits;
+        document.getElementById('bs-miss-count').textContent = misses;
+        document.getElementById('bs-sunk-count').textContent = countSunk(enemyKey, playerKey);
+
+        document.getElementById('bs-game-status').textContent =
+            `Игрок ${playerKey === 'player1' ? 1 : 2} — Ваш ход`;
+        document.getElementById('bs-my-label').textContent =
+            `Поле Игрока ${playerKey === 'player1' ? 1 : 2}`;
+        document.getElementById('bs-enemy-label').textContent =
+            `Поле противника (Игрок ${enemyKey === 'player1' ? 1 : 2})`;
+
+        showScreen('bs-game-screen');
+        renderEnemyBoard(enemyKey, true);
+    }
+
+    let handoverCallback = null;
+    function showHandover(title, desc, callback) {
+        document.getElementById('bs-handover-title').textContent = title;
+        document.getElementById('bs-handover-desc').textContent = desc;
+        handoverCallback = callback;
+        showScreen('bs-handover-screen');
+    }
+
+    document.getElementById('bs-handover-btn').addEventListener('click', () => {
+        showScreen('bs-game-screen');
+        if (handoverCallback) { handoverCallback(); handoverCallback = null; }
+    });
+
+    function showWin(title, emoji) {
+        document.getElementById('bs-win-title').textContent = title;
+        document.getElementById('bs-win-emoji').textContent = emoji;
+        document.getElementById('bs-win-desc').textContent =
+            `Попаданий: ${bsHits} · Промахов: ${bsMisses}`;
+        showScreen('bs-win-screen');
+        if (bsRoomRef) { bsRoomRef.off(); bsRoomRef = null; }
+    }
+
+    document.getElementById('bs-play-again').addEventListener('click', () => {
+        bsBoards = { player1: emptyBoard(), player2: emptyBoard() };
+        bsShots  = { player1: [], player2: [] };
+        bsPlacedShips = { player1: [], player2: [] };
+        bsHits = 0; bsMisses = 0; bsSunk = 0;
+        bsSelectedShip = null;
+        if (bsRoomRef) { bsRoomRef.off(); bsRoomRef = null; }
+        showScreen('bs-menu');
+    });
+
+    document.getElementById('bs-btn-local').addEventListener('click', () => {
+        bsMode = 'local';
+        bsBoards = { player1: emptyBoard(), player2: emptyBoard() };
+        bsPlacedShips = { player1: [], player2: [] };
+        bsShots = { player1: [], player2: [] };
+        bsLocalPlayer = 1;
+        startPlacement('player1');
+    });
+
+    function startPlacement(playerKey) {
+        bsBoards[playerKey] = emptyBoard();
+        bsPlacedShips[playerKey] = [];
+        bsSelectedShip = null;
+        bsOrientation = 'h';
+        document.getElementById('bs-placement-title').textContent =
+            `Игрок ${playerKey === 'player1' ? 1 : 2} — Расставьте корабли`;
+        renderShipsList(playerKey);
+        renderPlacementGrid(playerKey);
+        checkPlacementComplete(playerKey);
+        showScreen('bs-placement-screen');
+
+        document.getElementById('bs-random-place').onclick = () => doRandomPlace(playerKey);
+        document.getElementById('bs-clear-place').onclick  = () => doClearPlace(playerKey);
+        document.getElementById('bs-confirm-place').onclick = () => {
+            if (bsMode === 'local' && playerKey === 'player1') {
+                showHandover(
+                    'Передайте устройство Игроку 2',
+                    'Игрок 2 должен расставить свои корабли',
+                    () => startPlacement('player2')
+                );
+            } else if (bsMode === 'local' && playerKey === 'player2') {
+                showHandover(
+                    'Передайте устройство Игроку 1',
+                    'Игрок 1 начинает первым',
+                    () => startLocalTurn('player1')
+                );
+            } else if (bsMode === 'online-host' || bsMode === 'online-guest') {
+                confirmOnlinePlacement();
+            }
+        };
+    }
+
+    document.getElementById('bs-give-up').addEventListener('click', () => {
+        if (confirm('Вы уверены что хотите сдаться?')) {
+            if (bsMode === 'local') {
+                const loser = bsCurrentTurn;
+                const winner = loser === 'player1' ? 'player2' : 'player1';
+                showWin(`Игрок ${winner === 'player1' ? 1 : 2} победил!`, '🏳️');
+            } else {
+                showWin('Вы сдались', '🏳️');
+                if (bsRoomRef) bsRoomRef.child('winner').set(bsMyRole === 'player1' ? 'player2' : 'player1');
+            }
+        }
+    });
+
+    document.getElementById('bs-btn-create').addEventListener('click', async () => {
+        bsMode = 'online-host';
+        bsMyRole = 'player1';
+        bsRoomCode = genRoomCode();
+        bsBoards = { player1: emptyBoard(), player2: emptyBoard() };
+        bsPlacedShips = { player1: [], player2: [] };
+        bsShots = { player1: [], player2: [] };
+
+        bsRoomRef = db.ref('battleship_rooms/' + bsRoomCode);
+        await bsRoomRef.set({
+            status: 'waiting',
+            created: Date.now(),
+            turn: 'player1'
+        });
+        bsRoomRef.onDisconnect().remove();
+
+        document.getElementById('bs-room-code-display').textContent = bsRoomCode;
+        showScreen('bs-waiting-screen');
+
+        bsRoomRef.child('status').on('value', snap => {
+            if (snap.val() === 'placement') {
+                bsRoomRef.child('status').off();
+                startPlacement('player1');
+            }
+        });
+    });
+
+    window.bsCopyCode = function() {
+        navigator.clipboard.writeText(bsRoomCode).then(() => alert('Код скопирован: ' + bsRoomCode));
+    };
+
+    document.getElementById('bs-waiting-back').addEventListener('click', () => {
+        if (bsRoomRef) { bsRoomRef.remove(); bsRoomRef = null; }
+        showScreen('bs-menu');
+    });
+
+    document.getElementById('bs-btn-join').addEventListener('click', () => {
+        showScreen('bs-join-screen');
+        document.getElementById('bs-room-code-input').value = '';
+        document.getElementById('bs-join-error').textContent = '';
+    });
+
+    document.getElementById('bs-join-back').addEventListener('click', () => showScreen('bs-menu'));
+
+    document.getElementById('bs-join-confirm').addEventListener('click', async () => {
+        const code = document.getElementById('bs-room-code-input').value.trim().toUpperCase();
+        const errEl = document.getElementById('bs-join-error');
+        if (code.length !== 4) { errEl.textContent = 'Введите 4-буквенный код'; return; }
+
+        const snap = await db.ref('battleship_rooms/' + code).once('value');
+        if (!snap.exists()) { errEl.textContent = 'Комната не найдена'; return; }
+        if (snap.val().status !== 'waiting') { errEl.textContent = 'Игра уже началась'; return; }
+
+        bsMode = 'online-guest';
+        bsMyRole = 'player2';
+        bsRoomCode = code;
+        bsRoomRef = db.ref('battleship_rooms/' + code);
+        bsBoards = { player1: emptyBoard(), player2: emptyBoard() };
+        bsPlacedShips = { player1: [], player2: [] };
+        bsShots = { player1: [], player2: [] };
+
+        await bsRoomRef.child('status').set('placement');
+        startPlacement('player2');
+    });
+
+    document.getElementById('bs-room-code-input').addEventListener('keydown', e => {
+        if (e.key === 'Enter') document.getElementById('bs-join-confirm').click();
+    });
+
+    async function confirmOnlinePlacement() {
+        await bsRoomRef.child('boards').child(bsMyRole).set(bsBoards[bsMyRole]);
+        await bsRoomRef.child('ready').child(bsMyRole).set(true);
+        await bsRoomRef.child('ships').child(bsMyRole).set(bsPlacedShips[bsMyRole]);
+
+        document.getElementById('bs-placement-status').textContent = 'Ожидаем соперника...';
+        document.getElementById('bs-confirm-place').disabled = true;
+
+        bsRoomRef.child('ready').on('value', async snap => {
+            const ready = snap.val() || {};
+            if (ready.player1 && ready.player2) {
+                bsRoomRef.child('ready').off();
+
+                const enemyRole = bsMyRole === 'player1' ? 'player2' : 'player1';
+                const boardSnap = await bsRoomRef.child('boards').child(enemyRole).once('value');
+                const shipsSnap = await bsRoomRef.child('ships').child(enemyRole).once('value');
+                bsBoards[enemyRole] = boardSnap.val();
+                bsPlacedShips[enemyRole] = shipsSnap.val();
+
+                await bsRoomRef.child('status').set('playing');
+                startOnlineGame();
+            }
+        });
+    }
+
+    function startOnlineGame() {
+        bsHits = 0; bsMisses = 0; bsSunk = 0;
+        const enemyRole = bsMyRole === 'player1' ? 'player2' : 'player1';
+
+        showScreen('bs-game-screen');
+        document.getElementById('bs-my-label').textContent = 'Ваше поле';
+        document.getElementById('bs-enemy-label').textContent = 'Поле противника';
+
+        bsRoomRef.child('shots').on('value', snap => {
+            const shots = snap.val() || {};
+            bsShots.player1 = shots.player1 || [];
+            bsShots.player2 = shots.player2 || [];
+
+            const myShots = bsShots[bsMyRole];
+            const enemyShots = bsShots[enemyRole];
+
+            const hits = myShots.filter(k => {
+                const [r, c] = k.split('_').map(Number);
+                return bsBoards[enemyRole][r][c] === 1;
+            }).length;
+            document.getElementById('bs-hits-count').textContent = hits;
+            document.getElementById('bs-miss-count').textContent = myShots.length - hits;
+            document.getElementById('bs-sunk-count').textContent = countSunk(enemyRole, bsMyRole);
+
+            renderMyBoard(bsMyRole);
+        });
+
+        bsRoomRef.child('turn').on('value', snap => {
+            const turn = snap.val();
+            const myTurn = turn === bsMyRole;
+            const enemyRole = bsMyRole === 'player1' ? 'player2' : 'player1';
+
+            document.getElementById('bs-game-status').textContent =
+                myTurn ? '⚔️ Ваш ход — атакуйте!' : '⏳ Ход соперника...';
+
+            renderEnemyBoard(enemyRole, myTurn);
+        });
+
+        bsRoomRef.child('winner').on('value', snap => {
+            if (!snap.val()) return;
+            bsRoomRef.off();
+            if (snap.val() === bsMyRole) showWin('Вы победили! 🎉', '🏆');
+            else showWin('Соперник победил', '😔');
+        });
+    }
+
+    async function handleOnlineShot(r, c) {
+        const enemyRole = bsMyRole === 'player1' ? 'player2' : 'player1';
+        const shotKey = `${r}_${c}`;
+        if (!bsShots[bsMyRole]) bsShots[bsMyRole] = [];
+        if (bsShots[bsMyRole].includes(shotKey)) return;
+
+        bsShots[bsMyRole].push(shotKey);
+        await bsRoomRef.child('shots').child(bsMyRole).set(bsShots[bsMyRole]);
+
+        const isHit = bsBoards[enemyRole][r][c] === 1;
+        const sunk = countSunk(enemyRole, bsMyRole);
+
+        if (sunk >= TOTAL_SHIPS) {
+            await bsRoomRef.child('winner').set(bsMyRole);
+            return;
+        }
+
+        if (!isHit) {
+            await bsRoomRef.child('turn').set(enemyRole);
+        }
+    }
+
+    showScreen('bs-menu');
+}
         })();
     </script>
 
