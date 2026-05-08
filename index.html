@@ -2979,7 +2979,14 @@ function initOnlineCounter() {
         databaseURL: "https://tapepower-3fa61-default-rtdb.firebaseio.com"
     };
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+// Инициализируем Firebase, если он ещё не запущен
+if (!firebase.apps.length) {
+    firebase.initializeApp({
+        apiKey: "AIzaSyDcVfTtrCgF0uaeNeQJeIYITn32tFy9gK0",
+        databaseURL: "https://tapepower-3fa61-default-rtdb.firebaseio.com"
+    });
+}
+const db = firebase.database();
 
     const myRef = db.ref('online/' + clientId);
     myRef.set(true);
