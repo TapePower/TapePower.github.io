@@ -7300,7 +7300,14 @@ function initBattleship() {
 }
        // --- Карты ---
 function initCards() {
-    const db = firebase.database(); // Firebase уже инициализирован
+    // Инициализация Firebase, если ещё не сделана
+if (!firebase.apps.length) {
+    firebase.initializeApp({
+        apiKey: "AIzaSyDcVfTtrCgF0uaeNeQJeIYITn32tFy9gK0",
+        databaseURL: "https://tapepower-3fa61-default-rtdb.firebaseio.com"
+    });
+}
+const db = firebase.database();
 
     // ── Хелперы карт ──
     const SUITS4 = ['♠','♥','♦','♣'];
