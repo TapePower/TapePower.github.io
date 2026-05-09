@@ -2098,6 +2098,89 @@
     #bs-enemy-grid, #bs-my-grid { grid-template-columns: repeat(10,30px) !important; }
     #bs-place-grid { grid-template-columns: repeat(10,30px) !important; }
 }
+    /* ══ КАРТЫ ══ */
+.card {
+    width: 58px; height: 84px;
+    border-radius: 7px;
+    border: 1px solid rgba(255,255,255,0.15);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    font-size: 1.1rem; font-weight: 700;
+    cursor: pointer; user-select: none;
+    position: relative; flex-shrink: 0;
+    transition: transform 0.15s, box-shadow 0.15s;
+    font-family: 'DM Sans', sans-serif;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+}
+.card:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(0,0,0,0.5); }
+.card.selected { transform: translateY(-10px); box-shadow: 0 12px 24px rgba(196,164,92,0.4); border-color: var(--gold); }
+.card.face-up { background: #f8f4ec; }
+.card.face-down { background: linear-gradient(135deg,#1a3a6e,#0d2040); border-color: rgba(196,164,92,0.3); cursor: default; }
+.card.face-down:hover { transform: none; }
+.card.red { color: #c0392b; }
+.card.black { color: #1a1a2e; }
+.card-rank { font-size: 0.85rem; line-height: 1; }
+.card-suit { font-size: 1rem; line-height: 1; }
+.card-back-pattern {
+    width: 100%; height: 100%; border-radius: 6px;
+    background: repeating-linear-gradient(45deg, rgba(196,164,92,0.1) 0px, rgba(196,164,92,0.1) 2px, transparent 2px, transparent 8px);
+}
+.card-top { position: absolute; top: 3px; left: 4px; text-align: left; }
+.card-bottom { position: absolute; bottom: 3px; right: 4px; text-align: right; transform: rotate(180deg); }
+.card-center { font-size: 1.6rem; }
+
+/* Маленькая карта (рука противника) */
+.card-mini {
+    width: 28px; height: 42px;
+    border-radius: 4px;
+    background: linear-gradient(135deg,#1a3a6e,#0d2040);
+    border: 1px solid rgba(196,164,92,0.2);
+    display: inline-block; flex-shrink: 0;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+}
+
+/* Стол дурака - пара карт */
+.durak-pair {
+    display: flex; flex-direction: column; gap: 4px; align-items: center;
+    position: relative;
+}
+.durak-pair .card:last-child { margin-top: -30px; }
+
+/* Кнопки выбора количества */
+.durak-count-btn {
+    padding: 8px 16px; border-radius: 8px;
+    border: 1px solid var(--border); background: var(--surface);
+    color: var(--text); cursor: pointer; font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem; font-weight: 500; transition: all 0.2s;
+}
+.durak-count-btn:hover { border-color: rgba(196,164,92,0.3); color: var(--gold); }
+.durak-count-btn.active { background: var(--gold-dim); border-color: rgba(196,164,92,0.4); color: var(--gold2); font-weight: 600; }
+
+/* Пасьянс */
+.sol-col { display: flex; flex-direction: column; position: relative; }
+.sol-cell {
+    width: 62px; height: 88px;
+    border: 2px dashed rgba(255,255,255,0.08);
+    border-radius: 8px; background: rgba(0,0,0,0.15);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem; color: rgba(255,255,255,0.1); flex-shrink: 0;
+}
+.sol-stacked { margin-top: -68px; }
+.sol-stacked-face-down { margin-top: -76px; }
+
+/* Паук */
+.sp-col { display: flex; flex-direction: column; }
+.sp-stacked { margin-top: -72px; }
+.sp-stacked-face-down { margin-top: -78px; }
+.sp-complete { opacity: 0.4; pointer-events: none; }
+
+@media(max-width:600px) {
+    .card { width:44px; height:66px; font-size:0.85rem; }
+    .card-center { font-size:1.2rem; }
+    .sol-cell { width:44px; height:66px; }
+    .sol-stacked { margin-top:-52px; }
+    .sp-stacked { margin-top:-54px; }
+}
     </style>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
@@ -2650,6 +2733,7 @@
             <button class="subtab-btn" data-subtab="snake">🐍 Змейка</button>
             <button class="subtab-btn" data-subtab="game2048">🔢 2048</button>
             <button class="subtab-btn" data-subtab="battleship">🚢 Морской бой</button>
+            <button class="subtab-btn" data-subtab="cards">🃏 Карты</button>
         </div>
 
         <!-- Крестики-нолики -->
@@ -2855,6 +2939,207 @@
   </div>
 </div>
     
+<!-- Карты -->
+<div class="subtab-content" id="subtab-cards">
+  <div class="glass-card">
+    <div class="header"><h2>Карты</h2><button class="theme-btn" onclick="toggleTheme()">🌓 Тема</button></div>
+
+    <!-- ГЛАВНОЕ МЕНЮ -->
+    <div id="cards-menu">
+      <div style="text-align:center; padding:10px 0 28px;">
+        <div style="font-family:'Cormorant Garamond',serif; font-size:1.1rem; color:var(--text-muted); margin-bottom:28px; letter-spacing:0.04em;">Выберите игру</div>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:16px; max-width:640px; margin:0 auto;">
+          <div class="home-card" id="cards-btn-durak" style="padding:28px 16px;">
+            <span class="icon">🃏</span>
+            <div class="title">Дурак</div>
+            <div class="desc">2–6 игроков · онлайн</div>
+          </div>
+          <div class="home-card" id="cards-btn-solitaire" style="padding:28px 16px;">
+            <span class="icon">♠️</span>
+            <div class="title">Косынка</div>
+            <div class="desc">Пасьянс · 1 игрок</div>
+          </div>
+          <div class="home-card" id="cards-btn-spider" style="padding:28px 16px;">
+            <span class="icon">🕷️</span>
+            <div class="title">Паук</div>
+            <div class="desc">Пасьянс · 1–4 масти</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- МЕНЮ ДУРАКА -->
+    <div id="durak-menu" style="display:none; text-align:center; padding:20px 0;">
+      <h3 style="font-family:'Cormorant Garamond',serif; font-size:1.6rem; margin-bottom:24px; background:var(--grad); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;">Дурак</h3>
+      <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:12px; max-width:500px; margin:0 auto 20px;">
+        <div class="home-card" id="durak-local-btn" style="padding:22px 14px;">
+          <span class="icon">👥</span>
+          <div class="title">На одном устройстве</div>
+          <div class="desc">2–6 игроков</div>
+        </div>
+        <div class="home-card" id="durak-create-btn" style="padding:22px 14px;">
+          <span class="icon">🌐</span>
+          <div class="title">Создать комнату</div>
+          <div class="desc">Онлайн по коду</div>
+        </div>
+        <div class="home-card" id="durak-join-btn" style="padding:22px 14px;">
+          <span class="icon">🔗</span>
+          <div class="title">Войти в комнату</div>
+          <div class="desc">Ввести код</div>
+        </div>
+      </div>
+      <button class="btn" id="durak-back-btn" style="width:auto; margin:0 auto; padding:10px 20px; display:block; opacity:0.6;">← Назад</button>
+    </div>
+
+    <!-- НАСТРОЙКИ ЛОКАЛЬНОЙ ИГРЫ В ДУРАКА -->
+    <div id="durak-setup" style="display:none; text-align:center; padding:20px 0;">
+      <h3 style="font-family:'Cormorant Garamond',serif; font-size:1.4rem; margin-bottom:20px; background:var(--grad); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;">Настройки игры</h3>
+      <div style="max-width:340px; margin:0 auto; display:flex; flex-direction:column; gap:14px;">
+        <div>
+          <label style="font-size:0.8rem; color:var(--text-muted); display:block; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.06em;">Количество игроков</label>
+          <div style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap;" id="durak-players-select">
+            <button class="durak-count-btn active" data-count="2">2</button>
+            <button class="durak-count-btn" data-count="3">3</button>
+            <button class="durak-count-btn" data-count="4">4</button>
+            <button class="durak-count-btn" data-count="5">5</button>
+            <button class="durak-count-btn" data-count="6">6</button>
+          </div>
+        </div>
+        <div>
+          <label style="font-size:0.8rem; color:var(--text-muted); display:block; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.06em;">Колода</label>
+          <div style="display:flex; gap:8px; justify-content:center;">
+            <button class="durak-count-btn active" data-deck="36">36 карт (от 6)</button>
+            <button class="durak-count-btn" data-deck="52">52 карты</button>
+          </div>
+        </div>
+        <div id="durak-names-area" style="display:flex; flex-direction:column; gap:8px;"></div>
+        <button class="btn" id="durak-start-local" style="margin:8px 0 0;">Начать игру</button>
+        <button class="btn" id="durak-setup-back" style="margin:0; opacity:0.6; padding:10px;">← Назад</button>
+      </div>
+    </div>
+
+    <!-- ОНЛАЙН ДУРАК: ВВОД КОДА -->
+    <div id="durak-join-screen" style="display:none; text-align:center; padding:32px 0;">
+      <h3 style="font-family:'Cormorant Garamond',serif; font-size:1.5rem; margin-bottom:20px; background:var(--grad); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;">Войти в комнату</h3>
+      <input id="durak-code-input" type="text" placeholder="КОД КОМНАТЫ" maxlength="4"
+        style="width:180px; text-align:center; font-size:1.8rem; letter-spacing:0.3em; text-transform:uppercase; padding:12px; border-radius:12px; border:1px solid var(--border); background:var(--surface); color:var(--gold); font-family:'DM Sans',sans-serif; outline:none; margin-bottom:12px; display:block; margin-left:auto; margin-right:auto; -webkit-user-select:text; user-select:text;" autocomplete="off">
+      <input id="durak-join-name" type="text" placeholder="Ваше имя" maxlength="15" autocomplete="off"
+        style="width:180px; text-align:center; font-size:1rem; padding:10px; border-radius:10px; border:1px solid var(--border); background:var(--surface); color:var(--text); font-family:'DM Sans',sans-serif; outline:none; margin-bottom:12px; display:block; margin-left:auto; margin-right:auto; -webkit-user-select:text; user-select:text;">
+      <div id="durak-join-error" style="color:#f87171; font-size:0.85rem; margin-bottom:12px; min-height:20px;"></div>
+      <div style="display:flex; gap:10px; justify-content:center;">
+        <button class="btn" id="durak-join-confirm" style="width:auto; margin:0; padding:12px 28px;">Войти</button>
+        <button class="btn" id="durak-join-back-btn" style="width:auto; margin:0; padding:12px 20px; opacity:0.6;">Назад</button>
+      </div>
+    </div>
+
+    <!-- ОНЛАЙН ДУРАК: ЛОББИ -->
+    <div id="durak-lobby" style="display:none; text-align:center; padding:32px 0;">
+      <h3 style="font-family:'Cormorant Garamond',serif; font-size:1.5rem; margin-bottom:12px; background:var(--grad); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;">Комната создана</h3>
+      <p style="color:var(--text-muted); font-size:0.88rem; margin-bottom:8px;">Код комнаты:</p>
+      <div id="durak-lobby-code" style="font-family:'Cormorant Garamond',serif; font-size:3rem; color:var(--gold); letter-spacing:0.3em; margin:8px 0; font-weight:700;"></div>
+      <button onclick="durakCopyCode()" class="btn" style="width:auto; margin:0 auto 20px; padding:10px 24px; display:block;">📋 Скопировать</button>
+      <div style="background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:16px; max-width:300px; margin:0 auto 16px;">
+        <div style="font-size:0.78rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:10px;">Игроки в комнате</div>
+        <div id="durak-lobby-players" style="display:flex; flex-direction:column; gap:6px;"></div>
+      </div>
+      <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+        <div>
+          <label style="font-size:0.75rem; color:var(--text-muted); display:block; margin-bottom:4px;">Колода</label>
+          <div style="display:flex; gap:6px;">
+            <button class="durak-count-btn active" data-deck="36" id="lobby-deck-36">36</button>
+            <button class="durak-count-btn" data-deck="52" id="lobby-deck-52">52</button>
+          </div>
+        </div>
+      </div>
+      <button class="btn" id="durak-lobby-start" style="width:auto; margin:16px auto 8px; padding:12px 32px; display:block;" disabled>▶ Начать игру</button>
+      <button class="btn" id="durak-lobby-leave" style="width:auto; margin:0 auto; padding:10px 20px; display:block; opacity:0.6;">Покинуть</button>
+    </div>
+
+    <!-- ШТОРКА МЕЖДУ ХОДАМИ (локальная) -->
+    <div id="durak-handover" style="display:none; text-align:center; padding:48px 20px;">
+      <div style="font-size:3rem; margin-bottom:16px;">🙈</div>
+      <h3 style="font-family:'Cormorant Garamond',serif; font-size:1.8rem; margin-bottom:12px; background:var(--grad); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;" id="durak-handover-title">Передайте устройство</h3>
+      <p style="color:var(--text-muted); margin-bottom:28px;" id="durak-handover-desc"></p>
+      <button class="btn" id="durak-handover-btn" style="width:auto; margin:0 auto; padding:14px 36px; display:block;">Я готов 👁️</button>
+    </div>
+
+    <!-- ИГРОВОЙ СТОЛ ДУРАКА -->
+    <div id="durak-game" style="display:none;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+        <div style="font-family:'Cormorant Garamond',serif; font-size:1.1rem; color:var(--gold);" id="durak-status"></div>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <div style="font-size:0.8rem; color:var(--text-muted);">Козырь: <span id="durak-trump-display" style="font-size:1.1rem;"></span></div>
+          <div style="font-size:0.8rem; color:var(--text-muted);">Колода: <span id="durak-deck-count" style="color:var(--gold); font-weight:600;">0</span></div>
+        </div>
+        <button class="btn" id="durak-quit-btn" style="width:auto; margin:0; padding:7px 14px; font-size:0.75rem; opacity:0.7;">🚪 Выйти</button>
+      </div>
+
+      <!-- Игроки сверху (противники) -->
+      <div id="durak-opponents" style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-bottom:12px;"></div>
+
+      <!-- Стол (атака/защита) -->
+      <div style="background:rgba(0,80,40,0.2); border:1px solid rgba(110,168,138,0.2); border-radius:16px; padding:16px; min-height:160px; margin-bottom:12px;">
+        <div style="font-size:0.72rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:10px;">Стол</div>
+        <div id="durak-table" style="display:flex; gap:8px; flex-wrap:wrap; min-height:110px; align-items:center;"></div>
+      </div>
+
+      <!-- Рука текущего игрока -->
+      <div style="background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:14px;">
+        <div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:10px;" id="durak-hand-label">Ваши карты</div>
+        <div id="durak-hand" style="display:flex; gap:6px; flex-wrap:wrap; justify-content:center; min-height:90px; align-items:center;"></div>
+        <div style="display:flex; gap:8px; justify-content:center; margin-top:12px; flex-wrap:wrap;">
+          <button class="btn" id="durak-beat-btn" style="width:auto; margin:0; padding:9px 20px; display:none;">✅ Отбито</button>
+          <button class="btn" id="durak-take-btn" style="width:auto; margin:0; padding:9px 20px; display:none; opacity:0.8;">📥 Взять карты</button>
+          <button class="btn" id="durak-pass-btn" style="width:auto; margin:0; padding:9px 20px; display:none; opacity:0.7;">⏭️ Пас</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ИТОГ ИГРЫ В ДУРАКА -->
+    <div id="durak-result" style="display:none; text-align:center; padding:40px 20px;">
+      <div style="font-size:3.5rem; margin-bottom:16px;" id="durak-result-emoji">🃏</div>
+      <h3 style="font-family:'Cormorant Garamond',serif; font-size:2rem; margin-bottom:12px; background:var(--grad); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;" id="durak-result-title"></h3>
+      <p style="color:var(--text-muted); margin-bottom:28px;" id="durak-result-desc"></p>
+      <button class="btn" id="durak-again-btn" style="width:auto; margin:0 auto; padding:14px 36px; display:block;">Играть снова</button>
+    </div>
+
+    <!-- КОСЫНКА -->
+    <div id="solitaire-game" style="display:none;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:8px;">
+        <div style="display:flex; gap:16px; align-items:center;">
+          <div style="font-size:0.85rem; color:var(--text-muted);">Очки: <span id="sol-score" style="color:var(--gold); font-weight:700;">0</span></div>
+          <div style="font-size:0.85rem; color:var(--text-muted);">Время: <span id="sol-timer" style="color:var(--text); font-weight:600;">00:00</span></div>
+          <div style="font-size:0.85rem; color:var(--text-muted);">Ходы: <span id="sol-moves" style="color:var(--text);">0</span></div>
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button class="btn" id="sol-undo-btn" style="width:auto; margin:0; padding:8px 14px; font-size:0.78rem;">↩ Отмена</button>
+          <button class="btn" id="sol-new-btn" style="width:auto; margin:0; padding:8px 14px; font-size:0.78rem;">🔄 Новая</button>
+          <button class="btn" id="sol-back-btn" style="width:auto; margin:0; padding:8px 14px; font-size:0.78rem; opacity:0.6;">← Меню</button>
+        </div>
+      </div>
+      <div id="sol-board" style="overflow-x:auto; padding-bottom:8px;"></div>
+    </div>
+
+    <!-- ПАУК -->
+    <div id="spider-game" style="display:none;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+        <div style="display:flex; gap:16px; align-items:center;">
+          <div style="font-size:0.85rem; color:var(--text-muted);">Очки: <span id="sp-score" style="color:var(--gold); font-weight:700;">500</span></div>
+          <div style="font-size:0.85rem; color:var(--text-muted);">Ходы: <span id="sp-moves" style="color:var(--text);">0</span></div>
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end;">
+          <button class="btn" id="sp-deal-btn" style="width:auto; margin:0; padding:8px 14px; font-size:0.78rem;">🃏 Добавить карты</button>
+          <button class="btn" id="sp-undo-btn" style="width:auto; margin:0; padding:8px 14px; font-size:0.78rem;">↩ Отмена</button>
+          <button class="btn" id="sp-new-btn" style="width:auto; margin:0; padding:8px 14px; font-size:0.78rem;">🔄 Новая</button>
+          <button class="btn" id="sp-back-btn" style="width:auto; margin:0; padding:8px 14px; font-size:0.78rem; opacity:0.6;">← Меню</button>
+        </div>
+      </div>
+      <div id="sp-board" style="overflow-x:auto; padding-bottom:8px;"></div>
+    </div>
+
+  </div>
+</div>
+        
     </div>
 </div>
         <!-- Цитаты -->
@@ -3301,6 +3586,10 @@ if (btn.dataset.subtab === 'converter' && !window._convInit) {
 if (btn.dataset.subtab === 'battleship' && !window._battleshipInit) {
     initBattleship();
     window._battleshipInit = true;
+}
+            if (btn.dataset.subtab === 'cards' && !window._cardsInit) {
+    initCards();
+    window._cardsInit = true;
 }
         });
     });
@@ -7008,6 +7297,1047 @@ function initBattleship() {
     }
 
     showScreen('bs-menu');
+}
+       // --- Карты ---
+function initCards() {
+    const db = firebase.database(); // Firebase уже инициализирован
+
+    // ── Хелперы карт ──
+    const SUITS4 = ['♠','♥','♦','♣'];
+    const SUITS_COLOR = { '♠':'black','♣':'black','♥':'red','♦':'red' };
+    const RANKS36 = ['6','7','8','9','10','J','Q','K','A'];
+    const RANKS52 = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
+    const RANK_VAL36 = {'6':6,'7':7,'8':8,'9':9,'10':10,'J':11,'Q':12,'K':13,'A':14};
+    const RANK_VAL52 = {'2':2,'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,'10':10,'J':11,'Q':12,'K':13,'A':14};
+
+    function makeDeck(count) {
+        const ranks = count === 36 ? RANKS36 : RANKS52;
+        const deck = [];
+        for (const s of SUITS4) for (const r of ranks) deck.push({ suit: s, rank: r });
+        return deck;
+    }
+
+    function shuffle(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    }
+
+    function cardHTML(card, extra = '') {
+        if (!card) return `<div class="card face-down"><div class="card-back-pattern"></div></div>`;
+        const col = SUITS_COLOR[card.suit];
+        return `<div class="card face-up ${col} ${extra}" data-rank="${card.rank}" data-suit="${card.suit}">
+            <div class="card-top"><div class="card-rank">${card.rank}</div><div class="card-suit">${card.suit}</div></div>
+            <div class="card-center">${card.suit}</div>
+            <div class="card-bottom"><div class="card-rank">${card.rank}</div><div class="card-suit">${card.suit}</div></div>
+        </div>`;
+    }
+
+    // ── Навигация ──
+    function showCardsScreen(id) {
+        ['cards-menu','durak-menu','durak-setup','durak-join-screen','durak-lobby',
+         'durak-handover','durak-game','durak-result',
+         'solitaire-game','spider-game'].forEach(s => {
+            const el = document.getElementById(s);
+            if (el) el.style.display = 'none';
+        });
+        const t = document.getElementById(id);
+        if (t) t.style.display = '';
+    }
+
+    document.getElementById('cards-btn-durak').addEventListener('click', () => showCardsScreen('durak-menu'));
+    document.getElementById('cards-btn-solitaire').addEventListener('click', () => { showCardsScreen('solitaire-game'); initSolitaire(); });
+    document.getElementById('cards-btn-spider').addEventListener('click', () => { showCardsScreen('spider-game'); showSpiderDiffMenu(); });
+    document.getElementById('durak-back-btn').addEventListener('click', () => showCardsScreen('cards-menu'));
+
+    // ═══════════════════════════════════════════
+    // ДУРАК
+    // ═══════════════════════════════════════════
+    let durakState = {};
+    let durakOnlineRef = null;
+    let durakMyId = null;
+    let durakDeckSize = 36;
+    let durakPlayerCount = 2;
+    let durakPlayerNames = [];
+
+    // Выбор кол-ва игроков
+    document.querySelectorAll('#durak-players-select .durak-count-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('#durak-players-select .durak-count-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            durakPlayerCount = parseInt(btn.dataset.count);
+            renderNameInputs();
+        });
+    });
+
+    // Выбор колоды
+    document.querySelectorAll('#durak-setup .durak-count-btn[data-deck]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('#durak-setup .durak-count-btn[data-deck]').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            durakDeckSize = parseInt(btn.dataset.deck);
+        });
+    });
+
+    function renderNameInputs() {
+        const area = document.getElementById('durak-names-area');
+        area.innerHTML = '';
+        for (let i = 0; i < durakPlayerCount; i++) {
+            const inp = document.createElement('input');
+            inp.type = 'text'; inp.placeholder = `Имя игрока ${i+1}`;
+            inp.value = durakPlayerNames[i] || `Игрок ${i+1}`;
+            inp.maxLength = 15; inp.autocomplete = 'off';
+            inp.style.cssText = 'width:100%; padding:9px 12px; background:var(--surface); border:1px solid var(--border); border-radius:8px; color:var(--text); font-family:"DM Sans",sans-serif; font-size:0.88rem; outline:none; -webkit-user-select:text; user-select:text;';
+            inp.addEventListener('input', () => { durakPlayerNames[i] = inp.value || `Игрок ${i+1}`; });
+            area.appendChild(inp);
+        }
+    }
+
+    document.getElementById('durak-local-btn').addEventListener('click', () => {
+        durakPlayerNames = [];
+        for (let i = 0; i < durakPlayerCount; i++) durakPlayerNames.push(`Игрок ${i+1}`);
+        renderNameInputs();
+        showCardsScreen('durak-setup');
+    });
+
+    document.getElementById('durak-setup-back').addEventListener('click', () => showCardsScreen('durak-menu'));
+
+    document.getElementById('durak-start-local').addEventListener('click', () => {
+        const names = [];
+        document.querySelectorAll('#durak-names-area input').forEach((inp, i) => {
+            names.push(inp.value.trim() || `Игрок ${i+1}`);
+        });
+        durakPlayerNames = names;
+        startDurakLocal(durakPlayerCount, durakDeckSize, durakPlayerNames);
+    });
+
+    // ── Ядро игры Дурак ──
+    function startDurakLocal(playerCount, deckSize, names) {
+        const deck = shuffle(makeDeck(deckSize));
+        const trumpCard = deck[deck.length - 1];
+        const trump = trumpCard.suit;
+
+        const players = names.map((name, i) => ({
+            id: i, name,
+            hand: deck.splice(0, 6)
+        }));
+
+        durakState = {
+            mode: 'local',
+            deck, trump, trumpCard,
+            players,
+            attackerIdx: 0,
+            defenderIdx: 1,
+            currentPlayerIdx: 0,
+            tableCards: [], // [{attack, defense}]
+            phase: 'attack', // attack | defense | done
+            passCount: 0,
+            loser: null
+        };
+
+        durakMyId = 0;
+        showDurakHandover(
+            `Ход начинает ${names[0]}`,
+            `Передайте устройство ${names[0]}`,
+            () => renderDurakGame()
+        );
+    }
+
+    function rankVal(rank, deckSize) {
+        return deckSize === 36 ? RANK_VAL36[rank] : RANK_VAL52[rank];
+    }
+
+    function canBeat(attack, defense, trump) {
+        if (defense.suit === attack.suit) {
+            return RANK_VAL52[defense.rank] > RANK_VAL52[attack.rank];
+        }
+        return defense.suit === trump && attack.suit !== trump;
+    }
+
+    function canAttack(card, tableCards) {
+        if (tableCards.length === 0) return true;
+        const ranks = tableCards.flatMap(p => [p.attack.rank, p.defense?.rank].filter(Boolean));
+        return ranks.includes(card.rank);
+    }
+
+    function renderDurakGame() {
+        showCardsScreen('durak-game');
+        const s = durakState;
+        const attacker = s.players[s.attackerIdx];
+        const defender = s.players[s.defenderIdx];
+        const current = s.players[s.currentPlayerIdx];
+
+        // Статус
+        document.getElementById('durak-trump-display').textContent =
+            `${s.trumpCard.rank}${s.trump}`;
+        document.getElementById('durak-deck-count').textContent = s.deck.length;
+
+        const isMyTurn = s.mode === 'local';
+        const phase = s.phase;
+        const isAttacker = s.currentPlayerIdx === s.attackerIdx;
+        const isDefender = s.currentPlayerIdx === s.defenderIdx;
+
+        let statusText = '';
+        if (phase === 'attack') statusText = isAttacker ? `${current.name} — Атакуйте` : `${attacker.name} атакует`;
+        else if (phase === 'defense') statusText = isDefender ? `${current.name} — Отбивайтесь` : `${defender.name} защищается`;
+        document.getElementById('durak-status').textContent = statusText;
+
+        // Противники
+        const oppEl = document.getElementById('durak-opponents');
+        oppEl.innerHTML = '';
+        s.players.forEach((p, i) => {
+            if (i === s.currentPlayerIdx) return;
+            const div = document.createElement('div');
+            div.style.cssText = 'background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:10px 14px; text-align:center; min-width:80px;';
+            const role = i === s.attackerIdx ? '⚔️' : i === s.defenderIdx ? '🛡️' : '➕';
+            div.innerHTML = `<div style="font-size:0.72rem; color:var(--text-muted); margin-bottom:6px;">${role} ${p.name}</div>
+                <div style="display:flex; gap:2px; flex-wrap:wrap; justify-content:center; max-width:140px;">
+                    ${p.hand.map(() => `<div class="card-mini"></div>`).join('')}
+                </div>
+                <div style="font-size:0.7rem; color:var(--text-muted); margin-top:4px;">${p.hand.length} карт</div>`;
+            oppEl.appendChild(div);
+        });
+
+        // Стол
+        const tableEl = document.getElementById('durak-table');
+        tableEl.innerHTML = '';
+        if (s.tableCards.length === 0) {
+            tableEl.innerHTML = '<div style="color:var(--text-muted); font-size:0.85rem; margin:auto;">Стол пуст</div>';
+        } else {
+            s.tableCards.forEach(pair => {
+                const pairEl = document.createElement('div');
+                pairEl.className = 'durak-pair';
+                pairEl.innerHTML = cardHTML(pair.attack);
+                if (pair.defense) pairEl.innerHTML += cardHTML(pair.defense);
+                tableEl.appendChild(pairEl);
+            });
+        }
+
+        // Рука текущего игрока
+        document.getElementById('durak-hand-label').textContent = `${current.name} — ваши карты`;
+        const handEl = document.getElementById('durak-hand');
+        handEl.innerHTML = '';
+
+        current.hand.forEach((card, idx) => {
+            const el = document.createElement('div');
+            el.innerHTML = cardHTML(card);
+            const cardEl = el.firstChild;
+
+            let clickable = false;
+            if (phase === 'attack' && isAttacker && canAttack(card, s.tableCards)) clickable = true;
+            if (phase === 'attack' && !isAttacker && !isDefender && canAttack(card, s.tableCards)) clickable = true;
+            if (phase === 'defense' && isDefender) clickable = true;
+
+            if (!clickable) cardEl.style.opacity = '0.6';
+            else {
+                cardEl.addEventListener('click', () => handleDurakCardClick(card, idx));
+            }
+            handEl.appendChild(cardEl);
+        });
+
+        // Кнопки
+        const beatBtn = document.getElementById('durak-beat-btn');
+        const takeBtn = document.getElementById('durak-take-btn');
+        const passBtn = document.getElementById('durak-pass-btn');
+
+        beatBtn.style.display = 'none';
+        takeBtn.style.display = 'none';
+        passBtn.style.display = 'none';
+
+        const allBeaten = s.tableCards.length > 0 && s.tableCards.every(p => p.defense);
+
+        if (phase === 'defense' && isDefender) {
+            takeBtn.style.display = '';
+            if (allBeaten) beatBtn.style.display = '';
+        }
+        if (phase === 'attack' && !isDefender && s.tableCards.length > 0 && allBeaten) {
+            passBtn.style.display = '';
+        }
+    }
+
+    let durakSelectedCard = null;
+    let durakSelectedIdx = null;
+
+    function handleDurakCardClick(card, idx) {
+        const s = durakState;
+        const current = s.players[s.currentPlayerIdx];
+        const isDefender = s.currentPlayerIdx === s.defenderIdx;
+
+        if (s.phase === 'defense' && isDefender) {
+            // Выбрать карту для защиты
+            if (durakSelectedCard && durakSelectedCard === card) {
+                durakSelectedCard = null; durakSelectedIdx = null;
+                renderDurakGame(); return;
+            }
+            // Найти не отбитую атакующую карту
+            const unbeaten = s.tableCards.filter(p => !p.defense);
+            if (unbeaten.length === 0) return;
+            // Если уже выбрана атакующая карта
+            if (durakSelectedCard && durakSelectedCard._isAttack) {
+                if (canBeat(durakSelectedCard, card, s.trump)) {
+                    durakSelectedCard._pair.defense = card;
+                    current.hand.splice(idx, 1);
+                    durakSelectedCard = null;
+                    renderDurakGame();
+                    checkDurakAfterDefense();
+                } return;
+            }
+            durakSelectedCard = card; durakSelectedIdx = idx;
+            renderDurakGame();
+            // Подсветить выбранную
+            const cards = document.querySelectorAll('#durak-hand .card');
+            if (cards[idx]) cards[idx].classList.add('selected');
+        } else if (s.phase === 'attack') {
+            if (!canAttack(card, s.tableCards)) return;
+            current.hand.splice(idx, 1);
+            s.tableCards.push({ attack: card, defense: null });
+            durakSelectedCard = null;
+            // Переключить в защиту
+            s.phase = 'defense';
+            if (s.mode === 'local') {
+                showDurakHandover(
+                    `Передайте ${s.players[s.defenderIdx].name}`,
+                    `${s.players[s.defenderIdx].name} должен отбить карту`,
+                    () => { s.currentPlayerIdx = s.defenderIdx; renderDurakGame(); }
+                );
+            }
+        }
+    }
+
+    function checkDurakAfterDefense() {
+        const s = durakState;
+        const allBeaten = s.tableCards.every(p => p.defense);
+        if (allBeaten) {
+            s.phase = 'attack';
+            // Вернуть ход атакующему или следующему
+        }
+    }
+
+    // Кнопка "Отбито"
+    document.getElementById('durak-beat-btn').addEventListener('click', () => {
+        const s = durakState;
+        // Убрать карты со стола, перейти к следующему ходу
+        s.tableCards = [];
+        s.passCount = 0;
+        advanceDurakTurn(true);
+    });
+
+    // Кнопка "Взять"
+    document.getElementById('durak-take-btn').addEventListener('click', () => {
+        const s = durakState;
+        const defender = s.players[s.defenderIdx];
+        s.tableCards.forEach(p => {
+            defender.hand.push(p.attack);
+            if (p.defense) defender.hand.push(p.defense);
+        });
+        s.tableCards = [];
+        s.passCount = 0;
+        // Атакующий остаётся атакующим, защитник пропускает ход
+        dealCards();
+        const nextAttacker = (s.defenderIdx + 1) % s.players.length;
+        s.attackerIdx = nextAttacker;
+        s.defenderIdx = (nextAttacker + 1) % s.players.length;
+        s.phase = 'attack';
+        s.currentPlayerIdx = s.attackerIdx;
+        checkDurakEnd();
+    });
+
+    // Кнопка "Пас"
+    document.getElementById('durak-pass-btn').addEventListener('click', () => {
+        const s = durakState;
+        s.passCount++;
+        const others = s.players.filter((_, i) => i !== s.defenderIdx);
+        if (s.passCount >= others.length) {
+            // Все спасовали — карты убираются
+            s.tableCards = [];
+            s.passCount = 0;
+            dealCards();
+            s.attackerIdx = s.defenderIdx;
+            s.defenderIdx = (s.attackerIdx + 1) % s.players.length;
+            s.phase = 'attack';
+            s.currentPlayerIdx = s.attackerIdx;
+            checkDurakEnd();
+        }
+    });
+
+    function dealCards() {
+        const s = durakState;
+        // Раздаём карты пока не 6 в руке, начиная с атакующего
+        const order = [];
+        let idx = s.attackerIdx;
+        for (let i = 0; i < s.players.length; i++) {
+            order.push(idx % s.players.length);
+            idx++;
+        }
+        order.forEach(pi => {
+            const player = s.players[pi];
+            while (player.hand.length < 6 && s.deck.length > 0) {
+                player.hand.push(s.deck.pop());
+            }
+        });
+    }
+
+    function checkDurakEnd() {
+        const s = durakState;
+        const activePlayers = s.players.filter(p => p.hand.length > 0 || s.deck.length > 0);
+        const withCards = s.players.filter(p => p.hand.length > 0);
+
+        if (withCards.length <= 1 && s.deck.length === 0) {
+            const loser = withCards.length === 1 ? withCards[0] : null;
+            showDurakResult(loser);
+            return;
+        }
+        // Удалить игроков без карт (если колода пуста)
+        if (s.deck.length === 0) {
+            s.players = s.players.filter(p => p.hand.length > 0);
+            if (s.attackerIdx >= s.players.length) s.attackerIdx = 0;
+            if (s.defenderIdx >= s.players.length) s.defenderIdx = Math.min(1, s.players.length - 1);
+        }
+
+        if (s.mode === 'local') {
+            s.currentPlayerIdx = s.attackerIdx;
+            showDurakHandover(
+                `Ход: ${s.players[s.attackerIdx].name}`,
+                `Передайте устройство ${s.players[s.attackerIdx].name}`,
+                () => renderDurakGame()
+            );
+        }
+    }
+
+    function showDurakHandover(title, desc, cb) {
+        document.getElementById('durak-handover-title').textContent = title;
+        document.getElementById('durak-handover-desc').textContent = desc;
+        showCardsScreen('durak-handover');
+        document.getElementById('durak-handover-btn').onclick = () => { showCardsScreen('durak-game'); cb(); };
+    }
+
+    function advanceDurakTurn(defenderWon) {
+        const s = durakState;
+        dealCards();
+        if (defenderWon) {
+            s.attackerIdx = s.defenderIdx;
+            s.defenderIdx = (s.attackerIdx + 1) % s.players.length;
+        }
+        s.phase = 'attack';
+        s.currentPlayerIdx = s.attackerIdx;
+        checkDurakEnd();
+    }
+
+    function showDurakResult(loser) {
+        const emoji = loser ? '😔' : '🤝';
+        const title = loser ? `${loser.name} — Дурак!` : 'Ничья!';
+        const desc = loser ? `${loser.name} остался с картами` : 'Все вышли одновременно';
+        document.getElementById('durak-result-emoji').textContent = emoji;
+        document.getElementById('durak-result-title').textContent = title;
+        document.getElementById('durak-result-desc').textContent = desc;
+        showCardsScreen('durak-result');
+    }
+
+    document.getElementById('durak-again-btn').addEventListener('click', () => showCardsScreen('durak-menu'));
+    document.getElementById('durak-quit-btn').addEventListener('click', () => {
+        if (durakOnlineRef) { durakOnlineRef.off(); durakOnlineRef = null; }
+        showCardsScreen('durak-menu');
+    });
+
+    // ── Онлайн Дурак ──
+    function genDurakCode() {
+        const c = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+        let code = '';
+        for (let i = 0; i < 4; i++) code += c[Math.floor(Math.random() * c.length)];
+        return code;
+    }
+
+    let durakRoomCode = null;
+
+    document.getElementById('durak-create-btn').addEventListener('click', async () => {
+        durakRoomCode = genDurakCode();
+        const myName = window._currentUserData?.username || 'Игрок 1';
+        durakMyId = 0;
+        durakOnlineRef = db.ref('durak_rooms/' + durakRoomCode);
+        await durakOnlineRef.set({
+            status: 'lobby', deckSize: 36,
+            players: [{ name: myName, id: 0 }],
+            created: Date.now()
+        });
+        durakOnlineRef.onDisconnect().update({ status: 'abandoned' });
+        document.getElementById('durak-lobby-code').textContent = durakRoomCode;
+        showCardsScreen('durak-lobby');
+        listenDurakLobby();
+    });
+
+    function listenDurakLobby() {
+        durakOnlineRef.on('value', snap => {
+            const data = snap.val();
+            if (!data) return;
+            const players = data.players || [];
+            const lobbyEl = document.getElementById('durak-lobby-players');
+            lobbyEl.innerHTML = players.map((p, i) =>
+                `<div style="padding:6px 10px; background:var(--surface); border-radius:6px; font-size:0.85rem; display:flex; justify-content:space-between;">
+                    <span>${p.name}</span>
+                    <span style="color:var(--text-muted); font-size:0.72rem;">${i === 0 ? '👑 Хост' : ''}</span>
+                </div>`
+            ).join('');
+            const startBtn = document.getElementById('durak-lobby-start');
+            startBtn.disabled = players.length < 2;
+            startBtn.textContent = players.length < 2 ? `Ждём игроков (${players.length}/2+)` : '▶ Начать игру';
+
+            if (data.status === 'playing' && durakMyId !== 0) {
+                durakOnlineRef.off();
+                loadOnlineDurakState(data);
+            }
+        });
+    }
+
+    document.getElementById('durak-lobby-start').addEventListener('click', async () => {
+        const snap = await durakOnlineRef.once('value');
+        const data = snap.val();
+        const players = data.players || [];
+        const deck = shuffle(makeDeck(durakDeckSize));
+        const trumpCard = deck[deck.length - 1];
+        const trump = trumpCard.suit;
+        const hands = players.map(() => deck.splice(0, 6));
+        await durakOnlineRef.update({
+            status: 'playing', deck, trump,
+            trumpRank: trumpCard.rank, trumpSuit: trumpCard.suit,
+            hands, tableCards: [], attackerIdx: 0, defenderIdx: 1, phase: 'attack'
+        });
+    });
+
+    function loadOnlineDurakState(data) {
+        // Упрощённо — для онлайн показываем только свою руку
+        durakState = {
+            mode: 'online',
+            deck: data.deck || [],
+            trump: data.trump,
+            trumpCard: { rank: data.trumpRank, suit: data.trumpSuit },
+            players: (data.players || []).map((p, i) => ({ ...p, hand: data.hands?.[i] || [] })),
+            attackerIdx: data.attackerIdx || 0,
+            defenderIdx: data.defenderIdx || 1,
+            currentPlayerIdx: durakMyId,
+            tableCards: data.tableCards || [],
+            phase: data.phase || 'attack', passCount: 0
+        };
+        renderDurakGame();
+    }
+
+    window.durakCopyCode = function() {
+        navigator.clipboard.writeText(durakRoomCode).then(() => alert('Код скопирован: ' + durakRoomCode));
+    };
+
+    document.getElementById('durak-join-btn').addEventListener('click', () => {
+        showCardsScreen('durak-join-screen');
+        document.getElementById('durak-code-input').value = '';
+        document.getElementById('durak-join-name').value = window._currentUserData?.username || '';
+    });
+    document.getElementById('durak-join-back-btn').addEventListener('click', () => showCardsScreen('durak-menu'));
+    document.getElementById('durak-lobby-leave').addEventListener('click', () => {
+        if (durakOnlineRef) { durakOnlineRef.off(); durakOnlineRef = null; }
+        showCardsScreen('durak-menu');
+    });
+
+    document.getElementById('durak-join-confirm').addEventListener('click', async () => {
+        const code = document.getElementById('durak-code-input').value.trim().toUpperCase();
+        const name = document.getElementById('durak-join-name').value.trim() || 'Гость';
+        const errEl = document.getElementById('durak-join-error');
+        if (code.length !== 4) { errEl.textContent = 'Введите 4-буквенный код'; return; }
+        const snap = await db.ref('durak_rooms/' + code).once('value');
+        if (!snap.exists()) { errEl.textContent = 'Комната не найдена'; return; }
+        const data = snap.val();
+        if (data.status !== 'lobby') { errEl.textContent = 'Игра уже началась'; return; }
+        durakOnlineRef = db.ref('durak_rooms/' + code);
+        durakRoomCode = code;
+        const players = data.players || [];
+        durakMyId = players.length;
+        players.push({ name, id: durakMyId });
+        await durakOnlineRef.child('players').set(players);
+        document.getElementById('durak-lobby-code').textContent = code;
+        showCardsScreen('durak-lobby');
+        listenDurakLobby();
+    });
+
+    // Лобби колода
+    ['lobby-deck-36','lobby-deck-52'].forEach(id => {
+        document.getElementById(id)?.addEventListener('click', () => {
+            document.getElementById('lobby-deck-36').classList.toggle('active', id === 'lobby-deck-36');
+            document.getElementById('lobby-deck-52').classList.toggle('active', id === 'lobby-deck-52');
+            durakDeckSize = id === 'lobby-deck-36' ? 36 : 52;
+            if (durakOnlineRef) durakOnlineRef.child('deckSize').set(durakDeckSize);
+        });
+    });
+
+    // ═══════════════════════════════════════════
+    // КОСЫНКА (SOLITAIRE)
+    // ═══════════════════════════════════════════
+    let solState = {};
+    let solTimer = null;
+    let solSeconds = 0;
+    let solScore = 0;
+    let solMoves = 0;
+    let solHistory = [];
+
+    function initSolitaire() {
+        clearInterval(solTimer);
+        solSeconds = 0; solScore = 0; solMoves = 0; solHistory = [];
+        document.getElementById('sol-score').textContent = '0';
+        document.getElementById('sol-timer').textContent = '00:00';
+        document.getElementById('sol-moves').textContent = '0';
+
+        const deck = shuffle(makeDeck(52));
+        // 7 колонок
+        const cols = [];
+        for (let i = 0; i < 7; i++) {
+            const col = [];
+            for (let j = 0; j <= i; j++) {
+                col.push({ card: deck.pop(), faceUp: j === i });
+            }
+            cols.push(col);
+        }
+        solState = {
+            cols, stock: deck, waste: [], foundations: [[], [], [], []],
+            selected: null
+        };
+
+        solTimer = setInterval(() => {
+            solSeconds++;
+            const m = Math.floor(solSeconds/60), s = solSeconds%60;
+            document.getElementById('sol-timer').textContent =
+                `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+        }, 1000);
+
+        renderSolitaire();
+    }
+
+    function renderSolitaire() {
+        const board = document.getElementById('sol-board');
+        board.innerHTML = '';
+
+        const row1 = document.createElement('div');
+        row1.style.cssText = 'display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap;';
+
+        // Колода (stock)
+        const stockEl = document.createElement('div');
+        if (solState.stock.length > 0) {
+            stockEl.innerHTML = `<div class="card face-down" id="sol-stock" style="cursor:pointer;"><div class="card-back-pattern"></div></div>`;
+        } else {
+            stockEl.innerHTML = `<div class="sol-cell" id="sol-stock" style="cursor:pointer; font-size:0.8rem; color:rgba(255,255,255,0.2);">↺</div>`;
+        }
+        stockEl.querySelector('#sol-stock').addEventListener('click', () => {
+            if (solState.stock.length > 0) {
+                solHistory.push(JSON.parse(JSON.stringify(solState)));
+                solState.waste.push({ ...solState.stock.pop(), faceUp: true });
+            } else {
+                solHistory.push(JSON.parse(JSON.stringify(solState)));
+                solState.stock = solState.waste.reverse().map(c => ({ ...c, faceUp: false }));
+                solState.waste = [];
+            }
+            renderSolitaire();
+        });
+        row1.appendChild(stockEl);
+
+        // Waste (открытая карта из колоды)
+        const wasteEl = document.createElement('div');
+        if (solState.waste.length > 0) {
+            const top = solState.waste[solState.waste.length - 1];
+            wasteEl.innerHTML = cardHTML(top, solState.selected?.from === 'waste' ? 'selected' : '');
+            wasteEl.firstChild.addEventListener('click', () => {
+                solState.selected = { card: top, from: 'waste', idx: solState.waste.length - 1 };
+                renderSolitaire();
+            });
+        } else {
+            wasteEl.innerHTML = `<div class="sol-cell"></div>`;
+        }
+        row1.appendChild(wasteEl);
+
+        row1.appendChild(Object.assign(document.createElement('div'), { style: 'flex:1;' }));
+
+        // Фундаменты (4 масти)
+        SUITS4.forEach((suit, fi) => {
+            const fEl = document.createElement('div');
+            const found = solState.foundations[fi];
+            if (found.length > 0) {
+                const top = found[found.length - 1];
+                fEl.innerHTML = cardHTML(top);
+            } else {
+                fEl.innerHTML = `<div class="sol-cell">${suit}</div>`;
+            }
+            fEl.firstChild.addEventListener('click', () => {
+                if (solState.selected) tryMoveToFoundation(fi);
+            });
+            row1.appendChild(fEl);
+        });
+
+        board.appendChild(row1);
+
+        // 7 колонок
+        const colsRow = document.createElement('div');
+        colsRow.style.cssText = 'display:flex; gap:8px; align-items:flex-start;';
+
+        solState.cols.forEach((col, ci) => {
+            const colEl = document.createElement('div');
+            colEl.className = 'sol-col';
+            colEl.style.position = 'relative';
+
+            if (col.length === 0) {
+                const empty = document.createElement('div');
+                empty.className = 'sol-cell';
+                empty.addEventListener('click', () => {
+                    if (solState.selected) tryMoveToCol(ci, -1);
+                });
+                colEl.appendChild(empty);
+            } else {
+                col.forEach((item, ri) => {
+                    const cardEl = document.createElement('div');
+                    if (!item.faceUp) {
+                        cardEl.innerHTML = `<div class="card face-down" style="margin-top:${ri===0?0:-76}px;"><div class="card-back-pattern"></div></div>`;
+                    } else {
+                        const isSel = solState.selected?.from === 'col' &&
+                            solState.selected?.col === ci && solState.selected?.row === ri;
+                        cardEl.innerHTML = cardHTML(item.card, isSel ? 'selected' : '');
+                        cardEl.firstChild.style.marginTop = ri === 0 ? '0' : '-68px';
+                        cardEl.firstChild.addEventListener('click', () => {
+                            if (solState.selected) {
+                                if (!tryMoveToCol(ci, ri)) {
+                                    solState.selected = { card: item.card, from: 'col', col: ci, row: ri };
+                                    renderSolitaire();
+                                }
+                            } else {
+                                solState.selected = { card: item.card, from: 'col', col: ci, row: ri };
+                                renderSolitaire();
+                            }
+                        });
+                    }
+                    colEl.appendChild(cardEl);
+                });
+            }
+            colsRow.appendChild(colEl);
+        });
+
+        board.appendChild(colsRow);
+    }
+
+    function tryMoveToFoundation(fi) {
+        const sel = solState.selected;
+        if (!sel) return;
+        const found = solState.foundations[fi];
+        const card = sel.card;
+
+        let canPlace = false;
+        if (found.length === 0 && card.rank === 'A') canPlace = true;
+        else if (found.length > 0) {
+            const top = found[found.length - 1];
+            if (top.suit === card.suit && RANK_VAL52[card.rank] === RANK_VAL52[top.rank] + 1) canPlace = true;
+        }
+
+        if (!canPlace) { solState.selected = null; renderSolitaire(); return; }
+
+        solHistory.push(JSON.parse(JSON.stringify(solState)));
+        found.push(card);
+        removeSelected();
+        solScore += 10; solMoves++;
+        document.getElementById('sol-score').textContent = solScore;
+        document.getElementById('sol-moves').textContent = solMoves;
+        solState.selected = null;
+        renderSolitaire();
+        checkSolitaireWin();
+    }
+
+    function tryMoveToCol(ci, ri) {
+        const sel = solState.selected;
+        if (!sel) return false;
+        const col = solState.cols[ci];
+        const card = sel.card;
+
+        let canPlace = false;
+        if (col.length === 0 && card.rank === 'K') canPlace = true;
+        else if (col.length > 0) {
+            const target = col[col.length - 1];
+            if (target.faceUp &&
+                SUITS_COLOR[card.suit] !== SUITS_COLOR[target.card.suit] &&
+                RANK_VAL52[card.rank] === RANK_VAL52[target.card.rank] - 1) canPlace = true;
+        }
+
+        if (!canPlace) { solState.selected = null; renderSolitaire(); return false; }
+
+        solHistory.push(JSON.parse(JSON.stringify(solState)));
+
+        // Переместить карту(ы)
+        if (sel.from === 'col') {
+            const srcCol = solState.cols[sel.col];
+            const moving = srcCol.splice(sel.row);
+            moving.forEach(item => col.push(item));
+            if (srcCol.length > 0 && !srcCol[srcCol.length-1].faceUp) {
+                srcCol[srcCol.length-1].faceUp = true;
+                solScore += 5;
+            }
+        } else if (sel.from === 'waste') {
+            col.push({ card: sel.card, faceUp: true });
+            solState.waste.splice(sel.idx, 1);
+        }
+
+        solMoves++;
+        document.getElementById('sol-moves').textContent = solMoves;
+        document.getElementById('sol-score').textContent = solScore;
+        solState.selected = null;
+        renderSolitaire();
+        return true;
+    }
+
+    function removeSelected() {
+        const sel = solState.selected;
+        if (sel.from === 'waste') solState.waste.splice(sel.idx, 1);
+        else if (sel.from === 'col') {
+            solState.cols[sel.col].splice(sel.row);
+            const col = solState.cols[sel.col];
+            if (col.length > 0 && !col[col.length-1].faceUp) col[col.length-1].faceUp = true;
+        }
+    }
+
+    function checkSolitaireWin() {
+        const done = solState.foundations.every(f => f.length === 13);
+        if (done) {
+            clearInterval(solTimer);
+            const bonus = Math.max(0, 700 - solSeconds) * 2;
+            solScore += bonus;
+            setTimeout(() => alert(`🎉 Победа! Очки: ${solScore}\nВремя: ${document.getElementById('sol-timer').textContent}`), 300);
+        }
+    }
+
+    document.getElementById('sol-undo-btn').addEventListener('click', () => {
+        if (solHistory.length > 0) {
+            Object.assign(solState, solHistory.pop());
+            renderSolitaire();
+        }
+    });
+    document.getElementById('sol-new-btn').addEventListener('click', () => initSolitaire());
+    document.getElementById('sol-back-btn').addEventListener('click', () => {
+        clearInterval(solTimer);
+        showCardsScreen('cards-menu');
+    });
+
+    // ═══════════════════════════════════════════
+    // ПАУК (SPIDER)
+    // ═══════════════════════════════════════════
+    let spState = {};
+    let spScore = 500;
+    let spMoves = 0;
+    let spHistory = [];
+    let spSuits = 1;
+
+    function showSpiderDiffMenu() {
+        const board = document.getElementById('sp-board');
+        board.innerHTML = `
+            <div style="text-align:center; padding:20px 0;">
+                <div style="font-family:'Cormorant Garamond',serif; font-size:1.2rem; color:var(--text-muted); margin-bottom:20px;">Выберите сложность</div>
+                <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+                    <div class="home-card" onclick="initSpider(1)" style="padding:20px; min-width:120px; cursor:pointer;">
+                        <span class="icon">⭐</span><div class="title">1 масть</div><div class="desc">Новичок</div>
+                    </div>
+                    <div class="home-card" onclick="initSpider(2)" style="padding:20px; min-width:120px; cursor:pointer;">
+                        <span class="icon">⭐⭐</span><div class="title">2 масти</div><div class="desc">Средний</div>
+                    </div>
+                    <div class="home-card" onclick="initSpider(4)" style="padding:20px; min-width:120px; cursor:pointer;">
+                        <span class="icon">⭐⭐⭐</span><div class="title">4 масти</div><div class="desc">Эксперт</div>
+                    </div>
+                </div>
+            </div>`;
+    }
+
+    window.initSpider = function(suits) {
+        spSuits = suits;
+        spScore = 500; spMoves = 0; spHistory = [];
+        document.getElementById('sp-score').textContent = spScore;
+        document.getElementById('sp-moves').textContent = spMoves;
+
+        // 2 колоды по 52 карты
+        let deck = [];
+        if (suits === 1) {
+            for (let i = 0; i < 8; i++) for (const r of RANKS52) deck.push({ suit: '♠', rank: r });
+        } else if (suits === 2) {
+            for (let i = 0; i < 4; i++) for (const r of RANKS52) deck.push({ suit: '♠', rank: r });
+            for (let i = 0; i < 4; i++) for (const r of RANKS52) deck.push({ suit: '♥', rank: r });
+        } else {
+            for (const s of SUITS4) for (let i = 0; i < 2; i++) for (const r of RANKS52) deck.push({ suit: s, rank: r });
+        }
+        deck = shuffle(deck);
+
+        const cols = [];
+        const counts = [6,6,6,6,5,5,5,5,5,5];
+        for (let i = 0; i < 10; i++) {
+            const col = [];
+            for (let j = 0; j < counts[i]; j++) {
+                col.push({ card: deck.pop(), faceUp: j === counts[i] - 1 });
+            }
+            cols.push(col);
+        }
+
+        spState = { cols, stock: deck, completed: 0, selected: null };
+        renderSpider();
+    };
+
+    function renderSpider() {
+        const board = document.getElementById('sp-board');
+        board.innerHTML = '';
+
+        const top = document.createElement('div');
+        top.style.cssText = 'display:flex; gap:6px; margin-bottom:12px; align-items:center;';
+
+        // Стопки добора
+        const stockPiles = Math.floor(spState.stock.length / 10);
+        for (let i = 0; i < stockPiles; i++) {
+            const el = document.createElement('div');
+            el.innerHTML = `<div class="card face-down" style="cursor:pointer;"><div class="card-back-pattern"></div></div>`;
+            if (i === stockPiles - 1) {
+                el.firstChild.addEventListener('click', dealSpider);
+            }
+            top.appendChild(el);
+        }
+
+        // Завершённые масти
+        for (let i = 0; i < spState.completed; i++) {
+            const el = document.createElement('div');
+            el.innerHTML = `<div class="sol-cell sp-complete">♠ K→A</div>`;
+            top.appendChild(el);
+        }
+
+        board.appendChild(top);
+
+        // 10 колонок
+        const colsRow = document.createElement('div');
+        colsRow.style.cssText = 'display:flex; gap:4px; align-items:flex-start; overflow-x:auto;';
+
+        spState.cols.forEach((col, ci) => {
+            const colEl = document.createElement('div');
+            colEl.className = 'sp-col';
+
+            if (col.length === 0) {
+                const empty = document.createElement('div');
+                empty.className = 'sol-cell';
+                empty.style.minWidth = '58px';
+                empty.addEventListener('click', () => {
+                    if (spState.selected) trySpiderMove(ci, 0);
+                });
+                colEl.appendChild(empty);
+            } else {
+                col.forEach((item, ri) => {
+                    const wrap = document.createElement('div');
+                    if (!item.faceUp) {
+                        wrap.innerHTML = `<div class="card face-down" style="margin-top:${ri===0?0:-78}px;"><div class="card-back-pattern"></div></div>`;
+                    } else {
+                        const isSel = spState.selected?.col === ci && spState.selected?.row <= ri &&
+                            ri >= (spState.selected?.row || Infinity);
+                        wrap.innerHTML = cardHTML(item.card, isSel ? 'selected' : '');
+                        wrap.firstChild.style.marginTop = ri === 0 ? '0' : '-72px';
+                        wrap.firstChild.addEventListener('click', () => {
+                            if (spState.selected) {
+                                if (!trySpiderMove(ci, ri)) {
+                                    if (isValidSpiderSeq(col, ri)) {
+                                        spState.selected = { col: ci, row: ri };
+                                        renderSpider();
+                                    } else { spState.selected = null; renderSpider(); }
+                                }
+                            } else {
+                                if (isValidSpiderSeq(col, ri)) {
+                                    spState.selected = { col: ci, row: ri };
+                                    renderSpider();
+                                }
+                            }
+                        });
+                    }
+                    colEl.appendChild(wrap);
+                });
+            }
+            colsRow.appendChild(colEl);
+        });
+
+        board.appendChild(colsRow);
+    }
+
+    function isValidSpiderSeq(col, fromRow) {
+        for (let i = fromRow; i < col.length - 1; i++) {
+            if (!col[i].faceUp || !col[i+1].faceUp) return false;
+            if (col[i].card.suit !== col[i+1].card.suit) return false;
+            if (RANK_VAL52[col[i].card.rank] !== RANK_VAL52[col[i+1].card.rank] + 1) return false;
+        }
+        return true;
+    }
+
+    function trySpiderMove(tCol, tRow) {
+        const sel = spState.selected;
+        if (!sel) return false;
+        const srcCol = spState.cols[sel.col];
+        const dstCol = spState.cols[tCol];
+        const movingCard = srcCol[sel.row].card;
+
+        let canPlace = false;
+        if (dstCol.length === 0) canPlace = true;
+        else {
+            const top = dstCol[dstCol.length - 1];
+            if (top.faceUp && RANK_VAL52[movingCard.rank] === RANK_VAL52[top.card.rank] - 1) canPlace = true;
+        }
+
+        if (!canPlace) { spState.selected = null; renderSpider(); return false; }
+
+        spHistory.push(JSON.parse(JSON.stringify(spState)));
+        const moving = srcCol.splice(sel.row);
+        moving.forEach(item => dstCol.push(item));
+        if (srcCol.length > 0 && !srcCol[srcCol.length-1].faceUp) srcCol[srcCol.length-1].faceUp = true;
+
+        spMoves++;
+        spScore = Math.max(0, spScore - 1);
+        document.getElementById('sp-moves').textContent = spMoves;
+        document.getElementById('sp-score').textContent = spScore;
+        spState.selected = null;
+
+        checkSpiderComplete(tCol);
+        renderSpider();
+        return true;
+    }
+
+    function checkSpiderComplete(ci) {
+        const col = spState.cols[ci];
+        if (col.length < 13) return;
+        const start = col.length - 13;
+        let isComplete = col[start].card.rank === 'K';
+        for (let i = start; i < col.length - 1; i++) {
+            if (!col[i].faceUp || !col[i+1].faceUp) { isComplete = false; break; }
+            if (col[i].card.suit !== col[i+1].card.suit) { isComplete = false; break; }
+            if (RANK_VAL52[col[i].card.rank] !== RANK_VAL52[col[i+1].card.rank] + 1) { isComplete = false; break; }
+        }
+        if (isComplete) {
+            spState.cols[ci].splice(start, 13);
+            spState.completed++;
+            spScore += 100;
+            document.getElementById('sp-score').textContent = spScore;
+            if (spState.completed >= 8) {
+                setTimeout(() => alert(`🎉 Победа! Паук разложен!\nОчки: ${spScore}\nХодов: ${spMoves}`), 300);
+            }
+        }
+    }
+
+    function dealSpider() {
+        if (spState.stock.length < 10) { alert('Карт в колоде недостаточно'); return; }
+        spHistory.push(JSON.parse(JSON.stringify(spState)));
+        for (let i = 0; i < 10; i++) {
+            spState.cols[i].push({ card: spState.stock.pop(), faceUp: true });
+        }
+        spMoves++;
+        spScore = Math.max(0, spScore - 1);
+        document.getElementById('sp-moves').textContent = spMoves;
+        document.getElementById('sp-score').textContent = spScore;
+        renderSpider();
+    }
+
+    document.getElementById('sp-deal-btn').addEventListener('click', dealSpider);
+    document.getElementById('sp-undo-btn').addEventListener('click', () => {
+        if (spHistory.length > 0) { Object.assign(spState, spHistory.pop()); renderSpider(); }
+    });
+    document.getElementById('sp-new-btn').addEventListener('click', showSpiderDiffMenu);
+    document.getElementById('sp-back-btn').addEventListener('click', () => showCardsScreen('cards-menu'));
+
+    // Запуск
+    showCardsScreen('cards-menu');
 }
         })();
     </script>
