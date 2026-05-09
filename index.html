@@ -2986,7 +2986,6 @@ if (!firebase.apps.length) {
         databaseURL: "https://tapepower-3fa61-default-rtdb.firebaseio.com"
     });
 }
-const db = firebase.database();
 
     const myRef = db.ref('online/' + clientId);
     myRef.set(true);
@@ -3295,10 +3294,14 @@ if (tabName === 'dailygame') {
                 init2048();
                 window._game2048Init = true;
             }
-            if (btn.dataset.subtab === 'converter' && !window._convInit) {
-                initConverter();
-                window._convInit = true;
-            }
+if (btn.dataset.subtab === 'converter' && !window._convInit) {
+    initConverter();
+    window._convInit = true;
+}
+if (btn.dataset.subtab === 'battleship' && !window._battleshipInit) {
+    initBattleship();
+    window._battleshipInit = true;
+}
         });
     });
 }
