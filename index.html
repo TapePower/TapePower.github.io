@@ -8337,7 +8337,10 @@ function initCards() {
     document.getElementById('sp-back-btn').addEventListener('click', () => showCardsScreen('cards-menu'));
 
     // Запуск
+// Даём браузеру применить стили активного подтаба перед показом меню
+setTimeout(() => {
     showCardsScreen('cards-menu');
+}, 50);  // достаточно 50 мс
 }
         })();
     </script>
