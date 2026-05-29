@@ -3259,25 +3259,17 @@ if (!clientId) {
 }
 
 function initOnlineCounter() {
-    const firebaseConfig = {
-        apiKey: "AIzaSyDcVfTtrCgF0uaeNeQJeIYITn32tFy9gK0",
-        databaseURL: "https://tapepower-3fa61-default-rtdb.firebaseio.com"
-    };
-    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-// Инициализируем Firebase, если он ещё не запущен
-if (!firebase.apps.length) {
-    firebase.initializeApp({
-        apiKey: "AIzaSyDcVfTtrCgF0uaeNeQJeIYITn32tFy9gK0",
-        databaseURL: "https://tapepower-3fa61-default-rtdb.firebaseio.com"
-    });
-}
-
-    const myRef = db.ref('online/' + clientId);
+    if (!firebase.apps.length) {
+        firebase.initializeApp({
+            apiKey: "AIzaSyDcVfTtrCgF0uaeNeQJeIYITn32tFy9gK0",
+            databaseURL: "https://tapepower-3fa61-default-rtdb.firebaseio.com"
+        });
+    }
+    const localDb = firebase.database();
+    const myRef = localDb.ref('online/' + clientId);
     myRef.set(true);
-    myRef.onDisconnect().remove(); // Firebase сам удалит при закрытии вкладки
-
-    // Считаем количество онлайн
-    db.ref('online').on('value', (snap) => {
+    myRef.onDisconnect().remove();
+    localDb.ref('online').on('value', (snap) => {
         const count = snap.numChildren();
         document.getElementById('onlineCount').textContent = count;
     });
@@ -7009,11 +7001,11 @@ function initBattleship() {
                     () => startLocalTurn(nextPlayer)
                 );
             } else {
-                bsHits = 0; bsMisses = 0;
-                renderGameBoards(myKey, enemyKey);
-                document.getElementById('bs-game-status').textContent =
-                    `Игрок ${myKey === 'player1' ? 1 : 2} — Попал! Ходите снова`;
-            }
+                        renderMyBoard(myKey);
+                        renderEnemyBoard(enemyKey, true);
+                        document.getElementById('bs-game-status').textContent =
+                            `Игрок ${myKey === 'player1' ? 1 : 2} — Попал! Ходите снова`;
+                    }
         } else {
             bsRoomRef.child('shots').child(bsMyRole).set(bsShots[myKey]);
             if (!isHit) {
@@ -7512,12 +7504,42 @@ const db = firebase.database();
         tableEl.innerHTML = '';
         if (s.tableCards.length === 0) {
             tableEl.innerHTML = '<div style="color:var(--text-muted); font-size:0.85rem; margin:auto;">Стол пуст</div>';
-        } else {
+} else {
             s.tableCards.forEach(pair => {
                 const pairEl = document.createElement('div');
                 pairEl.className = 'durak-pair';
-                pairEl.innerHTML = cardHTML(pair.attack);
-                if (pair.defense) pairEl.innerHTML += cardHTML(pair.defense);
+
+                // Атакующая карта — с обработчиком для защиты
+                const attackWrap = document.createElement('div');
+                attackWrap.innerHTML = cardHTML(pair.attack);
+                const attackEl = attackWrap.firstChild;
+                if (phase === 'defense' && isDefender && !pair.defense && durakSelectedCard !== null && durakSelectedIdx !== null) {
+                    attackEl.style.cursor = 'pointer';
+                    attackEl.style.outline = '2px solid var(--gold)';
+                    attackEl.style.outlineOffset = '2px';
+                    attackEl.addEventListener('click', () => {
+                        if (canBeat(pair.attack, durakSelectedCard, s.trump)) {
+                            pair.defense = durakSelectedCard;
+                            current.hand.splice(durakSelectedIdx, 1);
+                            durakSelectedCard = null;
+                            durakSelectedIdx = null;
+                            checkDurakAfterDefense();
+                        } else {
+                            const prevStatus = document.getElementById('durak-status').textContent;
+                            document.getElementById('durak-status').textContent = '❌ Этой картой нельзя отбить!';
+                            setTimeout(() => {
+                                document.getElementById('durak-status').textContent = prevStatus;
+                            }, 1200);
+                        }
+                    });
+                }
+                pairEl.appendChild(attackEl);
+
+                if (pair.defense) {
+                    const defWrap = document.createElement('div');
+                    defWrap.innerHTML = cardHTML(pair.defense);
+                    pairEl.appendChild(defWrap.firstChild);
+                }
                 tableEl.appendChild(pairEl);
             });
         }
@@ -7572,31 +7594,17 @@ const db = firebase.database();
         const current = s.players[s.currentPlayerIdx];
         const isDefender = s.currentPlayerIdx === s.defenderIdx;
 
-        if (s.phase === 'defense' && isDefender) {
-            // Выбрать карту для защиты
-            if (durakSelectedCard && durakSelectedCard === card) {
+if (s.phase === 'defense' && isDefender) {
+            // Тоггл: повторный клик — снять выбор
+            if (durakSelectedCard === card) {
                 durakSelectedCard = null; durakSelectedIdx = null;
                 renderDurakGame(); return;
             }
-            // Найти не отбитую атакующую карту
-            const unbeaten = s.tableCards.filter(p => !p.defense);
-            if (unbeaten.length === 0) return;
-            // Если уже выбрана атакующая карта
-            if (durakSelectedCard && durakSelectedCard._isAttack) {
-                if (canBeat(durakSelectedCard, card, s.trump)) {
-                    durakSelectedCard._pair.defense = card;
-                    current.hand.splice(idx, 1);
-                    durakSelectedCard = null;
-                    renderDurakGame();
-                    checkDurakAfterDefense();
-                } return;
-            }
+            // Выбрать карту из руки; после перерисовки карты атаки на столе станут кликабельными
             durakSelectedCard = card; durakSelectedIdx = idx;
             renderDurakGame();
-            // Подсветить выбранную
-            const cards = document.querySelectorAll('#durak-hand .card');
-            if (cards[idx]) cards[idx].classList.add('selected');
-        } else if (s.phase === 'attack') {
+        }
+        else if (s.phase === 'attack') {
             if (!canAttack(card, s.tableCards)) return;
             current.hand.splice(idx, 1);
             s.tableCards.push({ attack: card, defense: null });
@@ -7613,13 +7621,9 @@ const db = firebase.database();
         }
     }
 
-    function checkDurakAfterDefense() {
-        const s = durakState;
-        const allBeaten = s.tableCards.every(p => p.defense);
-        if (allBeaten) {
-            s.phase = 'attack';
-            // Вернуть ход атакующему или следующему
-        }
+function checkDurakAfterDefense() {
+        // Просто перерисовать — кнопка «Отбито» появится сама, когда все карты закрыты
+        renderDurakGame();
     }
 
     // Кнопка "Отбито"
